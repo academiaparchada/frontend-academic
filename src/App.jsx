@@ -1,7 +1,7 @@
 // src/App.jsx
+import { Outlet } from 'react-router-dom';
 import { Header } from './components/header';
 import { Footer } from './components/footer';
-import { Login } from './pages/Login';
 import './styles/App.css';
 
 function App() {
@@ -10,7 +10,7 @@ function App() {
       <Header />
 
       <main className="pa-main">
-        <Login />
+        <Outlet />
       </main>
 
       <Footer />
