@@ -1,0 +1,60 @@
+/* src/styles/app.css */
+:root {
+  --beige: #f8f1d6;
+  --teal: #3d7a80;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--beige);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hero */
+.hero {
+  background-color: var(--beige);
+  min-height: 260px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+}
+
+.hero_card {
+  background-color: var(--teal);
+  color: var(--beige);
+  border-radius: 8px;
+  padding: 24px 32px;
+  max-width: 320px;
+  text-align: center;
+}
+
+.hero_title {
+  font-weight: 800;
+  letter-spacing: 1px;
+  line-height: 1.25;
+  margin-bottom: 16px;
+}
+
+.hero_subtitle {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* Middle section */
+.middle {
+  flex: 1;
+  background-color: var(--teal);
+}

@@ -1,21 +1,21 @@
-// src/components/Header.jsx
+// src/components/header.jsx
 import '../styles/header.css';
 
 export function Header() {
   return (
-    <header className="pa-header">
-      <div className="pa-header__logo">PARCHE<br />ACADEMICO</div>
+    <header className="header">
+      <div className="header_logo">PARCHE<br />ACADEMICO</div>
 
-      <nav className="pa-header__nav">
-        <button className="pa-header__link">CURSOS</button>
-        <button className="pa-header__link">CLASES</button>
+      <nav className="header_nav">
+        <button className="header_link">CURSOS</button>
+        <button className="header_link">CLASES</button>
       </nav>
 
-      <div className="pa-header__actions">
-        <button className="pa-header__btn pa-header__btn--outline">
+      <div className="header_actions">
+        <button className="header_btn header_btn--outline">
           INICIAR SESION
         </button>
-        <button className="pa-header__btn pa-header__btn--solid">
+        <button className="header_btn header_btn--solid">
           REGISTRARSE
         </button>
       </div>
