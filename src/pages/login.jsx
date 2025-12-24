@@ -50,9 +50,9 @@ export const Login = () => {
       <main className="main">
         <div className="login_container">
           <div className="login_card">
-            <h1 className="login_title">AQU\u00cd INICIA ALGO GRANDE.</h1>
+            <h1 className="login_title">AQUI INICIA ALGO GRANDE.</h1>
             <p className="login_subtitle">
-              Est\u00e1s dando el primer paso para transformar tu forma de aprender.
+              Estas dando el primer paso para transformar tu forma de aprender.
             </p>
 
             {error && (
@@ -64,7 +64,7 @@ export const Login = () => {
             <form onSubmit={handle_submit} className="login_form">
               <div className="form_group">
                 <label htmlFor="email" className="form_label">
-                  Correo Electr\u00f3nico:
+                  Correo Electronico:
                 </label>
                 <input
                   type="email"
@@ -79,7 +79,7 @@ export const Login = () => {
 
               <div className="form_group">
                 <label htmlFor="password" className="form_label">
-                  Contrase\u00f1a:
+                  Contraseña:
                 </label>
                 <input
                   type="password"
@@ -97,9 +97,9 @@ export const Login = () => {
               </button>
 
               <div className="forgot_pass">
-                \u00bfOlvidaste tu contrase\u00f1a?{' '}
+                ¿Olvidaste tu contraseña?{' '}
                 <a href="#" className="link_recovery">
-                  Recup\u00e9rala aqu\u00ed.
+                  Recuperala aqui.
                 </a>
               </div>
             </form>
@@ -117,7 +117,7 @@ export const Login = () => {
                 aria-label="Iniciar sesi\u00f3n con Microsoft"
                 disabled={loading}
               >
-                <span className="social_emoji">\ud83e\ude9f</span>
+                <span className="social_emoji">M</span>
               </button>
               <button
                 className="btn_social btn_google"
