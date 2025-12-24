@@ -10,8 +10,7 @@ export function Header() {
   };
 
   const handle_register = () => {
-    // Por ahora redirige a login, luego puedes crear la ruta /register
-    navigate('/login');
+    navigate('/register');
   };
 
   const handle_home = () => {
