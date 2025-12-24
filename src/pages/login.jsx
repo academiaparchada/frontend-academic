@@ -1,20 +1,46 @@
 // src/pages/login.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
+import { useAuth } from '../context/auth_context';
 import '../styles/login.css';
 
 export const Login = () => {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  
   const [email, set_email] = useState('');
   const [password, set_password] = useState('');
+  const [error, set_error] = useState('');
+  const [loading, set_loading] = useState(false);
 
-  const handle_submit = (e) => {
+  const handle_submit = async (e) => {
     e.preventDefault();
-    console.log('Login:', { email, password });
+    set_error('');
+    set_loading(true);
+
+    const result = await login(email, password);
+    
+    set_loading(false);
+
+    if (result.success) {
+      // Redirigir según el rol del usuario
+      const user_role = result.data.user.rol;
+      if (user_role === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (user_role === 'profesor') {
+        navigate('/profesor/dashboard');
+      } else {
+        navigate('/estudiante/dashboard');
+      }
+    } else {
+      set_error(result.message);
+    }
   };
 
   const handle_social = (provider) => {
-    console.log(`Login con ${provider}`);
+    set_error(`Inicio de sesi\u00f3n con ${provider} a\u00fan no disponible`);
   };
 
   return (
@@ -24,15 +50,21 @@ export const Login = () => {
       <main className="main">
         <div className="login_container">
           <div className="login_card">
-            <h1 className="login_title">AQUÍ INICIA ALGO GRANDE.</h1>
+            <h1 className="login_title">AQU\u00cd INICIA ALGO GRANDE.</h1>
             <p className="login_subtitle">
-              Estás dando el primer paso para transformar tu forma de aprender.
+              Est\u00e1s dando el primer paso para transformar tu forma de aprender.
             </p>
+
+            {error && (
+              <div className="error_message">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handle_submit} className="login_form">
               <div className="form_group">
                 <label htmlFor="email" className="form_label">
-                  Correo Electrónico:
+                  Correo Electr\u00f3nico:
                 </label>
                 <input
                   type="email"
@@ -41,12 +73,13 @@ export const Login = () => {
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
               <div className="form_group">
                 <label htmlFor="password" className="form_label">
-                  Contraseña:
+                  Contrase\u00f1a:
                 </label>
                 <input
                   type="password"
@@ -55,17 +88,18 @@ export const Login = () => {
                   value={password}
                   onChange={(e) => set_password(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
-              <button type="submit" className="btn_login">
-                Iniciar Sesión
+              <button type="submit" className="btn_login" disabled={loading}>
+                {loading ? 'Iniciando sesi\u00f3n...' : 'Iniciar Sesi\u00f3n'}
               </button>
 
               <div className="forgot_pass">
-                ¿Olvidaste tu contraseña?{' '}
+                \u00bfOlvidaste tu contrase\u00f1a?{' '}
                 <a href="#" className="link_recovery">
-                  Recupérala aquí.
+                  Recup\u00e9rala aqu\u00ed.
                 </a>
               </div>
             </form>
@@ -80,21 +114,24 @@ export const Login = () => {
               <button
                 className="btn_social btn_microsoft"
                 onClick={() => handle_social('Microsoft')}
-                aria-label="Iniciar sesión con Microsoft"
+                aria-label="Iniciar sesi\u00f3n con Microsoft"
+                disabled={loading}
               >
-                <span className="social_emoji">🪟</span>
+                <span className="social_emoji">\ud83e\ude9f</span>
               </button>
               <button
                 className="btn_social btn_google"
                 onClick={() => handle_social('Google')}
-                aria-label="Iniciar sesión con Google"
+                aria-label="Iniciar sesi\u00f3n con Google"
+                disabled={loading}
               >
                 <span className="social_emoji">G</span>
               </button>
               <button
                 className="btn_social btn_facebook"
                 onClick={() => handle_social('Facebook')}
-                aria-label="Iniciar sesión con Facebook"
+                aria-label="Iniciar sesi\u00f3n con Facebook"
+                disabled={loading}
               >
                 <span className="social_emoji">f</span>
               </button>

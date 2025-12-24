@@ -1,32 +1,75 @@
 // src/pages/register.jsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
+import { useAuth } from '../context/auth_context';
 import '../styles/register.css';
 
 export const Register = () => {
-  const [name, set_name] = useState('');
-  const [lastname, set_lastname] = useState('');
+  const navigate = useNavigate();
+  const { register } = useAuth();
+  
+  const [nombre, set_nombre] = useState('');
+  const [apellido, set_apellido] = useState('');
   const [email, set_email] = useState('');
+  const [telefono, set_telefono] = useState('');
   const [password, set_password] = useState('');
   const [confirm_password, set_confirm_password] = useState('');
   const [accept_terms, set_accept_terms] = useState(false);
+  const [error, set_error] = useState('');
+  const [loading, set_loading] = useState(false);
 
-  const handle_submit = (e) => {
+  const handle_submit = async (e) => {
     e.preventDefault();
+    set_error('');
+
+    // Validaciones frontend
     if (password !== confirm_password) {
-      alert('Las contraseñas no coinciden');
+      set_error('Las contrase\u00f1as no coinciden');
       return;
     }
+
+    if (password.length < 6) {
+      set_error('La contrase\u00f1a debe tener al menos 6 caracteres');
+      return;
+    }
+
     if (!accept_terms) {
-      alert('Debes aceptar los términos y condiciones');
+      set_error('Debes aceptar los t\u00e9rminos y condiciones');
       return;
     }
-    console.log('Registro:', { name, lastname, email, password });
+
+    set_loading(true);
+
+    const user_data = {
+      nombre,
+      apellido,
+      email,
+      telefono,
+      password
+    };
+
+    const result = await register(user_data);
+    
+    set_loading(false);
+
+    if (result.success) {
+      // Redirigir al dashboard de estudiante
+      navigate('/estudiante/dashboard');
+    } else {
+      // Mostrar errores
+      if (result.errors && result.errors.length > 0) {
+        const error_messages = result.errors.map(err => err.message).join(', ');
+        set_error(error_messages);
+      } else {
+        set_error(result.message);
+      }
+    }
   };
 
   const handle_social = (provider) => {
-    console.log(`Registro con ${provider}`);
+    set_error(`Registro con ${provider} a\u00fan no disponible`);
   };
 
   return (
@@ -36,37 +79,45 @@ export const Register = () => {
       <main className="main">
         <div className="register_container">
           <div className="register_card">
-            <h1 className="register_title">AQUÍ INICIA ALGO GRANDE.</h1>
+            <h1 className="register_title">AQU\u00cd INICIA ALGO GRANDE.</h1>
             <p className="register_subtitle">
-              Estás dando el primer paso para transformar tu forma de aprender.
+              Est\u00e1s dando el primer paso para transformar tu forma de aprender.
             </p>
+
+            {error && (
+              <div className="error_message">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handle_submit} className="register_form">
               <div className="form_group">
-                <label htmlFor="name" className="form_label">
+                <label htmlFor="nombre" className="form_label">
                   Nombre:
                 </label>
                 <input
                   type="text"
-                  id="name"
+                  id="nombre"
                   className="form_input"
-                  value={name}
-                  onChange={(e) => set_name(e.target.value)}
+                  value={nombre}
+                  onChange={(e) => set_nombre(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
               <div className="form_group">
-                <label htmlFor="lastname" className="form_label">
+                <label htmlFor="apellido" className="form_label">
                   Apellido:
                 </label>
                 <input
                   type="text"
-                  id="lastname"
+                  id="apellido"
                   className="form_input"
-                  value={lastname}
-                  onChange={(e) => set_lastname(e.target.value)}
+                  value={apellido}
+                  onChange={(e) => set_apellido(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -81,12 +132,27 @@ export const Register = () => {
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
                   required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="form_group">
+                <label htmlFor="telefono" className="form_label">
+                  Tel\u00e9fono (Opcional):
+                </label>
+                <input
+                  type="tel"
+                  id="telefono"
+                  className="form_input"
+                  value={telefono}
+                  onChange={(e) => set_telefono(e.target.value)}
+                  disabled={loading}
                 />
               </div>
 
               <div className="form_group">
                 <label htmlFor="password" className="form_label">
-                  Contraseña:
+                  Contrase\u00f1a:
                 </label>
                 <input
                   type="password"
@@ -95,12 +161,14 @@ export const Register = () => {
                   value={password}
                   onChange={(e) => set_password(e.target.value)}
                   required
+                  disabled={loading}
+                  minLength={6}
                 />
               </div>
 
               <div className="form_group">
                 <label htmlFor="confirm_password" className="form_label">
-                  Confirmar Contraseña:
+                  Confirmar Contrase\u00f1a:
                 </label>
                 <input
                   type="password"
@@ -109,6 +177,7 @@ export const Register = () => {
                   value={confirm_password}
                   onChange={(e) => set_confirm_password(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
 
@@ -120,21 +189,22 @@ export const Register = () => {
                   checked={accept_terms}
                   onChange={(e) => set_accept_terms(e.target.checked)}
                   required
+                  disabled={loading}
                 />
                 <label htmlFor="terms" className="terms_label">
                   Al registrarse y utilizar los servicios, usted confirma que ha aceptado nuestros{' '}
                   <a href="#" className="terms_link">
-                    Términos y Condiciones
+                    T\u00e9rminos y Condiciones
                   </a>{' '}
-                  y ha leído nuestra{' '}
+                  y ha le\u00eddo nuestra{' '}
                   <a href="#" className="terms_link">
-                    Política de Privacidad.
+                    Pol\u00edtica de Privacidad.
                   </a>
                 </label>
               </div>
 
-              <button type="submit" className="btn_register">
-                Registrarse
+              <button type="submit" className="btn_register" disabled={loading}>
+                {loading ? 'Registrando...' : 'Registrarse'}
               </button>
             </form>
 
@@ -149,13 +219,15 @@ export const Register = () => {
                 className="btn_social btn_microsoft"
                 onClick={() => handle_social('Microsoft')}
                 aria-label="Registrarse con Microsoft"
+                disabled={loading}
               >
-                <span className="social_emoji">🪟</span>
+                <span className="social_emoji">\ud83e\ude9f</span>
               </button>
               <button
                 className="btn_social btn_google"
                 onClick={() => handle_social('Google')}
                 aria-label="Registrarse con Google"
+                disabled={loading}
               >
                 <span className="social_emoji">G</span>
               </button>
@@ -163,6 +235,7 @@ export const Register = () => {
                 className="btn_social btn_facebook"
                 onClick={() => handle_social('Facebook')}
                 aria-label="Registrarse con Facebook"
+                disabled={loading}
               >
                 <span className="social_emoji">f</span>
               </button>
