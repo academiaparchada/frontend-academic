@@ -79,9 +79,9 @@ export const Register = () => {
       <main className="main">
         <div className="register_container">
           <div className="register_card">
-            <h1 className="register_title">AQU\u00cd INICIA ALGO GRANDE.</h1>
+            <h1 className="register_title">AQUI INICIA ALGO GRANDE.</h1>
             <p className="register_subtitle">
-              Est\u00e1s dando el primer paso para transformar tu forma de aprender.
+              Estas dando el primer paso para transformar tu forma de aprender.
             </p>
 
             {error && (
@@ -138,7 +138,7 @@ export const Register = () => {
 
               <div className="form_group">
                 <label htmlFor="telefono" className="form_label">
-                  Tel\u00e9fono (Opcional):
+                  Telefono (Opcional):
                 </label>
                 <input
                   type="tel"
@@ -152,7 +152,7 @@ export const Register = () => {
 
               <div className="form_group">
                 <label htmlFor="password" className="form_label">
-                  Contrase\u00f1a:
+                  Contraseña:
                 </label>
                 <input
                   type="password"
@@ -168,7 +168,7 @@ export const Register = () => {
 
               <div className="form_group">
                 <label htmlFor="confirm_password" className="form_label">
-                  Confirmar Contrase\u00f1a:
+                  Confirmar Contraseña:
                 </label>
                 <input
                   type="password"
@@ -194,11 +194,11 @@ export const Register = () => {
                 <label htmlFor="terms" className="terms_label">
                   Al registrarse y utilizar los servicios, usted confirma que ha aceptado nuestros{' '}
                   <a href="#" className="terms_link">
-                    T\u00e9rminos y Condiciones
+                    Terminos y Condiciones
                   </a>{' '}
-                  y ha le\u00eddo nuestra{' '}
+                  y ha leido nuestra{' '}
                   <a href="#" className="terms_link">
-                    Pol\u00edtica de Privacidad.
+                    Politicas de Privacidad.
                   </a>
                 </label>
               </div>
@@ -221,7 +221,7 @@ export const Register = () => {
                 aria-label="Registrarse con Microsoft"
                 disabled={loading}
               >
-                <span className="social_emoji">\ud83e\ude9f</span>
+                <span className="social_emoji">M</span>
               </button>
               <button
                 className="btn_social btn_google"
@@ -229,7 +229,7 @@ export const Register = () => {
                 aria-label="Registrarse con Google"
                 disabled={loading}
               >
-                <span className="social_emoji">G</span>
+                <img src="../../public/images/google.png" alt="Google"/>
               </button>
               <button
                 className="btn_social btn_facebook"
@@ -237,7 +237,11 @@ export const Register = () => {
                 aria-label="Registrarse con Facebook"
                 disabled={loading}
               >
-                <span className="social_emoji">f</span>
+                <img
+                  src="/facebook_icon.png"
+                  alt="Facebook"
+                  className="social_facebook_icon"
+                />
               </button>
             </div>
           </div>

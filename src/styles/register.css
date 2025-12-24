@@ -68,15 +68,16 @@
   padding: 0.875rem 1rem;
   border: none;
   border-radius: 0.5rem;
-  font-size: 1rem;
+  font-size: 1.1rem;
   background-color: rgba(255, 255, 255, 0.9);
   transition: all 0.3s ease;
+  color: #1a3333;
 }
 
 .form_input:focus {
   outline: none;
   background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 3px rgba(240, 221, 4, 0.959);
 }
 
 .form_input:disabled {
@@ -209,6 +210,12 @@
 
 .btn_microsoft .social_emoji {
   font-size: 28px;
+}
+
+btn_social btn_google img{
+  width: 24px;   /* tamaño de la imagen */
+  height: 24px;
+  object-fit: contain;;
 }
 
 .btn_google .social_emoji {
