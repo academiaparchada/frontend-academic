@@ -1,7 +1,7 @@
 // src/services/auth_service.js
-// En desarrollo usa el proxy de Vite, en producción usa la URL completa
+// En desarrollo usa el backend local, en producción usa Render
 const API_URL = import.meta.env.DEV 
-  ? '/api/auth' 
+  ? 'http://localhost:5000/api/auth' 
   : 'https://academiaparchadaback.onrender.com/api/auth';
 
 class AuthService {
@@ -9,6 +9,8 @@ class AuthService {
   async register(user_data) {
     try {
       console.log('Registrando usuario en:', `${API_URL}/register`);
+      console.log('Datos enviados:', user_data);
+      
       const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {
@@ -42,7 +44,7 @@ class AuthService {
       console.error('Error en registro:', error);
       return { 
         success: false, 
-        message: 'Error de conexión. Verifica tu internet o intenta más tarde.' 
+        message: 'Error de conexión. ¿Está corriendo el backend en http://localhost:5000?' 
       };
     }
   }
@@ -51,6 +53,7 @@ class AuthService {
   async login(email, password) {
     try {
       console.log('Iniciando sesión en:', `${API_URL}/login`);
+      
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
@@ -78,7 +81,7 @@ class AuthService {
       console.error('Error en login:', error);
       return { 
         success: false, 
-        message: 'Error de conexión. Verifica tu internet o intenta más tarde.' 
+        message: 'Error de conexión. ¿Está corriendo el backend en http://localhost:5000?' 
       };
     }
   }
