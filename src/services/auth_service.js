@@ -1,10 +1,14 @@
 // src/services/auth_service.js
-const API_URL = 'https://academiaparchadaback.onrender.com/api/auth';
+// En desarrollo usa el proxy de Vite, en producción usa la URL completa
+const API_URL = import.meta.env.DEV 
+  ? '/api/auth' 
+  : 'https://academiaparchadaback.onrender.com/api/auth';
 
 class AuthService {
   // Registrar nuevo usuario
   async register(user_data) {
     try {
+      console.log('Registrando usuario en:', `${API_URL}/register`);
       const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         headers: {
@@ -20,6 +24,7 @@ class AuthService {
       });
 
       const data = await response.json();
+      console.log('Respuesta del servidor:', data);
 
       if (response.ok) {
         // Guardar token y usuario en localStorage
@@ -45,6 +50,7 @@ class AuthService {
   // Iniciar sesión
   async login(email, password) {
     try {
+      console.log('Iniciando sesión en:', `${API_URL}/login`);
       const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
@@ -54,6 +60,7 @@ class AuthService {
       });
 
       const data = await response.json();
+      console.log('Respuesta del servidor:', data);
 
       if (response.ok) {
         // Guardar token y usuario en localStorage
