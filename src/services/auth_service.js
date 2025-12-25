@@ -1,5 +1,5 @@
 // src/services/auth_service.js
-const API_URL = 'https://tu-backend.onrender.com/api/auth';
+const API_URL = 'https://academiaparchadaback.onrender.com/api/auth';
 
 class AuthService {
   // Registrar nuevo usuario
@@ -37,7 +37,7 @@ class AuthService {
       console.error('Error en registro:', error);
       return { 
         success: false, 
-        message: 'Error de conexión. Verifica tu internet.' 
+        message: 'Error de conexión. Verifica tu internet o intenta más tarde.' 
       };
     }
   }
@@ -71,7 +71,7 @@ class AuthService {
       console.error('Error en login:', error);
       return { 
         success: false, 
-        message: 'Error de conexión. Verifica tu internet.' 
+        message: 'Error de conexión. Verifica tu internet o intenta más tarde.' 
       };
     }
   }
