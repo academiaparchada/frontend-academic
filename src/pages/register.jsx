@@ -84,12 +84,6 @@ export const Register = () => {
               Estás dando el primer paso para transformar tu forma de aprender.
             </p>
 
-            {error && (
-              <div className="error_message">
-                {error}
-              </div>
-            )}
-
             <form onSubmit={handle_submit} className="register_form">
               <div className="form_group">
                 <label htmlFor="nombre" className="form_label">
@@ -203,6 +197,12 @@ export const Register = () => {
                 </label>
               </div>
 
+              {error && (
+              <div className="error_message">
+                {error}
+              </div>
+              )}
+              
               <button type="submit" className="btn_register" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
               </button>

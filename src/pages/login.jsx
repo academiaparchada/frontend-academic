@@ -55,11 +55,7 @@ export const Login = () => {
               Estás dando el primer paso para transformar tu forma de aprender.
             </p>
 
-            {error && (
-              <div className="error_message">
-                {error}
-              </div>
-            )}
+            
 
             <form onSubmit={handle_submit} className="login_form">
               <div className="form_group">
@@ -92,9 +88,17 @@ export const Login = () => {
                 />
               </div>
 
+              {error && (
+              <div className="error_message">
+                {error}
+              </div>
+              )}
+              
               <button type="submit" className="btn_login" disabled={loading}>
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
+
+              
 
               <div className="forgot_pass">
                 ¿Olvidaste tu contraseña?{' '}
