@@ -1,8 +1,6 @@
 // src/services/auth_service.js
-// En desarrollo usa el backend local, en producción usa Render
-const API_URL = import.meta.env.DEV 
-  ? 'http://localhost:3000/api/auth' 
-  : 'https://academiaparchadaback.onrender.com/api/auth';
+// URL del backend en Render (producción)
+const API_URL = 'https://academiaparchadaback.onrender.com/api/auth';
 
 class AuthService {
   // Registrar nuevo usuario
@@ -44,7 +42,7 @@ class AuthService {
       console.error('Error en registro:', error);
       return { 
         success: false, 
-        message: 'Error de conexión. ¿Está corriendo el backend en http://localhost:3000?' 
+        message: 'Error de conexión. Por favor intenta de nuevo más tarde.' 
       };
     }
   }
@@ -81,7 +79,7 @@ class AuthService {
       console.error('Error en login:', error);
       return { 
         success: false, 
-        message: 'Error de conexión. ¿Está corriendo el backend en http://localhost:3000?' 
+        message: 'Error de conexión. Por favor intenta de nuevo más tarde.' 
       };
     }
   }
