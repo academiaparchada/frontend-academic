@@ -40,7 +40,7 @@ export const Login = () => {
   };
 
   const handle_social = (provider) => {
-    set_error(`Inicio de sesi\u00f3n con ${provider} a\u00fan no disponible`);
+    set_error(`Inicio de sesión con ${provider} aún no disponible`);
   };
 
   return (
@@ -50,9 +50,9 @@ export const Login = () => {
       <main className="main">
         <div className="login_container">
           <div className="login_card">
-            <h1 className="login_title">AQUI INICIA ALGO GRANDE.</h1>
+            <h1 className="login_title">AQUÍ INICIA ALGO GRANDE.</h1>
             <p className="login_subtitle">
-              Estas dando el primer paso para transformar tu forma de aprender.
+              Estás dando el primer paso para transformar tu forma de aprender.
             </p>
 
             {error && (
@@ -64,7 +64,7 @@ export const Login = () => {
             <form onSubmit={handle_submit} className="login_form">
               <div className="form_group">
                 <label htmlFor="email" className="form_label">
-                  Correo Electronico:
+                  Correo Electrónico:
                 </label>
                 <input
                   type="email"
@@ -93,13 +93,13 @@ export const Login = () => {
               </div>
 
               <button type="submit" className="btn_login" disabled={loading}>
-                {loading ? 'Iniciando sesi\u00f3n...' : 'Iniciar Sesi\u00f3n'}
+                {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
 
               <div className="forgot_pass">
                 ¿Olvidaste tu contraseña?{' '}
                 <a href="#" className="link_recovery">
-                  Recuperala aqui.
+                  Recupérala aquí.
                 </a>
               </div>
             </form>
@@ -112,28 +112,40 @@ export const Login = () => {
 
             <div className="social_login">
               <button
-                className="btn_social btn_microsoft"
+                className="btn_social"
                 onClick={() => handle_social('Microsoft')}
-                aria-label="Iniciar sesi\u00f3n con Microsoft"
+                aria-label="Iniciar sesión con Microsoft"
                 disabled={loading}
               >
-                <span className="social_emoji">M</span>
+                <img 
+                  src="/images/image.png" 
+                  alt="Microsoft" 
+                  className="social_icon"
+                />
               </button>
               <button
-                className="btn_social btn_google"
+                className="btn_social"
                 onClick={() => handle_social('Google')}
-                aria-label="Iniciar sesi\u00f3n con Google"
+                aria-label="Iniciar sesión con Google"
                 disabled={loading}
               >
-                <span className="social_emoji">G</span>
+                <img 
+                  src="/images/google.png" 
+                  alt="Google" 
+                  className="social_icon"
+                />
               </button>
               <button
-                className="btn_social btn_facebook"
+                className="btn_social"
                 onClick={() => handle_social('Facebook')}
-                aria-label="Iniciar sesi\u00f3n con Facebook"
+                aria-label="Iniciar sesión con Facebook"
                 disabled={loading}
               >
-                <span className="social_emoji">f</span>
+                <img 
+                  src="/images/facebook.png" 
+                  alt="Facebook" 
+                  className="social_icon"
+                />
               </button>
             </div>
           </div>

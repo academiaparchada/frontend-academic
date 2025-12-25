@@ -26,17 +26,17 @@ export const Register = () => {
 
     // Validaciones frontend
     if (password !== confirm_password) {
-      set_error('Las contrase\u00f1as no coinciden');
+      set_error('Las contraseñas no coinciden');
       return;
     }
 
     if (password.length < 6) {
-      set_error('La contrase\u00f1a debe tener al menos 6 caracteres');
+      set_error('La contraseña debe tener al menos 6 caracteres');
       return;
     }
 
     if (!accept_terms) {
-      set_error('Debes aceptar los t\u00e9rminos y condiciones');
+      set_error('Debes aceptar los términos y condiciones');
       return;
     }
 
@@ -69,7 +69,7 @@ export const Register = () => {
   };
 
   const handle_social = (provider) => {
-    set_error(`Registro con ${provider} a\u00fan no disponible`);
+    set_error(`Registro con ${provider} aún no disponible`);
   };
 
   return (
@@ -79,9 +79,9 @@ export const Register = () => {
       <main className="main">
         <div className="register_container">
           <div className="register_card">
-            <h1 className="register_title">AQUI INICIA ALGO GRANDE.</h1>
+            <h1 className="register_title">AQUÍ INICIA ALGO GRANDE.</h1>
             <p className="register_subtitle">
-              Estas dando el primer paso para transformar tu forma de aprender.
+              Estás dando el primer paso para transformar tu forma de aprender.
             </p>
 
             {error && (
@@ -138,7 +138,7 @@ export const Register = () => {
 
               <div className="form_group">
                 <label htmlFor="telefono" className="form_label">
-                  Telefono (Opcional):
+                  Teléfono (Opcional):
                 </label>
                 <input
                   type="tel"
@@ -194,11 +194,11 @@ export const Register = () => {
                 <label htmlFor="terms" className="terms_label">
                   Al registrarse y utilizar los servicios, usted confirma que ha aceptado nuestros{' '}
                   <a href="#" className="terms_link">
-                    Terminos y Condiciones
+                    Términos y Condiciones
                   </a>{' '}
-                  y ha leido nuestra{' '}
+                  y ha leído nuestra{' '}
                   <a href="#" className="terms_link">
-                    Politicas de Privacidad.
+                    Política de Privacidad.
                   </a>
                 </label>
               </div>
@@ -216,31 +216,39 @@ export const Register = () => {
 
             <div className="social_register">
               <button
-                className="btn_social btn_microsoft"
+                className="btn_social"
                 onClick={() => handle_social('Microsoft')}
                 aria-label="Registrarse con Microsoft"
                 disabled={loading}
               >
-                <span className="social_emoji">M</span>
+                <img 
+                  src="/images/image.png" 
+                  alt="Microsoft" 
+                  className="social_icon"
+                />
               </button>
               <button
-                className="btn_social btn_google"
+                className="btn_social"
                 onClick={() => handle_social('Google')}
                 aria-label="Registrarse con Google"
                 disabled={loading}
               >
-                <img src="../../public/images/google.png" alt="Google"/>
+                <img 
+                  src="/images/google.png" 
+                  alt="Google" 
+                  className="social_icon"
+                />
               </button>
               <button
-                className="btn_social btn_facebook"
+                className="btn_social"
                 onClick={() => handle_social('Facebook')}
                 aria-label="Registrarse con Facebook"
                 disabled={loading}
               >
-                <img
-                  src="/facebook_icon.png"
-                  alt="Facebook"
-                  className="social_facebook_icon"
+                <img 
+                  src="/images/facebook.png" 
+                  alt="Facebook" 
+                  className="social_icon"
                 />
               </button>
             </div>

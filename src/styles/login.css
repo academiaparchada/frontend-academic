@@ -168,7 +168,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  padding: 0;
+  padding: 0.5rem;
 }
 
 .btn_social:hover:not(:disabled) {
@@ -185,23 +185,10 @@
   cursor: not-allowed;
 }
 
-.social_emoji {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.btn_microsoft .social_emoji {
-  font-size: 28px;
-}
-
-.btn_google .social_emoji {
-  color: #4285f4;
-  font-size: 32px;
-}
-
-.btn_facebook .social_emoji {
-  color: #1877f2;
-  font-size: 32px;
+.social_icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Responsive */
@@ -221,14 +208,5 @@
   .btn_social {
     width: 50px;
     height: 50px;
-  }
-
-  .social_emoji {
-    font-size: 20px;
-  }
-
-  .btn_google .social_emoji,
-  .btn_facebook .social_emoji {
-    font-size: 26px;
   }
 }

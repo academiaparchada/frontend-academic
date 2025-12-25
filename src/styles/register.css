@@ -68,16 +68,15 @@
   padding: 0.875rem 1rem;
   border: none;
   border-radius: 0.5rem;
-  font-size: 1.1rem;
+  font-size: 1rem;
   background-color: rgba(255, 255, 255, 0.9);
   transition: all 0.3s ease;
-  color: #1a3333;
 }
 
 .form_input:focus {
   outline: none;
   background-color: #ffffff;
-  box-shadow: 0 0 0 3px rgba(240, 221, 4, 0.959);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
 .form_input:disabled {
@@ -186,7 +185,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  padding: 0;
+  padding: 0.5rem;
 }
 
 .btn_social:hover:not(:disabled) {
@@ -203,29 +202,10 @@
   cursor: not-allowed;
 }
 
-.social_emoji {
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.btn_microsoft .social_emoji {
-  font-size: 28px;
-}
-
-btn_social btn_google img{
-  width: 24px;   /* tamaño de la imagen */
-  height: 24px;
-  object-fit: contain;;
-}
-
-.btn_google .social_emoji {
-  color: #4285f4;
-  font-size: 32px;
-}
-
-.btn_facebook .social_emoji {
-  color: #1877f2;
-  font-size: 32px;
+.social_icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* Responsive */
@@ -245,15 +225,6 @@ btn_social btn_google img{
   .btn_social {
     width: 50px;
     height: 50px;
-  }
-
-  .social_emoji {
-    font-size: 20px;
-  }
-
-  .btn_google .social_emoji,
-  .btn_facebook .social_emoji {
-    font-size: 26px;
   }
 
   .terms_label {
