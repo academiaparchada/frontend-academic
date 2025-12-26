@@ -39,11 +39,11 @@ function App() {
                 <img src="/images/hero-student-1.jpg" alt="Estudiante" className="card_img" />
               </div>
               <div className="floating_card card_2">
-                <img src="/images/hero-student-2.jpg" alt="Estudiante" className="card_img" />
+                <img src="../images/alumno1.jpeg" alt="Estudiante" className="card_img" />
                 <div className="card_badge">Clases en vivo</div>
               </div>
               <div className="floating_card card_3">
-                <img src="/images/hero-student-3.jpg" alt="Estudiante" className="card_img" />
+                <img src="../images/profesor1.webp" alt="Estudiante" className="card_img" />
                 <div className="card_badge">Cursos pregrabados</div>
               </div>
               <div className="center_logo">
@@ -66,7 +66,7 @@ function App() {
           </div>
 
           <div className="courses_showcase">
-            <img src="/images/courses-dashboard.jpg" alt="Panel de cursos" className="showcase_image" />
+            <img src="../images/cursos1.jpeg" alt="Panel de cursos" className="showcase_image" />
           </div>
         </section>
 
@@ -172,7 +172,7 @@ function App() {
             </div>
 
             <div className="benefits_image">
-              <img src="/images/benefits-dashboard.jpg" alt="Dashboard de beneficios" className="dashboard_img" />
+              <img src="../images/aprendizaje2.png" alt="Dashboard de beneficios" className="dashboard_img" />
             </div>
           </div>
         </section>
@@ -181,7 +181,7 @@ function App() {
         <section className="extra_features_section">
           <div className="extra_features_grid">
             <div className="extra_card">
-              <img src="/images/feature-database.jpg" alt="Base de datos" className="extra_img" />
+              <img src="../images/recursos1.png" alt="Base de datos" className="extra_img" />
               <div className="extra_content">
                 <h3 className="extra_title">Biblioteca de recursos</h3>
                 <p className="extra_description">
@@ -201,7 +201,7 @@ function App() {
                 </p>
                 <div className="extra_arrow">→</div>
               </div>
-              <img src="/images/feature-evaluation.jpg" alt="Evaluaciones" className="extra_img" />
+              <img src="../images/evaluacion1.webp" alt="Evaluaciones" className="extra_img" />
             </div>
           </div>
         </section>
