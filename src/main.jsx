@@ -8,6 +8,7 @@ import { Login } from './pages/login.jsx'
 import { Register } from './pages/register.jsx'
 import { ForgotPassword } from './pages/forgot_password.jsx'
 import { ResetPassword } from './pages/reset_password.jsx'
+import { TermsAndPolicies } from './pages/terms_and_policies.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/terms-and-policies" element={<TermsAndPolicies />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

@@ -1,5 +1,5 @@
 // src/pages/register.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
@@ -10,15 +10,45 @@ export const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   
-  const [nombre, set_nombre] = useState('');
-  const [apellido, set_apellido] = useState('');
-  const [email, set_email] = useState('');
-  const [telefono, set_telefono] = useState('');
-  const [password, set_password] = useState('');
-  const [confirm_password, set_confirm_password] = useState('');
-  const [accept_terms, set_accept_terms] = useState(false);
+  // Recuperar datos del sessionStorage o usar valores vacíos
+  const [nombre, set_nombre] = useState(() => sessionStorage.getItem('register_nombre') || '');
+  const [apellido, set_apellido] = useState(() => sessionStorage.getItem('register_apellido') || '');
+  const [email, set_email] = useState(() => sessionStorage.getItem('register_email') || '');
+  const [telefono, set_telefono] = useState(() => sessionStorage.getItem('register_telefono') || '');
+  const [password, set_password] = useState(() => sessionStorage.getItem('register_password') || '');
+  const [confirm_password, set_confirm_password] = useState(() => sessionStorage.getItem('register_confirm_password') || '');
+  const [accept_terms, set_accept_terms] = useState(() => sessionStorage.getItem('register_accept_terms') === 'true');
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
+
+  // Guardar datos en sessionStorage cuando cambien
+  useEffect(() => {
+    sessionStorage.setItem('register_nombre', nombre);
+  }, [nombre]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_apellido', apellido);
+  }, [apellido]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_email', email);
+  }, [email]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_telefono', telefono);
+  }, [telefono]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_password', password);
+  }, [password]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_confirm_password', confirm_password);
+  }, [confirm_password]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_accept_terms', accept_terms);
+  }, [accept_terms]);
 
   const handle_submit = async (e) => {
     e.preventDefault();
@@ -55,6 +85,15 @@ export const Register = () => {
     set_loading(false);
 
     if (result.success) {
+      // Limpiar sessionStorage después del registro exitoso
+      sessionStorage.removeItem('register_nombre');
+      sessionStorage.removeItem('register_apellido');
+      sessionStorage.removeItem('register_email');
+      sessionStorage.removeItem('register_telefono');
+      sessionStorage.removeItem('register_password');
+      sessionStorage.removeItem('register_confirm_password');
+      sessionStorage.removeItem('register_accept_terms');
+      
       // Redirigir al dashboard de estudiante
       navigate('/estudiante/dashboard');
     } else {
@@ -83,6 +122,12 @@ export const Register = () => {
             <p className="register_subtitle">
               Estás dando el primer paso para transformar tu forma de aprender.
             </p>
+
+            {error && (
+              <div className="error_message">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handle_submit} className="register_form">
               <div className="form_group">
@@ -187,22 +232,12 @@ export const Register = () => {
                 />
                 <label htmlFor="terms" className="terms_label">
                   Al registrarse y utilizar los servicios, usted confirma que ha aceptado nuestros{' '}
-                  <a href="#" className="terms_link">
-                    Términos y Condiciones
-                  </a>{' '}
-                  y ha leído nuestra{' '}
-                  <a href="#" className="terms_link">
-                    Política de Privacidad.
+                  <a href="/terms-and-policies" className="terms_link" target="_blank" rel="noopener noreferrer">
+                    Términos y Condiciones y Política de Privacidad.
                   </a>
                 </label>
               </div>
 
-              {error && (
-              <div className="error_message">
-                {error}
-              </div>
-              )}
-              
               <button type="submit" className="btn_register" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
               </button>
