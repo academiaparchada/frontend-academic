@@ -35,15 +35,15 @@ function App() {
             <div className="hero_image">
               {/* Aquí irán las imágenes flotantes de estudiantes/cursos */}
               <div className="floating_card card_1">
+                <img src="../images/seguimiento1.png" alt="Estudiante" className="card_img" />
                 <div className="card_badge">Sistema de seguimiento</div>
-                <img src="/images/hero-student-1.jpg" alt="Estudiante" className="card_img" />
               </div>
               <div className="floating_card card_2">
-                <img src="../images/alumno1.jpeg" alt="Estudiante" className="card_img" />
+                <img src="../images/clasenvivo1.png" alt="Estudiante" className="card_img" />
                 <div className="card_badge">Clases en vivo</div>
               </div>
               <div className="floating_card card_3">
-                <img src="../images/profesor1.webp" alt="Estudiante" className="card_img" />
+                <img src="../images/pregrabados1.png" alt="Estudiante" className="card_img" />
                 <div className="card_badge">Cursos pregrabados</div>
               </div>
               <div className="center_logo">
@@ -181,7 +181,7 @@ function App() {
         <section className="extra_features_section">
           <div className="extra_features_grid">
             <div className="extra_card">
-              <img src="../images/recursos1.png" alt="Base de datos" className="extra_img" />
+              <img src="../images/recursos2.png" alt="Base de datos" className="extra_img" />
               <div className="extra_content">
                 <h3 className="extra_title">Biblioteca de recursos</h3>
                 <p className="extra_description">
@@ -201,7 +201,7 @@ function App() {
                 </p>
                 <div className="extra_arrow">→</div>
               </div>
-              <img src="../images/evaluacion1.webp" alt="Evaluaciones" className="extra_img" />
+              <img src="../images/evaluacion1.png" alt="Evaluaciones" className="extra_img" />
             </div>
           </div>
         </section>
