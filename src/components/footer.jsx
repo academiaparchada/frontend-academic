@@ -37,7 +37,7 @@ export function Footer() {
               />
             </a>
             <a 
-              href="" 
+              href="https://www.facebook.com/share/16b75mC6Y3/" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="footer_social_link"
@@ -50,7 +50,7 @@ export function Footer() {
               />
             </a>
             <a 
-              href="" 
+              href="https://www.tiktok.com/@el_profe_parchao?_r=1&_t=ZS-92X7wSXc2yb" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="footer_social_link"
