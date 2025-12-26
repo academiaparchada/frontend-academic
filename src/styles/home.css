@@ -107,13 +107,13 @@
   padding: 0.875rem;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
   animation: float 6s ease-in-out infinite;
-  max-width: 220px;
+  max-width: 190px;
 }
 
 /* Tarjeta 1 - Esquina superior derecha (Sistema de seguimiento) */
 .card_1 {
   top: 0;
-  right: 5%;
+  right: 12%;
   animation-delay: 0s;
   z-index: 3;
 }
@@ -130,7 +130,7 @@
 /* Tarjeta 3 - Inferior derecha (Cursos pregrabados) */
 .card_3 {
   bottom: 0;
-  right: 20%;
+  right: 10%;
   animation-delay: 4s;
   z-index: 1;
 }
