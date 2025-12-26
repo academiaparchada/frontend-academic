@@ -1,69 +1,121 @@
 /* src/styles/footer.css */
 
 .footer {
-  background-color: var(--beige);
-  padding: 24px 32px 16px;
+  background-color: #5b9999;
+  padding: 0;
+  margin-top: auto;
 }
 
 .footer_border {
-  height: 3px;
-  background-color: var(--teal);
-  margin-bottom: 24px;
+  height: 0.25rem;
+  background-color: #f5f0e8;
 }
 
 .footer_content {
   display: flex;
   justify-content: space-around;
   align-items: flex-start;
-  margin-bottom: 16px;
+  padding: 2rem 1.5rem;
+  gap: 2rem;
+  flex-wrap: wrap;
 }
 
 .footer_block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
+  min-width: 200px;
 }
 
 .footer_logo {
+  font-size: 2rem;
   font-weight: 700;
-  font-size: 16px;
-  line-height: 1.2;
-  color: var(--teal);
+  color: #f5f0e8;
+  line-height: 1.1;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
 }
 
 .footer_title {
-  font-size: 14px;
+  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--teal);
-  margin-bottom: 8px;
+  color: #2d5555;
+  margin: 0 0 1rem 0;
 }
 
 .footer_text {
-  font-size: 12px;
-  color: var(--teal);
-  line-height: 1.5;
+  font-size: 0.938rem;
+  color: #f5f0e8;
+  line-height: 1.6;
+  margin: 0;
 }
 
 .footer_socials {
   display: flex;
-  gap: 12px;
-  justify-content: center;
+  gap: 1.5rem;
+  align-items: center;
 }
 
-.footer_social {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: var(--teal);
-  color: var(--beige);
+.footer_social_link {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 600;
+  width: 50px;
+  height: 50px;
+  background-color: transparent;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.footer_social_link:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.2);
+}
+
+.footer_social_link:active {
+  transform: translateY(0);
+}
+
+.footer_social_icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .footer_copy {
   text-align: center;
-  font-size: 11px;
-  color: var(--teal);
-  margin-top: 16px;
+  font-size: 0.875rem;
+  color: #f5f0e8;
+  padding: 1.5rem 1rem;
+  margin: 0;
+  border-top: 1px solid rgba(245, 240, 232, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .footer_content {
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .footer_block {
+    width: 100%;
+  }
+
+  .footer_logo {
+    font-size: 1.75rem;
+  }
+
+  .footer_socials {
+    gap: 1.25rem;
+  }
+
+  .footer_social_link {
+    width: 45px;
+    height: 45px;
+  }
 }

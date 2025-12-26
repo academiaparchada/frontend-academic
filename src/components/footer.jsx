@@ -23,9 +23,45 @@ export function Footer() {
         <div className="footer_block">
           <h3 className="footer_title">Nuestras Redes:</h3>
           <div className="footer_socials">
-            <span className="footer_social">IG</span>
-            <span className="footer_social">FB</span>
-            <span className="footer_social">TT</span>
+            <a 
+              href="" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="footer_social_link"
+              aria-label="Instagram"
+            >
+              <img 
+                src="/images/instagram.png" 
+                alt="Instagram" 
+                className="footer_social_icon"
+              />
+            </a>
+            <a 
+              href="" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="footer_social_link"
+              aria-label="Facebook"
+            >
+              <img 
+                src="/images/facebook.png" 
+                alt="Facebook" 
+                className="footer_social_icon"
+              />
+            </a>
+            <a 
+              href="" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="footer_social_link"
+              aria-label="TikTok"
+            >
+              <img 
+                src="/images/tiktok.png" 
+                alt="TikTok" 
+                className="footer_social_icon"
+              />
+            </a>
           </div>
         </div>
       </div>
