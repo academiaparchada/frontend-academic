@@ -24,7 +24,7 @@ export function Footer() {
           <h3 className="footer_title">Nuestras Redes:</h3>
           <div className="footer_socials">
             <a 
-              href="" 
+              href="https://www.instagram.com/el_profe_parchao?igsh=bXluMXh4Y3FrZjd6" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="footer_social_link"
