@@ -26,7 +26,9 @@ export const AuthProvider = ({ children }) => {
     set_loading(true);
     if (auth_service.is_authenticated()) {
       const result = await auth_service.get_me();
+      console.log('check_auth result:', result);
       if (result.success) {
+        console.log('Usuario autenticado:', result.data);
         set_user(result.data);
         set_is_authenticated(true);
       } else {
@@ -42,8 +44,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const result = await auth_service.login(email, password);
+    console.log('Login result en auth_context:', result);
     if (result.success) {
-      set_user(result.data.user);
+      // Guardar el usuario completo
+      const user_data = result.data?.user || result.data;
+      console.log('Datos de usuario guardados:', user_data);
+      set_user(user_data);
       set_is_authenticated(true);
     }
     return result;
@@ -52,7 +58,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (user_data) => {
     const result = await auth_service.register(user_data);
     if (result.success) {
-      set_user(result.data.user);
+      const registered_user = result.data?.user || result.data;
+      set_user(registered_user);
       set_is_authenticated(true);
     }
     return result;

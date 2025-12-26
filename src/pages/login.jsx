@@ -25,13 +25,25 @@ export const Login = () => {
     set_loading(false);
 
     if (result.success) {
+      // Debug: Ver qué datos está devolviendo el backend
+      console.log('Login exitoso - Datos completos:', result);
+      console.log('Usuario:', result.data?.user);
+      console.log('Rol del usuario:', result.data?.user?.rol);
+      
+      // Intentar obtener el rol de diferentes ubicaciones posibles
+      let user_role = result.data?.user?.rol || result.data?.rol || result.user?.rol;
+      
+      console.log('Rol detectado:', user_role);
+      
       // Redirigir según el rol del usuario
-      const user_role = result.data.user.rol;
-      if (user_role === 'admin') {
+      if (user_role === 'admin' || user_role === 'administrador') {
+        console.log('Redirigiendo a dashboard de admin');
         navigate('/admin/dashboard');
-      } else if (user_role === 'profesor') {
+      } else if (user_role === 'profesor' || user_role === 'teacher') {
+        console.log('Redirigiendo a dashboard de profesor');
         navigate('/profesor/dashboard');
       } else {
+        console.log('Redirigiendo a dashboard de estudiante');
         navigate('/estudiante/dashboard');
       }
     } else {
