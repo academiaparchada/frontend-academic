@@ -43,6 +43,11 @@ export const Login = () => {
     set_error(`Inicio de sesión con ${provider} aún no disponible`);
   };
 
+  const handle_forgot_password = (e) => {
+    e.preventDefault();
+    navigate('/forgot-password');
+  };
+
   return (
     <div className="page">
       <Header />
@@ -55,7 +60,11 @@ export const Login = () => {
               Estás dando el primer paso para transformar tu forma de aprender.
             </p>
 
-            
+            {error && (
+              <div className="error_message">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handle_submit} className="login_form">
               <div className="form_group">
@@ -88,21 +97,13 @@ export const Login = () => {
                 />
               </div>
 
-              {error && (
-              <div className="error_message">
-                {error}
-              </div>
-              )}
-              
               <button type="submit" className="btn_login" disabled={loading}>
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
 
-              
-
               <div className="forgot_pass">
                 ¿Olvidaste tu contraseña?{' '}
-                <a href="#" className="link_recovery">
+                <a href="#" onClick={handle_forgot_password} className="link_recovery">
                   Recupérala aquí.
                 </a>
               </div>
