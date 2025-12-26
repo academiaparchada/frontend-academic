@@ -73,7 +73,6 @@ export const ForgotPassword = () => {
                   onChange={(e) => set_email(e.target.value)}
                   required
                   disabled={loading}
-                  placeholder="tu@email.com"
                 />
               </div>
 
