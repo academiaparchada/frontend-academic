@@ -1,6 +1,6 @@
 // src/services/auth_service.js
 // URL del backend en Render (producción)
-const API_URL = 'https://academiaparchadaback.onrender.com/api/auth';
+const API_URL = 'https://academiaparchada.onrender.com/api/auth';
 
 class AuthService {
   // Registrar nuevo usuario
