@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Home from './pages/Home';
 import AsignaturasPage from './pages/AsignaturasPage';
+import ProfesoresPage from './pages/ProfesoresPage';
 import './App.css';
 
 function App() {
@@ -35,6 +36,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/asignaturas" element={<AsignaturasPage />} />
+        <Route path="/profesores" element={<ProfesoresPage />} />
       </Routes>
     </Router>
   );

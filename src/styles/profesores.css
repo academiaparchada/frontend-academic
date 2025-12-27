@@ -1,0 +1,721 @@
+/* src/styles/profesores.css */
+
+.profesores-page {
+  min-height: 100vh;
+  background-color: #f5f0e8;
+  padding: 2rem;
+}
+
+.profesores-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.profesores-header {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-text h1 {
+  font-size: 2rem;
+  color: #2d5555;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  color: #666;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.btn-create {
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-create:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 153, 153, 0.3);
+}
+
+.btn-create .icon {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Loading */
+.loading-container {
+  background: white;
+  border-radius: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e0e0e0;
+  border-top: 4px solid #5b9999;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-container p {
+  color: #666;
+  margin: 0;
+}
+
+/* Empty State */
+.empty-state {
+  background: white;
+  border-radius: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h2 {
+  font-size: 1.75rem;
+  color: #2d5555;
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+  color: #666;
+  margin: 0 0 2rem 0;
+}
+
+.btn-empty {
+  background: #5b9999;
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-empty:hover {
+  background: #4a8080;
+  transform: translateY(-2px);
+}
+
+/* Table */
+.table-container {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 2rem;
+}
+
+.profesores-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.profesores-table thead {
+  background-color: #2d5555;
+  color: white;
+}
+
+.profesores-table th {
+  padding: 1.25rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.938rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.profesores-table tbody tr {
+  border-bottom: 1px solid #e0e0e0;
+  transition: background-color 0.2s ease;
+}
+
+.profesores-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.profesores-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.profesores-table td {
+  padding: 1.25rem 1.5rem;
+  font-size: 0.938rem;
+}
+
+.name-cell strong {
+  color: #2d5555;
+  font-size: 1rem;
+}
+
+.email-cell {
+  color: #666;
+}
+
+.phone-cell {
+  color: #666;
+}
+
+.no-phone {
+  color: #999;
+  font-style: italic;
+}
+
+.asignaturas-cell {
+  max-width: 300px;
+}
+
+.asignaturas-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge-asignatura {
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.813rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.date-cell {
+  color: #666;
+  white-space: nowrap;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-start;
+}
+
+.btn-edit,
+.btn-delete {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: transform 0.2s ease;
+  border-radius: 0.25rem;
+}
+
+.btn-edit:hover {
+  transform: scale(1.2);
+  background-color: rgba(91, 153, 153, 0.1);
+}
+
+.btn-delete:hover {
+  transform: scale(1.2);
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.pagination-btn {
+  background: #5b9999;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #4a8080;
+  transform: translateY(-2px);
+}
+
+.pagination-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pagination-info {
+  color: #2d5555;
+  font-weight: 600;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2d5555;
+  font-size: 1.5rem;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.btn-close:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.modal-form {
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2d5555;
+  font-weight: 600;
+  font-size: 0.938rem;
+}
+
+.required {
+  color: #dc3545;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #5b9999;
+  box-shadow: 0 0 0 3px rgba(91, 153, 153, 0.1);
+}
+
+.form-group input.input-error,
+.form-group textarea.input-error {
+  border-color: #dc3545;
+}
+
+.form-group input.input-error:focus,
+.form-group textarea.input-error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.error-message {
+  display: block;
+  color: #dc3545;
+  font-size: 0.813rem;
+  margin-top: 0.25rem;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  color: #999;
+  font-size: 0.813rem;
+  margin-top: 0.25rem;
+}
+
+.help-text {
+  display: block;
+  color: #666;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Asignaturas Selector */
+.asignaturas-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 0.5rem;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+}
+
+.checkbox-label:hover {
+  background-color: rgba(91, 153, 153, 0.1);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  cursor: pointer;
+}
+
+.checkbox-label span {
+  color: #2d5555;
+  font-size: 0.938rem;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.btn-cancel {
+  background: transparent;
+  color: #666;
+  border: 2px solid #e0e0e0;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background-color: #f0f0f0;
+  border-color: #ccc;
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.75rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 153, 153, 0.3);
+}
+
+.btn-cancel:disabled,
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Credentials Container */
+.credentials-container {
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.credentials-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.credentials-container h3 {
+  color: #2d5555;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.credentials-intro {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.credentials-box {
+  background-color: #f9f9f9;
+  border: 2px solid #e0e0e0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.credential-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.credential-item:last-child {
+  border-bottom: none;
+}
+
+.credential-item label {
+  font-weight: 600;
+  color: #2d5555;
+}
+
+.credential-item span {
+  color: #666;
+}
+
+.password-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.password {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #2d5555;
+  background-color: #fff;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid #e0e0e0;
+}
+
+.btn-copy {
+  background: #5b9999;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.btn-copy:hover {
+  background: #4a8080;
+  transform: scale(1.1);
+}
+
+.credentials-note {
+  color: #dc3545;
+  font-size: 0.938rem;
+  margin-bottom: 2rem;
+}
+
+.btn-close-credentials {
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-close-credentials:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 153, 153, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .profesores-table {
+    min-width: 900px;
+  }
+
+  .asignaturas-selector {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .profesores-page {
+    padding: 1rem;
+  }
+
+  .profesores-header {
+    padding: 1.5rem;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-text h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-create {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .profesores-table th,
+  .profesores-table td {
+    padding: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .modal-header,
+  .modal-form,
+  .credentials-container {
+    padding: 1.5rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+
+  .credential-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profesores-table th,
+  .profesores-table td {
+    padding: 0.75rem;
+    font-size: 0.813rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+  }
+
+  .empty-state h2 {
+    font-size: 1.5rem;
+  }
+
+  .credentials-icon {
+    font-size: 3rem;
+  }
+}
