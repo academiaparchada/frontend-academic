@@ -12,6 +12,8 @@ import { TermsAndPolicies } from './pages/terms_and_policies.jsx'
 import { EstudianteDashboard } from './pages/estudiante/dashboard.jsx'
 import { ProfesorDashboard } from './pages/profesor/dashboard.jsx'
 import { AdminDashboard } from './pages/admin/dashboard.jsx'
+import AsignaturasPage from './pages/AsignaturasPage.jsx'
+import ProfesoresPage from './pages/ProfesoresPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -27,6 +29,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/estudiante/dashboard" element={<EstudianteDashboard />} />
           <Route path="/profesor/dashboard" element={<ProfesorDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/asignaturas" element={<AsignaturasPage />} />
+          <Route path="/admin/profesores" element={<ProfesoresPage />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
