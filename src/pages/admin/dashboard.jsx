@@ -57,7 +57,7 @@ export const AdminDashboard = () => {
               <h2 className="card_title">Cursos</h2>
               <p className="card_number">0</p>
               <p className="card_description">Cursos activos</p>
-              <button className="btn_card">Gestionar Cursos</button>
+              <button className="btn_card" onClick={() => navigate('/admin/asignaturas')}>Gestionar Cursos</button>
             </div>
 
             {/* Profesores */}
@@ -66,7 +66,7 @@ export const AdminDashboard = () => {
               <h2 className="card_title">Profesores</h2>
               <p className="card_number">0</p>
               <p className="card_description">Profesores activos</p>
-              <button className="btn_card">Ver Profesores</button>
+              <button className="btn_card" onClick={() => navigate('/admin/profesores')}>Ver Profesores</button>
             </div>
 
             {/* Ingresos */}
@@ -84,7 +84,7 @@ export const AdminDashboard = () => {
               <h2 className="card_title">Asignaturas</h2>
               <p className="card_number">0</p>
               <p className="card_description">Asignaturas activas</p>
-              <button className="btn_card">Gestionar Asignaturas</button>
+              <button className="btn_card" onClick={() => navigate('/admin/asignaturas')}>Gestionar Asignaturas</button>
             </div>
 
             {/* Clases */}
