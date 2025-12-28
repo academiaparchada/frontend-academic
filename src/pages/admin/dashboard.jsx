@@ -44,11 +44,11 @@ export const AdminDashboard = () => {
           <div className="dashboard_grid">
             {/* Total Usuarios */}
             <div className="dashboard_card">
-              <div className="card_icon">👥</div>
-              <h2 className="card_title">Usuarios</h2>
+              <div className="card_icon">🗓️</div>
+              <h2 className="card_title">Franjas horarias</h2>
               <p className="card_number">0</p>
-              <p className="card_description">Usuarios registrados</p>
-              <button className="btn_card">Gestionar Usuarios</button>
+              <p className="card_description">Franjas registradas</p>
+              <button className="btn_card">Gestionar Franjas</button>
             </div>
 
             {/* Total Cursos */}

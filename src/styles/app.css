@@ -1,7 +1,7 @@
-/* src/styles/app.css */
+/* src/App.css */
 :root {
-  --beige: #f8f1d6;
-  --teal: #3d7a80;
+  --pa-beige: #f8f1d6;
+  --pa-teal: #3d7a80;
 }
 
 html, body, #root {
@@ -9,58 +9,52 @@ html, body, #root {
   margin: 0;
 }
 
-.page {
+.pa-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--beige);
+  background-color: var(--pa-beige);
 }
 
-.main {
+.pa-main {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-/* Hero */
-.hero {
-  background-color: var(--beige);
-  min-height: 180px;
+/* Hero (parte superior beige con tarjeta) */
+.pa-hero {
+  background-color: var(--pa-beige);
+  min-height: 260px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  padding: 40px 20px;
+  align-items: flex-start;
+  padding-top: 80px;
 }
 
-.hero_card {
-  background-color: var(--teal);
-  color: var(--beige);
-  border-radius: 12px;
-  padding: 28px 40px;
-  max-width: 340px;
+.pa-hero__card {
+  background-color: var(--pa-teal);
+  color: var(--pa-beige);
+  border-radius: 8px;
+  padding: 24px 32px;
+  max-width: 320px;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.hero_title {
+.pa-hero__title {
   font-weight: 800;
-  font-size: 16px;
-  letter-spacing: 1.2px;
-  line-height: 1.4;
-  margin: 0 0 16px 0;
+  letter-spacing: 1px;
+  line-height: 1.25;
+  margin-bottom: 16px;
 }
 
-.hero_subtitle {
+.pa-hero__subtitle {
   font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.8px;
-  line-height: 1.4;
-  margin: 0;
+  font-size: 14px;
 }
 
-/* Middle section */
-.middle {
+/* Sección central verde */
+.pa-middle {
   flex: 1;
-  background-color: var(--teal);
-  min-height: 600px;
+  background-color: var(--pa-teal);
 }

@@ -1,0 +1,46 @@
+[33m4a56450[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Fix: Agregar dependencia react-hot-toast para corregir build en Vercel
+[33m3998ec1[m Fix: Restaurar register.jsx original y corregir botón Cursos -> Asignaturas
+[33m6ca2f5f[m Fix: Corregir conflicto de rutas y arreglar navegación completa
+[33m8da2338[m Fix: Corregir rutas y agregar navegación en dashboard admin
+[33m5fdbf5c[m Implementar módulo completo de gestión de profesores (CRUD)
+[33m0db60a6[m Implementar módulo completo de gestión de asignaturas (CRUD)
+[33m369ea3a[m Optimizar responsive completo para móvil y tablet
+[33m549aa63[m correcion de posiciones floating cards
+[33m29814d0[m Redistribuir tarjetas flotantes con mayor separación
+[33mf84b781[m Ajustar tamaños de imágenes y separación de tarjetas flotantes en hero
+[33me8e2ab7[m correcion de imagenes
+[33m9bf32cc[m imagenes para el home
+[33m29f269b[m Rediseñar home page con sección de cursos y clases atractiva
+[33m6dac3b1[m Corregir redirección por rol y agregar debugging
+[33m2d5b87f[m Crear dashboards para estudiante, profesor y admin
+[33md7596bc[m Agregar página de términos y políticas + persistencia de datos en registro
+[33m320c74b[m adicion de url del footer
+[33m6904923[m url de instagram añadida
+[33m300ea2a[m Actualizar footer con logos de redes sociales y enlaces
+[33m9d1c22a[m adicion de imagenes referentes al footer
+[33m96b2642[m Implementar páginas de recuperación de contraseña
+[33m2143cb4[m correcion url de render
+[33m5c19fd3[m Cambiar URLs a backend en Render para producción
+[33m7bc6c73[m third commit desconocido
+[33mbc45615[m Actualizar puerto del backend a 3000
+[33m3103545[m Cambiar a backend local para desarrollo
+[33m0e50402[m Agregar configuración de proxy para evitar CORS en desarrollo
+[33mf3b0452[m Actualizar URL del backend a Render
+[33mcecb32d[m Actualizar botones sociales para usar imágenes
+[33m4af2ea5[m commit desconocido
+[33m4aaff06[m images buttons
+[33me19c194[m Implementar autenticación completa con API backend
+[33m10627d5[m Agregar página de registro completa
+[33mde6275b[m Agregar navegación con react-router en header
+[33m9e24103[m correcion de colores de header
+[33ma18e833[m Ajustar CSS del home para coincidir con Figma
+[33m6ac2dba[m Eliminar Home.jsx (no se usa)
+[33m9e870f4[m Eliminar Login.jsx duplicado (solo minúsculas)
+[33m214ce8e[m Limpiar archivos duplicados y actualizar CSS header/footer
+[33m37c8513[m Eliminar App.jsx (renombrar a minúsculas)
+[33ma7d8738[m Refactor: renombrar todo a snake_case y nombres más cortos
+[33m334b5b4[m Reconfigurar rutas: App.jsx como home principal
+[33m5e1921e[m Configurar sistema de rutas con react-router-dom
+[33m71aa95a[m Agregar pantalla de login y ajustar estilos globales
+[33m453433d[m second commit
+[33m2a68265[m first commit
