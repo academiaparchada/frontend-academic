@@ -42,41 +42,15 @@ export const ProfesorDashboard = () => {
           </div>
 
           <div className="dashboard_grid">
-            {/* Mis Cursos */}
+            {/* Mis franjas */}
             <div className="dashboard_card">
               <div className="card_icon">📚</div>
-              <h2 className="card_title">Mis Cursos</h2>
+              <h2 className="card_title">Mi Franja Horaria </h2>
               <p className="card_number">0</p>
-              <p className="card_description">Cursos asignados</p>
-              <button className="btn_card">Gestionar Cursos</button>
+              <p className="card_description">Franjas Registradas</p>
+              <button className="btn_card" onClick={() => navigate('/profesor/franjas-horarias')}>Gestionar Franjas</button>
             </div>
 
-            {/* Clases Programadas */}
-            <div className="dashboard_card">
-              <div className="card_icon">📅</div>
-              <h2 className="card_title">Clases de Hoy</h2>
-              <p className="card_number">0</p>
-              <p className="card_description">Clases programadas</p>
-              <button className="btn_card">Ver Horario</button>
-            </div>
-
-            {/* Estudiantes */}
-            <div className="dashboard_card">
-              <div className="card_icon">👥</div>
-              <h2 className="card_title">Estudiantes</h2>
-              <p className="card_number">0</p>
-              <p className="card_description">Estudiantes activos</p>
-              <button className="btn_card">Ver Estudiantes</button>
-            </div>
-
-            {/* Calificaciones Pendientes */}
-            <div className="dashboard_card">
-              <div className="card_icon">✅</div>
-              <h2 className="card_title">Calificaciones</h2>
-              <p className="card_number">0</p>
-              <p className="card_description">Pendientes de revisar</p>
-              <button className="btn_card">Revisar</button>
-            </div>
           </div>
 
           {/* Información del Profesor */}

@@ -42,13 +42,13 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="dashboard_grid">
-            {/* Total Usuarios */}
+            {/* Total Franjas */}
             <div className="dashboard_card">
               <div className="card_icon">🗓️</div>
               <h2 className="card_title">Franjas horarias</h2>
               <p className="card_number">0</p>
               <p className="card_description">Franjas registradas</p>
-              <button className="btn_card">Gestionar Franjas</button>
+              <button className="btn_card" onClick={() => navigate('/admin/franjas-horarias')}>Gestionar Franjas</button>
             </div>
 
             {/* Total Cursos */}
