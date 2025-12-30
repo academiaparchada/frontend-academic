@@ -76,16 +76,15 @@ export const AdminDashboard = () => {
               <p className="card_number">0</p>
               <p className="card_description">Clases Registradas</p>
               <button className="btn_card" onClick={() => navigate('/admin/clases-personalizadas')}>Ver Clases</button>
-              
             </div>
 
-            {/* Asignaturas */}
+            {/* cursos */}
             <div className="dashboard_card">
               <div className="card_icon">📖</div>
-              <h2 className="card_title">Asignaturas</h2>
+              <h2 className="card_title">Cursos</h2>
               <p className="card_number">0</p>
-              <p className="card_description">Asignaturas activas</p>
-              <button className="btn_card" onClick={() => navigate('/admin/asignaturas')}>Gestionar Asignaturas</button>
+              <p className="card_description">Cursos Activos</p>
+              <button className="btn_card" onClick={() => navigate('/admin/cursos')}>Gestionar Cursos</button>
             </div>
 
             {/* Clases */}

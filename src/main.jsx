@@ -17,6 +17,7 @@ import ProfesoresPage from './pages/ProfesoresPage.jsx'
 import FranjasHorariasAdmin from './pages/admin/FranjasHorariasAdmin.jsx'
 import FranjasHorariasProfesor from './pages/profesor/FranjasHorariasProfesor.jsx'
 import ClasesPersonalizadasAdmin from './pages/admin/ClasesPersonalizadasAdmin.jsx'
+import CursosAdmin from './pages/admin/CursosAdmin.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -37,6 +38,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/franjas-horarias" element={<FranjasHorariasAdmin />} />
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
+          <Route path="/admin/cursos" element={<CursosAdmin />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
