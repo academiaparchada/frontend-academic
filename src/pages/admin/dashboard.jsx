@@ -71,11 +71,12 @@ export const AdminDashboard = () => {
 
             {/* Ingresos */}
             <div className="dashboard_card">
-              <div className="card_icon">💰</div>
-              <h2 className="card_title">Ingresos</h2>
-              <p className="card_number">$0</p>
-              <p className="card_description">Este mes</p>
-              <button className="btn_card">Ver Reportes</button>
+              <div className="card_icon">📚</div>
+              <h2 className="card_title">Clases Personalizadas</h2>
+              <p className="card_number">0</p>
+              <p className="card_description">Clases Registradas</p>
+              <button className="btn_card" onClick={() => navigate('/admin/clases-personalizadas')}>Ver Clases</button>
+              
             </div>
 
             {/* Asignaturas */}
