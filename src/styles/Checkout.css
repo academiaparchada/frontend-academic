@@ -1,0 +1,549 @@
+/* src/styles/Checkout.css */
+
+.checkout-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.checkout-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.checkout-header h1 {
+  color: #2c3e50;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.btn-volver {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #2c3e50;
+}
+
+.btn-volver:hover {
+  background: #f0f0f0;
+  border-color: #d0d0d0;
+}
+
+/* Layout del checkout */
+.checkout-content {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+/* Resumen */
+.checkout-resumen {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 2rem;
+}
+
+.checkout-resumen h2 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.curso-info-checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.curso-info-checkout h3 {
+  color: #2c3e50;
+  font-size: 1.3rem;
+  margin: 0;
+}
+
+.curso-descripcion {
+  color: #718096;
+  line-height: 1.6;
+  margin: 0.5rem 0 0 0;
+}
+
+.detalles-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.detalle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.detalle-label {
+  color: #718096;
+  font-weight: 600;
+}
+
+.detalle-valor {
+  color: #2c3e50;
+  font-weight: 500;
+}
+
+.precio-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.1rem;
+}
+
+.precio-total strong {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.info-box {
+  padding: 1rem;
+  background: #e8f4f8;
+  border-left: 4px solid #3498db;
+  border-radius: 6px;
+}
+
+.info-box p {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+}
+
+.info-box .info-small {
+  color: #718096;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Selector de horas */
+.selector-horas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.selector-horas label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.horas-controles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.horas-controles button {
+  width: 45px;
+  height: 45px;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.horas-controles button:hover:not(:disabled) {
+  background: #2980b9;
+  transform: scale(1.05);
+}
+
+.horas-controles button:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.horas-controles input {
+  width: 80px;
+  padding: 0.75rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  color: #2c3e50;
+}
+
+.horas-controles input:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Ventajas del paquete */
+.ventajas-paquete {
+  padding: 1.5rem;
+  background: #f0f8f0;
+  border-radius: 8px;
+  border: 2px solid #c3e6cb;
+}
+
+.ventajas-paquete h4 {
+  color: #27ae60;
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+}
+
+.ventajas-paquete ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.ventajas-paquete li {
+  color: #2c3e50;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Formulario */
+.checkout-formulario {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.checkout-formulario h2 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.form-ayuda {
+  color: #718096;
+  margin: 0 0 1.5rem 0;
+  line-height: 1.5;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.875rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.5;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+.form-group input:disabled,
+.form-group textarea:disabled {
+  background: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.form-group .input-error {
+  border-color: #e74c3c;
+}
+
+.form-group .error {
+  display: block;
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-weight: 500;
+}
+
+.help-text {
+  display: block;
+  color: #7f8c8d;
+  font-size: 0.85rem;
+  margin-top: 0.4rem;
+  font-style: italic;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Mensajes */
+.mensaje {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+.mensaje.exito {
+  background: #d4edda;
+  color: #155724;
+  border: 2px solid #c3e6cb;
+}
+
+.mensaje.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 2px solid #f5c6cb;
+}
+
+/* Ya tienes cuenta */
+.ya-tienes-cuenta {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #e0e0e0;
+  text-align: center;
+}
+
+.ya-tienes-cuenta p {
+  color: #718096;
+  margin: 0;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 0.5rem;
+  font-size: inherit;
+}
+
+.btn-link:hover {
+  color: #2980b9;
+}
+
+/* Botón comprar */
+.btn-comprar-final {
+  width: 100%;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+}
+
+.btn-comprar-final:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-comprar-final:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinner-small {
+  border: 3px solid rgba(255,255,255,0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+.aviso-pago {
+  text-align: center;
+  color: #718096;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+/* Loading y error */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+  margin-top: 1rem;
+  color: #7f8c8d;
+  font-size: 1rem;
+}
+
+.error-mensaje {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.error-mensaje h3 {
+  color: #e74c3c;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.error-mensaje p {
+  color: #718096;
+  margin-bottom: 2rem;
+}
+
+.error-mensaje button {
+  padding: 0.875rem 2rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.error-mensaje button:hover {
+  background: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .checkout-content {
+    grid-template-columns: 1fr;
+  }
+
+  .checkout-resumen {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .checkout-container {
+    padding: 1rem;
+  }
+
+  .checkout-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .checkout-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .btn-volver {
+    width: 100%;
+  }
+
+  .checkout-resumen,
+  .checkout-formulario {
+    padding: 1.5rem;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .precio-total {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+
+  .horas-controles {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .checkout-resumen h2,
+  .checkout-formulario h2 {
+    font-size: 1.2rem;
+  }
+
+  .curso-info-checkout h3 {
+    font-size: 1.1rem;
+  }
+
+  .btn-comprar-final {
+    font-size: 1rem;
+    padding: 1rem;
+  }
+}

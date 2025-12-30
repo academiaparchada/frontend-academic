@@ -18,6 +18,13 @@ import FranjasHorariasAdmin from './pages/admin/FranjasHorariasAdmin.jsx'
 import FranjasHorariasProfesor from './pages/profesor/FranjasHorariasProfesor.jsx'
 import ClasesPersonalizadasAdmin from './pages/admin/ClasesPersonalizadasAdmin.jsx'
 import CursosAdmin from './pages/admin/CursosAdmin.jsx'
+import CheckoutCurso from './pages/CheckoutCurso.jsx'
+import CheckoutClase from './pages/CheckoutClase.jsx'
+import CheckoutPaquete from './pages/CheckoutPaquete.jsx'
+import MisCompras from './pages/estudiante/MisCompras.jsx'
+import DetallePaquete from './pages/estudiante/DetallePaquete.jsx'
+import CursosPublico from './pages/CursosPublico.jsx'
+import ClasesPersonalizadasPublico from './pages/ClasesPersonalizadasPublico.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -39,6 +46,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
           <Route path="/admin/cursos" element={<CursosAdmin />} />
+          <Route path="/checkout/curso/:cursoId" element={<CheckoutCurso />} />
+          <Route path="/checkout/clase/:claseId" element={<CheckoutClase />} />
+          <Route path="/checkout/paquete/:claseId" element={<CheckoutPaquete />} />
+          <Route path="/estudiante/mis-compras" element={<MisCompras />} />
+          <Route path="/estudiante/paquete/:compraId" element={<DetallePaquete />} />
+          <Route path="/cursos" element={<CursosPublico />} />
+          <Route path="/clases-personalizadas" element={<ClasesPersonalizadasPublico />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

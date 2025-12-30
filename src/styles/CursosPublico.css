@@ -1,0 +1,346 @@
+/* src/styles/CursosPublico.css */
+
+.cursos-publico-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.cursos-publico-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.cursos-publico-header h1 {
+  font-size: 2.5rem;
+  color: #1a202c;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.cursos-publico-header p {
+  font-size: 1.1rem;
+  color: #718096;
+}
+
+/* Filtros públicos */
+.filtros-publico {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.filtro-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #4a5568;
+}
+
+.filtro-btn:hover {
+  border-color: #3182ce;
+  color: #3182ce;
+  transform: translateY(-2px);
+}
+
+.filtro-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* Grid de cursos públicos */
+.cursos-publico-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.curso-publico-card {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.curso-publico-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.curso-tipo-badge {
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.curso-tipo-badge span {
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.curso-publico-header {
+  padding: 1.5rem 1.5rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.curso-publico-header h3 {
+  font-size: 1.4rem;
+  color: #2d3748;
+  margin: 0;
+  flex: 1;
+}
+
+.curso-publico-header .duracion {
+  background: #edf2f7;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #4a5568;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.curso-publico-descripcion {
+  padding: 0 1.5rem 1rem;
+  color: #718096;
+  font-size: 1rem;
+  line-height: 1.6;
+  min-height: 4em;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.curso-publico-info {
+  padding: 1rem 1.5rem;
+  background: #f7fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.curso-publico-info .info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  color: #4a5568;
+}
+
+.curso-publico-info .info-item.full-width {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.info-icon {
+  font-size: 1.2rem;
+}
+
+.horarios-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  margin-left: 2rem;
+}
+
+.horario-badge {
+  background: white;
+  border: 1px solid #e2e8f0;
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.curso-publico-footer {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.precio-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f7fafc;
+  border-radius: 8px;
+}
+
+.precio-label {
+  color: #718096;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.precio-valor {
+  font-size: 1.75rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-inscribirse {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-inscribirse:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* Sin cursos */
+.sin-cursos {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.sin-cursos h3 {
+  font-size: 1.5rem;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.sin-cursos p {
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+/* Paginación pública */
+.pagination-publico {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.pagination-publico .btn-page {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.pagination-publico .btn-page:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.pagination-publico .btn-page:disabled {
+  background: #cbd5e0;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pagination-publico .page-info {
+  font-size: 1rem;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+/* Loading y Error */
+.loading-container,
+.error-container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container button {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cursos-publico-container {
+    padding: 1rem;
+  }
+
+  .cursos-publico-header h1 {
+    font-size: 2rem;
+  }
+
+  .cursos-publico-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtros-publico {
+    flex-direction: column;
+  }
+
+  .filtro-btn {
+    width: 100%;
+  }
+
+  .pagination-publico {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .pagination-publico .btn-page {
+    width: 100%;
+  }
+}

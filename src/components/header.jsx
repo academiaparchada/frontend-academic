@@ -24,9 +24,9 @@ export function Header() {
       </div>
 
       <nav className="header_nav">
-        <button className="header_link">CURSOS</button>
-        <button className="header_link">CLASES</button>
-      </nav>
+        <button className="header_link" onClick={() => navigate('/cursos')}>CURSOS</button>
+        <button className="header_link" onClick={() => navigate('/clases-personalizadas')}>CLASES</button>
+      </nav> 
 
       <div className="header_actions">
         <button className="header_btn header_btn--outline" onClick={handle_login}>
