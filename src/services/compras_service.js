@@ -1,5 +1,7 @@
 // src/services/compras_service.js
-const API_URL = 'https://academiaparchada.onrender.com/api';
+import mercadoPagoService from './mercadopago_service';
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
 
 class ComprasService {
   _getToken() {
@@ -13,9 +15,68 @@ class ComprasService {
     };
   }
 
-  // Comprar curso
+  // ==================== MÉTODOS DE MERCADO PAGO ====================
+
+  /**
+   * Iniciar proceso de pago con Mercado Pago
+   * @param {Object} datosCompra - Datos de la compra
+   * @returns {Promise<Object>}
+   */
+  async iniciarPagoMercadoPago(datosCompra) {
+    try {
+      // Validar datos antes de enviar
+      const validacion = mercadoPagoService.validarDatosCompra(datosCompra);
+      
+      if (!validacion.valido) {
+        return {
+          success: false,
+          message: 'Datos de compra inválidos',
+          errors: validacion.errores
+        };
+      }
+
+      // Crear preferencia en Mercado Pago
+      const resultado = await mercadoPagoService.crearPreferencia(datosCompra);
+
+      if (resultado.success) {
+        // Guardar compra_id en localStorage para tracking
+        localStorage.setItem('ultima_compra_id', resultado.data.compra_id);
+      }
+
+      return resultado;
+
+    } catch (error) {
+      console.error('Error iniciando pago:', error);
+      return {
+        success: false,
+        message: 'Error al iniciar el proceso de pago'
+      };
+    }
+  }
+
+  /**
+   * Verificar estado de pago
+   * @param {string} compraId - ID de la compra
+   * @returns {Promise<Object>}
+   */
+  async verificarEstadoPago(compraId) {
+    return await mercadoPagoService.consultarEstadoCompra(compraId);
+  }
+
+  /**
+   * Redirigir al checkout de Mercado Pago
+   * @param {string} initPoint - URL del checkout
+   */
+  redirigirACheckout(initPoint) {
+    return mercadoPagoService.redirigirACheckout(initPoint);
+  }
+
+  // ==================== MÉTODOS ORIGINALES (DEPRECATED - Usar Mercado Pago) ====================
+
+  // Comprar curso (DEPRECATED - Usar iniciarPagoMercadoPago)
   async comprarCurso(cursoId, datosEstudiante = null) {
     try {
+      console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
       console.log('Comprando curso:', cursoId);
       
       const body = datosEstudiante 
@@ -53,9 +114,10 @@ class ComprasService {
     }
   }
 
-  // Comprar clase personalizada
+  // Comprar clase personalizada (DEPRECATED - Usar iniciarPagoMercadoPago)
   async comprarClasePersonalizada(claseId, datosCompra) {
     try {
+      console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
       console.log('Comprando clase personalizada:', claseId, datosCompra);
       
       const body = {
@@ -96,9 +158,10 @@ class ComprasService {
     }
   }
 
-  // Comprar paquete de horas
+  // Comprar paquete de horas (DEPRECATED - Usar iniciarPagoMercadoPago)
   async comprarPaqueteHoras(claseId, cantidadHoras, datosEstudiante = null) {
     try {
+      console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
       console.log('Comprando paquete de horas:', claseId, cantidadHoras);
       
       const body = datosEstudiante 
@@ -142,6 +205,8 @@ class ComprasService {
       };
     }
   }
+
+  // ==================== MÉTODOS DE GESTIÓN ====================
 
   // Agendar sesión de paquete
   async agendarSesionPaquete(compraId, datosSesion) {
@@ -290,6 +355,8 @@ class ComprasService {
       };
     }
   }
+
+  // ==================== UTILIDADES ====================
 
   // Formatear precio
   formatearPrecio(precio) {

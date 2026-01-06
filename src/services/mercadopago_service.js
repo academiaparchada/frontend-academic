@@ -1,0 +1,256 @@
+// src/services/mercadopago_service.js
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
+
+class MercadoPagoService {  
+  /**
+   * Crear preferencia de pago (checkout)
+   * @param {Object} datos - Datos de la compra
+   * @returns {Promise<Object>}
+   */
+  async crearPreferencia(datos) {
+    try {
+      const token = localStorage.getItem('token');
+      
+      const headers = {
+        'Content-Type': 'application/json'
+      };
+
+      // Solo agregar token si existe (para usuarios logueados)
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      console.log('📤 Enviando datos al checkout:', datos);
+
+      const response = await fetch(`${API_URL}/pagos/mercadopago/checkout`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(datos)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ Error en respuesta:', result);
+        return {
+          success: false,
+          message: result.message || 'Error al crear preferencia de pago',
+          errors: result.errors || []
+        };
+      }
+
+      console.log('✅ Preferencia creada:', result);
+
+      return {
+        success: true,
+        data: result.data,
+        message: result.message
+      };
+
+    } catch (error) {
+      console.error('❌ Error creando preferencia:', error);
+      return {
+        success: false,
+        message: 'Error de conexión al crear el pago'
+      };
+    }
+  }
+
+  /**
+   * Consultar estado de una compra
+   * @param {string} compraId - ID de la compra
+   * @returns {Promise<Object>}
+   */
+  async consultarEstadoCompra(compraId) {
+    try {
+      console.log('🔍 Consultando estado de compra:', compraId);
+
+      const response = await fetch(`${API_URL}/pagos/mercadopago/estado/${compraId}`);
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error('❌ Error consultando estado:', result);
+        return {
+          success: false,
+          message: result.message || 'Error al consultar estado',
+          data: null
+        };
+      }
+
+      console.log('✅ Estado obtenido:', result.data);
+
+      return {
+        success: true,
+        data: result.data
+      };
+
+    } catch (error) {
+      console.error('❌ Error consultando estado:', error);
+      return {
+        success: false,
+        message: 'Error de conexión al consultar estado',
+        data: null
+      };
+    }
+  }
+
+  /**
+   * Redirigir al checkout de Mercado Pago
+   * @param {string} initPoint - URL del checkout
+   */
+  redirigirACheckout(initPoint) {
+    if (!initPoint) {
+      console.error('❌ No se proporcionó init_point para redirección');
+      return false;
+    }
+
+    console.log('🔄 Redirigiendo a Mercado Pago:', initPoint);
+    
+    // Redirigir en la misma ventana
+    window.location.href = initPoint;
+    return true;
+  }
+
+  /**
+   * Mapear estado de MP a etiqueta visual
+   * @param {string} estadoPago - Estado de la compra
+   * @returns {Object}
+   */
+  obtenerEtiquetaEstado(estadoPago) {
+    const estados = {
+      'pendiente': {
+        text: '⏳ Pendiente',
+        class: 'estado-pendiente',
+        color: '#f39c12'
+      },
+      'completado': {
+        text: '✅ Pagado',
+        class: 'estado-completado',
+        color: '#27ae60'
+      },
+      'fallido': {
+        text: '❌ Fallido',
+        class: 'estado-fallido',
+        color: '#e74c3c'
+      }
+    };
+
+    return estados[estadoPago] || estados['pendiente'];
+  }
+
+  /**
+   * Obtener mensaje según estado de MP
+   * @param {string} mpStatus - Estado de Mercado Pago
+   * @param {string} mpStatusDetail - Detalle del estado
+   * @returns {string}
+   */
+  obtenerMensajeEstado(mpStatus, mpStatusDetail) {
+    const mensajes = {
+      'approved': '✅ Pago aprobado exitosamente',
+      'pending': {
+        'pending_contingency': '⏳ Tu pago está en revisión',
+        'pending_review_manual': '⏳ Tu pago está siendo revisado',
+        'pending_waiting_payment': '⏳ Esperando el pago',
+        'default': '⏳ Pago pendiente de confirmación'
+      },
+      'rejected': {
+        'cc_rejected_insufficient_amount': '❌ Fondos insuficientes',
+        'cc_rejected_bad_filled_security_code': '❌ Código de seguridad inválido',
+        'cc_rejected_call_for_authorize': '❌ Debes autorizar el pago con tu banco',
+        'cc_rejected_card_disabled': '❌ Tarjeta deshabilitada',
+        'default': '❌ Pago rechazado'
+      },
+      'cancelled': '❌ Pago cancelado',
+      'in_process': '⏳ Pago en proceso',
+      'default': 'Estado desconocido'
+    };
+
+    if (mpStatus === 'pending' && mensajes.pending[mpStatusDetail]) {
+      return mensajes.pending[mpStatusDetail];
+    }
+
+    if (mpStatus === 'rejected' && mensajes.rejected[mpStatusDetail]) {
+      return mensajes.rejected[mpStatusDetail];
+    }
+
+    return mensajes[mpStatus] || mensajes.default;
+  }
+
+  /**
+   * Validar datos de compra antes de enviar
+   * @param {Object} datos - Datos a validar
+   * @returns {Object}
+   */
+  validarDatosCompra(datos) {
+    const errores = [];
+
+    // Validar tipo_compra
+    if (!datos.tipo_compra) {
+      errores.push('El tipo de compra es obligatorio');
+    }
+
+    const tiposValidos = ['curso', 'clase_personalizada', 'paquete_horas'];
+    if (datos.tipo_compra && !tiposValidos.includes(datos.tipo_compra)) {
+      errores.push('Tipo de compra inválido');
+    }
+
+    // Validar según tipo
+    if (datos.tipo_compra === 'curso' && !datos.curso_id) {
+      errores.push('El ID del curso es obligatorio');
+    }
+
+    if (datos.tipo_compra === 'clase_personalizada' && !datos.clase_personalizada_id) {
+      errores.push('El ID de la clase es obligatorio');
+    }
+
+    if (datos.tipo_compra === 'paquete_horas') {
+      if (!datos.clase_personalizada_id) {
+        errores.push('El ID de la clase es obligatorio');
+      }
+      if (!datos.cantidad_horas || datos.cantidad_horas < 1) {
+        errores.push('La cantidad de horas debe ser mayor a 0');
+      }
+    }
+
+    // Si no hay token (usuario no logueado), validar datos de estudiante
+    const token = localStorage.getItem('token');
+    if (!token && datos.estudiante) {
+      if (!datos.estudiante.email) {
+        errores.push('El email es obligatorio');
+      }
+      if (!datos.estudiante.password || datos.estudiante.password.length < 6) {
+        errores.push('La contraseña debe tener al menos 6 caracteres');
+      }
+      if (!datos.estudiante.nombre) {
+        errores.push('El nombre es obligatorio');
+      }
+      if (!datos.estudiante.apellido) {
+        errores.push('El apellido es obligatorio');
+      }
+    }
+
+    return {
+      valido: errores.length === 0,
+      errores
+    };
+  }
+
+  /**
+   * Formatear precio en COP
+   * @param {number} precio
+   * @returns {string}
+   */
+  formatearPrecio(precio) {
+    return new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(precio);
+  }
+}
+
+// Exportar instancia única
+const mercadoPagoService = new MercadoPagoService();
+export default mercadoPagoService;

@@ -112,54 +112,77 @@ const CheckoutPaquete = () => {
   };
 
   const handleComprar = async (e) => {
-    e.preventDefault();
-    
-    if (!validarFormulario()) {
-      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
-      return;
-    }
+  e.preventDefault();
 
-    setProcesando(true);
-    setMensaje({ tipo: '', texto: '' });
+  if (!validarFormulario()) {
+    setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
+    return;
+  }
 
-    try {
-      const estudianteData = esNuevoUsuario ? {
+  if (cantidadHoras < 1) {
+    setMensaje({ tipo: 'error', texto: 'Debes seleccionar al menos 1 hora' });
+    return;
+  }
+
+  setProcesando(true);
+  setMensaje({ tipo: '', texto: '' });
+
+  try {
+    // Preparar datos para Mercado Pago
+    const datosCompra = {
+      tipo_compra: 'paquete_horas',
+      clase_personalizada_id: claseId,
+      cantidad_horas: cantidadHoras
+    };
+
+    // Si es nuevo usuario, agregar datos de estudiante
+    if (esNuevoUsuario) {
+      datosCompra.estudiante = {
         email: datosUsuario.email,
+        password: datosUsuario.password,
         nombre: datosUsuario.nombre,
         apellido: datosUsuario.apellido,
-        telefono: datosUsuario.telefono,
-        password: datosUsuario.password
-      } : null;
+        telefono: datosUsuario.telefono
+      };
+    }
 
-      const resultado = await comprasService.comprarPaqueteHoras(
-        claseId, 
-        cantidadHoras, 
-        estudianteData
-      );
+    console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
 
-      if (resultado.success) {
-        setMensaje({ 
-          tipo: 'exito', 
-          texto: `¡Paquete de ${cantidadHoras} hora(s) comprado! Redirigiendo...` 
-        });
+    // Crear preferencia de pago
+    const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
-        if (esNuevoUsuario && resultado.data.token) {
-          localStorage.setItem('token', resultado.data.token);
-        }
+    if (resultado.success) {
+      console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
+      
+      setMensaje({ 
+        tipo: 'exito', 
+        texto: '✅ Redirigiendo a Mercado Pago...' 
+      });
 
-        setTimeout(() => {
-          navigate('/estudiante/mis-paquetes');
-        }, 2000);
-      } else {
-        setMensaje({ tipo: 'error', texto: resultado.message });
-      }
-    } catch (err) {
-      console.error('Error al procesar compra:', err);
-      setMensaje({ tipo: 'error', texto: 'Error al procesar la compra' });
-    } finally {
+      setTimeout(() => {
+        const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
+        comprasService.redirigirACheckout(initPoint);
+      }, 1000);
+
+    } else {
+      console.error('❌ Error al crear preferencia:', resultado.message);
+      setMensaje({ 
+        tipo: 'error', 
+        texto: resultado.message || 'Error al procesar el pago' 
+      });
       setProcesando(false);
     }
-  };
+
+  } catch (error) {
+    console.error('❌ Error en el proceso de compra:', error);
+    setMensaje({ 
+      tipo: 'error', 
+      texto: 'Error al procesar el pago. Intenta de nuevo.' 
+    });
+    setProcesando(false);
+  }
+};
+
 
   if (loading) {
     return (

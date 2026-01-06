@@ -139,55 +139,73 @@ const CheckoutClase = () => {
   };
 
   const handleComprar = async (e) => {
-    e.preventDefault();
-    
-    if (!validarFormulario()) {
-      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
-      return;
+  e.preventDefault();
+
+  if (!validarFormulario()) {
+    setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
+    return;
+  }
+
+  setProcesando(true);
+  setMensaje({ tipo: '', texto: '' });
+
+  try {
+    // Preparar datos para Mercado Pago
+    const datosCompra = {
+      tipo_compra: 'clase_personalizada',
+      clase_personalizada_id: claseId,
+      fecha_hora: comprasService.convertirFechaAISO(datosClase.fecha_hora),
+      descripcion_estudiante: datosClase.descripcion_estudiante
+    };
+
+    // Si es nuevo usuario, agregar datos de estudiante
+    if (esNuevoUsuario) {
+      datosCompra.estudiante = {
+        email: datosUsuario.email,
+        password: datosUsuario.password,
+        nombre: datosUsuario.nombre,
+        apellido: datosUsuario.apellido,
+        telefono: datosUsuario.telefono
+      };
     }
 
-    setProcesando(true);
-    setMensaje({ tipo: '', texto: '' });
+    console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
 
-    try {
-      const datosCompra = {
-        fecha_hora: comprasService.convertirFechaAISO(datosClase.fecha_hora),
-        descripcion_estudiante: datosClase.descripcion_estudiante,
-        estudiante: esNuevoUsuario ? {
-          email: datosUsuario.email,
-          nombre: datosUsuario.nombre,
-          apellido: datosUsuario.apellido,
-          telefono: datosUsuario.telefono,
-          password: datosUsuario.password
-        } : undefined
-      };
+    // Crear preferencia de pago
+    const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
-      const resultado = await comprasService.comprarClasePersonalizada(claseId, datosCompra);
+    if (resultado.success) {
+      console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
+      
+      setMensaje({ 
+        tipo: 'exito', 
+        texto: '✅ Redirigiendo a Mercado Pago...' 
+      });
 
-      if (resultado.success) {
-        setMensaje({ 
-          tipo: 'exito', 
-          texto: '¡Clase comprada exitosamente! Redirigiendo...' 
-        });
+      setTimeout(() => {
+        const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
+        comprasService.redirigirACheckout(initPoint);
+      }, 1000);
 
-        // Si es nuevo usuario y hay token, guardarlo
-        if (esNuevoUsuario && resultado.data.token) {
-          localStorage.setItem('token', resultado.data.token);
-        }
-
-        setTimeout(() => {
-          navigate('/estudiante/mis-clases');
-        }, 2000);
-      } else {
-        setMensaje({ tipo: 'error', texto: resultado.message });
-      }
-    } catch (err) {
-      console.error('Error al procesar compra:', err);
-      setMensaje({ tipo: 'error', texto: 'Error al procesar la compra' });
-    } finally {
+    } else {
+      console.error('❌ Error al crear preferencia:', resultado.message);
+      setMensaje({ 
+        tipo: 'error', 
+        texto: resultado.message || 'Error al procesar el pago' 
+      });
       setProcesando(false);
     }
-  };
+
+  } catch (error) {
+    console.error('❌ Error en el proceso de compra:', error);
+    setMensaje({ 
+      tipo: 'error', 
+      texto: 'Error al procesar el pago. Intenta de nuevo.' 
+    });
+    setProcesando(false);
+  }
+};
+
 
   if (loading) {
     return (
