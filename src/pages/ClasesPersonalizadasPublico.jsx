@@ -1,6 +1,7 @@
 // src/pages/ClasesPersonalizadasPublico.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import clasesPersonalizadasService from '../services/clases_personalizadas_service';
 import comprasService from '../services/compras_service';
 import '../styles/ClasesPublico.css';
 
@@ -17,17 +18,24 @@ const ClasesPersonalizadasPublico = () => {
   const cargarClases = async () => {
     try {
       setLoading(true);
-      const response = await fetch('https://academiaparchada.onrender.com/api/clases-personalizadas');
-      const data = await response.json();
+      setError(null);
+      
+      // Usar el servicio que ya maneja la estructura correcta
+      const resultado = await clasesPersonalizadasService.listarClases();
+      
+      console.log('Resultado completo:', resultado);
 
-      if (response.ok && data.success) {
-        setClases(data.data.clases || []);
+      if (resultado.success) {
+        // El servicio ya devuelve la estructura correcta en resultado.data.clases
+        setClases(resultado.data.clases || []);
+        console.log('Clases cargadas:', resultado.data.clases);
       } else {
-        setError(data.message || 'Error al cargar las clases');
+        setError(resultado.message || 'Error al cargar las clases');
+        console.error('Error en la respuesta:', resultado.message);
       }
     } catch (err) {
-      console.error('Error:', err);
-      setError('Error de conexión');
+      console.error('Error al cargar clases:', err);
+      setError('Error de conexión. Por favor, intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -58,7 +66,9 @@ const ClasesPersonalizadasPublico = () => {
         <div className="error-container">
           <h3>❌ Error</h3>
           <p>{error}</p>
-          <button onClick={cargarClases}>Reintentar</button>
+          <button onClick={cargarClases} className="btn-retry">
+            Reintentar
+          </button>
         </div>
       </div>
     );
@@ -78,7 +88,7 @@ const ClasesPersonalizadasPublico = () => {
               📚
             </div>
 
-            <h3>{clase.asignatura?.nombre}</h3>
+            <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
 
             <div className="clase-info">
               <div className="info-item">
@@ -100,7 +110,7 @@ const ClasesPersonalizadasPublico = () => {
             <div className="precio-container">
               <span className="precio-label">Precio por clase</span>
               <span className="precio-valor">
-                {comprasService.formatearPrecio(clase.precio)}
+                {clasesPersonalizadasService.formatearPrecio(clase.precio)}
               </span>
             </div>
 
