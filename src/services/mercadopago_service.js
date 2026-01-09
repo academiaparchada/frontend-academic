@@ -12,27 +12,55 @@ class MercadoPagoService {
     try {
       const token = localStorage.getItem('token');
       
+      console.log('🔐 Token extraído de localStorage:', token ? `${token.substring(0, 20)}...` : 'NO HAY TOKEN');
+      
       const headers = {
         'Content-Type': 'application/json'
       };
 
-      // Solo agregar token si existe (para usuarios logueados)
+      // Crear copia de datos para no modificar el original
+      const datosEnvio = { ...datos };
+
+      // ✅ Si hay token, agregarlo y NO enviar estudiante
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
+        // Eliminar estudiante si existe porque el backend lo tomará del token
+        if (datosEnvio.estudiante) {
+          console.log('🗑️ Eliminando campo estudiante (hay token)');
+          delete datosEnvio.estudiante;
+        }
+        console.log('✅ Token agregado a headers');
+      } else {
+        console.log('⚠️ NO hay token, se debe enviar estudiante');
+        if (!datosEnvio.estudiante) {
+          console.error('❌ ERROR: No hay token NI estudiante');
+        }
       }
 
-      console.log('📤 Enviando datos al checkout:', datos);
+      console.log('📋 Headers finales:', {
+        'Content-Type': headers['Content-Type'],
+        'Authorization': headers['Authorization'] ? 'Bearer ***' : 'NO'
+      });
+
+      console.log('📤 Datos a enviar:', {
+        ...datosEnvio,
+        estudiante: datosEnvio.estudiante ? '{ oculto }' : undefined
+      });
 
       const response = await fetch(`${API_URL}/pagos/mercadopago/checkout`, {
         method: 'POST',
         headers,
-        body: JSON.stringify(datos)
+        body: JSON.stringify(datosEnvio)
       });
+
+      console.log('📨 Status de respuesta:', response.status);
 
       const result = await response.json();
 
       if (!response.ok) {
         console.error('❌ Error en respuesta:', result);
+        console.error('❌ Status:', response.status);
+        console.error('❌ Headers enviados:', headers);
         return {
           success: false,
           message: result.message || 'Error al crear preferencia de pago',
@@ -40,7 +68,7 @@ class MercadoPagoService {
         };
       }
 
-      console.log('✅ Preferencia creada:', result);
+      console.log('✅ Preferencia creada exitosamente:', result);
 
       return {
         success: true,
@@ -180,9 +208,10 @@ class MercadoPagoService {
   /**
    * Validar datos de compra antes de enviar
    * @param {Object} datos - Datos a validar
+   * @param {boolean} esUsuarioAutenticado - Si el usuario está autenticado
    * @returns {Object}
    */
-  validarDatosCompra(datos) {
+  validarDatosCompra(datos, esUsuarioAutenticado = false) {
     const errores = [];
 
     // Validar tipo_compra
@@ -200,8 +229,13 @@ class MercadoPagoService {
       errores.push('El ID del curso es obligatorio');
     }
 
-    if (datos.tipo_compra === 'clase_personalizada' && !datos.clase_personalizada_id) {
-      errores.push('El ID de la clase es obligatorio');
+    if (datos.tipo_compra === 'clase_personalizada') {
+      if (!datos.clase_personalizada_id) {
+        errores.push('El ID de la clase es obligatorio');
+      }
+      if (!datos.fecha_hora) {
+        errores.push('La fecha y hora son obligatorias');
+      }
     }
 
     if (datos.tipo_compra === 'paquete_horas') {
@@ -213,9 +247,8 @@ class MercadoPagoService {
       }
     }
 
-    // Si no hay token (usuario no logueado), validar datos de estudiante
-    const token = localStorage.getItem('token');
-    if (!token && datos.estudiante) {
+    // ✅ Solo validar estudiante si NO está autenticado
+    if (!esUsuarioAutenticado && datos.estudiante) {
       if (!datos.estudiante.email) {
         errores.push('El email es obligatorio');
       }

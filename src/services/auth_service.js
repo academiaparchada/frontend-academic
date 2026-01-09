@@ -1,5 +1,5 @@
 // src/services/auth_service.js
-// URL del backend en Render (producción)
+// Usar proxy de Vite en desarrollo y ruta relativa en producción
 const API_URL = 'https://academiaparchada.onrender.com/api/auth';
 
 class AuthService {

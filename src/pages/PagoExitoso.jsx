@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import mercadoPagoService from '../services/mercadopago_service';
+import comprasService from '../services/compras_service';
 import '../styles/ResultadoPago.css';
 
 const PagoExitoso = () => {
@@ -9,64 +10,97 @@ const PagoExitoso = () => {
   const [searchParams] = useSearchParams();
   const compraId = searchParams.get('compra_id');
 
-  const [estado, setEstado] = useState('verificando'); // verificando | exitoso | pendiente | fallido
   const [compra, setCompra] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [verificando, setVerificando] = useState(false);
   const [mensaje, setMensaje] = useState('');
-  const [intentos, setIntentos] = useState(0);
-  const MAX_INTENTOS = 10;
+  
+  // Estados para polling
+  const [intentosPolling, setIntentosPolling] = useState(0);
+  const [pollingActivo, setPollingActivo] = useState(true);
+  const MAX_INTENTOS = 30; // 30 intentos = 60 segundos (2s cada uno)
 
   useEffect(() => {
     if (!compraId) {
-      setEstado('fallido');
       setMensaje('No se encontró información de la compra');
+      setLoading(false);
       return;
     }
 
-    verificarEstadoCompra();
-  }, [compraId]);
+    consultarEstado();
 
-  const verificarEstadoCompra = async () => {
+    // Polling automático cada 2 segundos
+    const intervalo = setInterval(() => {
+      if (pollingActivo && intentosPolling < MAX_INTENTOS) {
+        consultarEstadoSilencioso();
+        setIntentosPolling(prev => prev + 1);
+      } else {
+        clearInterval(intervalo);
+        setPollingActivo(false);
+        console.log('⏱️ Polling finalizado');
+      }
+    }, 2000);
+
+    return () => clearInterval(intervalo);
+  }, [compraId, intentosPolling, pollingActivo]);
+
+  const consultarEstado = async () => {
+    try {
+      setLoading(true);
+      const resultado = await mercadoPagoService.consultarEstadoCompra(compraId);
+
+      if (resultado.success && resultado.data) {
+        setCompra(resultado.data);
+        
+        const { mp_status, mp_status_detail, estado_pago } = resultado.data;
+        const mensajeEstado = mercadoPagoService.obtenerMensajeEstado(mp_status, mp_status_detail);
+        setMensaje(mensajeEstado);
+
+        // Si está completado, detener polling
+        if (estado_pago === 'completado') {
+          setPollingActivo(false);
+          setIntentosPolling(MAX_INTENTOS);
+        }
+      } else {
+        setMensaje('No se pudo verificar el estado del pago');
+      }
+    } catch (error) {
+      console.error('Error consultando estado:', error);
+      setMensaje('Error al consultar el estado');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const consultarEstadoSilencioso = async () => {
     try {
       const resultado = await mercadoPagoService.consultarEstadoCompra(compraId);
 
       if (resultado.success && resultado.data) {
-        const { estado_pago, mp_status, mp_status_detail } = resultado.data;
-
         setCompra(resultado.data);
+        
+        const { mp_status, mp_status_detail, estado_pago } = resultado.data;
+        const mensajeEstado = mercadoPagoService.obtenerMensajeEstado(mp_status, mp_status_detail);
+        setMensaje(mensajeEstado);
 
-        // Si está completado, mostrar éxito
+        console.log(`🔄 Polling ${intentosPolling}/${MAX_INTENTOS} - Estado: ${estado_pago}`);
+
+        // Si está completado, detener polling
         if (estado_pago === 'completado') {
-          setEstado('exitoso');
-          setMensaje(mercadoPagoService.obtenerMensajeEstado(mp_status, mp_status_detail));
-          return;
+          console.log('✅ Pago confirmado, deteniendo polling');
+          setPollingActivo(false);
+          setIntentosPolling(MAX_INTENTOS);
         }
-
-        // Si está fallido, mostrar error
-        if (estado_pago === 'fallido') {
-          setEstado('fallido');
-          setMensaje(mercadoPagoService.obtenerMensajeEstado(mp_status, mp_status_detail));
-          return;
-        }
-
-        // Si sigue pendiente, reintentar
-        if (estado_pago === 'pendiente') {
-          if (intentos < MAX_INTENTOS) {
-            setIntentos(prev => prev + 1);
-            setTimeout(verificarEstadoCompra, 3000); // Reintentar cada 3 segundos
-          } else {
-            setEstado('pendiente');
-            setMensaje('Tu pago está siendo procesado. Te notificaremos cuando esté confirmado.');
-          }
-        }
-      } else {
-        setEstado('fallido');
-        setMensaje('No se pudo verificar el estado del pago');
       }
     } catch (error) {
-      console.error('Error verificando estado:', error);
-      setEstado('fallido');
-      setMensaje('Error al verificar el estado del pago');
+      console.error('Error en polling silencioso:', error);
     }
+  };
+
+  const handleVerificarManual = async () => {
+    setVerificando(true);
+    await consultarEstado();
+    setVerificando(false);
   };
 
   const handleVolverDashboard = () => {
@@ -77,126 +111,156 @@ const PagoExitoso = () => {
     navigate('/estudiante/mis-compras');
   };
 
-  if (estado === 'verificando') {
+  const handleVerDetalleCompra = () => {
+    if (compra) {
+      if (compra.tipo_compra === 'paquete_horas') {
+        navigate(`/estudiante/paquete/${compra.id}`);
+      } else {
+        navigate('/estudiante/mis-compras');
+      }
+    }
+  };
+
+  if (loading) {
     return (
       <div className="resultado-pago-container">
         <div className="resultado-card">
           <div className="spinner-grande"></div>
-          <h2>Verificando tu pago...</h2>
-          <p>Por favor espera un momento</p>
-          <div className="progreso-intentos">
-            Intento {intentos + 1} de {MAX_INTENTOS}
-          </div>
+          <p>Verificando información del pago...</p>
         </div>
       </div>
     );
   }
 
-  if (estado === 'exitoso') {
-    return (
-      <div className="resultado-pago-container">
-        <div className="resultado-card exitoso">
-          <div className="icono-resultado">✅</div>
-          <h1>¡Pago Exitoso!</h1>
-          <p className="mensaje-principal">{mensaje}</p>
+  const estadoCompletado = compra?.estado_pago === 'completado';
 
-          {compra && (
-            <div className="detalle-compra">
-              <h3>Detalles de tu compra</h3>
-              <div className="detalle-item">
-                <span>Tipo:</span>
-                <strong>{compra.tipo_compra}</strong>
-              </div>
-              <div className="detalle-item">
-                <span>Monto:</span>
-                <strong>{mercadoPagoService.formatearPrecio(compra.monto_total)}</strong>
-              </div>
-              <div className="detalle-item">
-                <span>ID de Compra:</span>
-                <strong>{compra.id}</strong>
-              </div>
-              {compra.mp_payment_id && (
-                <div className="detalle-item">
-                  <span>ID de Pago MP:</span>
-                  <strong>{compra.mp_payment_id}</strong>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className="acciones">
-            <button className="btn-primary" onClick={handleVerCompras}>
-              📦 Ver Mis Compras
-            </button>
-            <button className="btn-secondary" onClick={handleVolverDashboard}>
-              🏠 Volver al Dashboard
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (estado === 'pendiente') {
-    return (
-      <div className="resultado-pago-container">
-        <div className="resultado-card pendiente">
-          <div className="icono-resultado">⏳</div>
-          <h1>Pago Pendiente</h1>
-          <p className="mensaje-principal">{mensaje}</p>
-
-          <div className="info-box">
-            <p>
-              <strong>¿Qué significa esto?</strong><br />
-              Tu pago está siendo procesado por Mercado Pago. 
-              Esto puede tardar unos minutos.
-            </p>
-            <p>
-              Te enviaremos una notificación por email cuando se confirme.
-            </p>
-          </div>
-
-          <div className="acciones">
-            <button className="btn-primary" onClick={() => verificarEstadoCompra()}>
-              🔄 Verificar Estado
-            </button>
-            <button className="btn-secondary" onClick={handleVolverDashboard}>
-              🏠 Volver al Dashboard
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Estado fallido
   return (
     <div className="resultado-pago-container">
-      <div className="resultado-card fallido">
-        <div className="icono-resultado">❌</div>
-        <h1>Pago No Completado</h1>
-        <p className="mensaje-principal">{mensaje}</p>
-
-        <div className="info-box">
-          <p>
-            <strong>¿Qué puedes hacer?</strong>
-          </p>
-          <ul>
-            <li>Verifica que tengas fondos suficientes</li>
-            <li>Revisa los datos de tu tarjeta</li>
-            <li>Contacta a tu banco si el problema persiste</li>
-            <li>Intenta con otro método de pago</li>
-          </ul>
+      <div className="resultado-card exitoso">
+        <div className="icono-resultado">
+          {estadoCompletado ? '✅' : '⏳'}
         </div>
+        <h1>
+          {estadoCompletado ? '¡Pago Exitoso!' : 'Procesando Pago'}
+        </h1>
+        <p className="mensaje-principal">
+          {mensaje || 'Tu pago ha sido procesado exitosamente'}
+        </p>
+
+        {compra && (
+          <div className="detalle-compra">
+            <h3>Detalles de tu compra</h3>
+            <div className="detalle-item">
+              <span>Tipo:</span>
+              <strong>
+                {compra.tipo_compra === 'curso' && '🎓 Curso'}
+                {compra.tipo_compra === 'clase_personalizada' && '📝 Clase Personalizada'}
+                {compra.tipo_compra === 'paquete_horas' && '📦 Paquete de Horas'}
+              </strong>
+            </div>
+            <div className="detalle-item">
+              <span>Monto:</span>
+              <strong>{comprasService.formatearPrecio(compra.monto_total)}</strong>
+            </div>
+            <div className="detalle-item">
+              <span>Estado:</span>
+              <strong className={`estado-${compra.estado_pago}`}>
+                {compra.estado_pago === 'completado' && '✅ Completado'}
+                {compra.estado_pago === 'pendiente' && '⏳ Pendiente'}
+                {compra.estado_pago === 'fallido' && '❌ Fallido'}
+              </strong>
+            </div>
+            <div className="detalle-item">
+              <span>ID de Compra:</span>
+              <strong>{compra.id}</strong>
+            </div>
+            {compra.mp_payment_id && (
+              <div className="detalle-item">
+                <span>ID de Pago MP:</span>
+                <strong>{compra.mp_payment_id}</strong>
+              </div>
+            )}
+          </div>
+        )}
+
+        {estadoCompletado ? (
+          <div className="info-box">
+            <h4>🎉 ¡Felicitaciones!</h4>
+            <p>
+              Tu compra ha sido confirmada exitosamente. 
+              {compra?.tipo_compra === 'curso' && ' Ya puedes acceder al curso desde tu dashboard.'}
+              {compra?.tipo_compra === 'clase_personalizada' && ' Recibirás un email con los detalles de tu clase.'}
+              {compra?.tipo_compra === 'paquete_horas' && ' Puedes agendar tus sesiones desde "Mis Compras".'}
+            </p>
+            <p style={{ marginTop: '0.5rem' }}>
+              📧 Se ha enviado un email de confirmación a tu correo registrado.
+            </p>
+          </div>
+        ) : (
+          <div className="info-box">
+            <h4>⏳ Confirmación en proceso</h4>
+            <p>
+              Tu pago está siendo verificado por Mercado Pago. 
+              Este proceso puede tardar unos minutos.
+            </p>
+            {pollingActivo && (
+              <div className="progreso-intentos">
+                <p style={{ fontSize: '0.9rem', color: '#718096', marginTop: '0.5rem' }}>
+                  🔄 Verificando automáticamente... ({intentosPolling}/{MAX_INTENTOS})
+                </p>
+              </div>
+            )}
+            {!pollingActivo && intentosPolling >= MAX_INTENTOS && (
+              <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#e67e22' }}>
+                ⚠️ La verificación automática ha finalizado. 
+                Puedes verificar manualmente o revisar tu email.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="acciones">
-          <button className="btn-primary" onClick={() => navigate('/cursos')}>
-            🔄 Intentar Nuevamente
+          {!estadoCompletado && (
+            <button 
+              className="btn-primary" 
+              onClick={handleVerificarManual}
+              disabled={verificando}
+            >
+              {verificando ? (
+                <>
+                  <div className="spinner-small"></div>
+                  Verificando...
+                </>
+              ) : (
+                '🔄 Verificar Estado Ahora'
+              )}
             </button>
-          <button className="btn-secondary" onClick={handleVolverDashboard}>
+          )}
+          
+          {estadoCompletado && (
+            <button className="btn-primary" onClick={handleVerDetalleCompra}>
+              📋 Ver Detalles de la Compra
+            </button>
+          )}
+
+          <button className="btn-secondary" onClick={handleVerCompras}>
+            📦 Ver Mis Compras
+          </button>
+          
+          <button className="btn-tertiary" onClick={handleVolverDashboard}>
             🏠 Volver al Dashboard
           </button>
         </div>
+
+        {estadoCompletado && compra?.tipo_compra === 'paquete_horas' && (
+          <div className="info-box" style={{ marginTop: '1.5rem', background: '#fff3cd' }}>
+            <h4>📅 Próximo paso</h4>
+            <p>
+              Ahora puedes agendar tus sesiones desde la sección "Mis Compras". 
+              Selecciona las fechas y horarios que mejor te convengan.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

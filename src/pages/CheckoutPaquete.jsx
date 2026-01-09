@@ -1,6 +1,7 @@
 // src/pages/CheckoutPaquete.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
 import '../styles/Checkout.css';
 
@@ -17,7 +18,6 @@ const CheckoutPaquete = () => {
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
-  // Cantidad de horas seleccionada
   const [cantidadHoras, setCantidadHoras] = useState(3);
 
   const [datosUsuario, setDatosUsuario] = useState({
@@ -112,77 +112,73 @@ const CheckoutPaquete = () => {
   };
 
   const handleComprar = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!validarFormulario()) {
-    setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
-    return;
-  }
-
-  if (cantidadHoras < 1) {
-    setMensaje({ tipo: 'error', texto: 'Debes seleccionar al menos 1 hora' });
-    return;
-  }
-
-  setProcesando(true);
-  setMensaje({ tipo: '', texto: '' });
-
-  try {
-    // Preparar datos para Mercado Pago
-    const datosCompra = {
-      tipo_compra: 'paquete_horas',
-      clase_personalizada_id: claseId,
-      cantidad_horas: cantidadHoras
-    };
-
-    // Si es nuevo usuario, agregar datos de estudiante
-    if (esNuevoUsuario) {
-      datosCompra.estudiante = {
-        email: datosUsuario.email,
-        password: datosUsuario.password,
-        nombre: datosUsuario.nombre,
-        apellido: datosUsuario.apellido,
-        telefono: datosUsuario.telefono
-      };
+    if (!validarFormulario()) {
+      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
+      return;
     }
 
-    console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
+    if (cantidadHoras < 1) {
+      setMensaje({ tipo: 'error', texto: 'Debes seleccionar al menos 1 hora' });
+      return;
+    }
 
-    // Crear preferencia de pago
-    const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
+    setProcesando(true);
+    setMensaje({ tipo: '', texto: '' });
 
-    if (resultado.success) {
-      console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
-      
-      setMensaje({ 
-        tipo: 'exito', 
-        texto: '✅ Redirigiendo a Mercado Pago...' 
-      });
+    try {
+      const datosCompra = {
+        tipo_compra: 'paquete_horas',
+        clase_personalizada_id: claseId,
+        cantidad_horas: cantidadHoras
+      };
 
-      setTimeout(() => {
-        const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
-        comprasService.redirigirACheckout(initPoint);
-      }, 1000);
+      if (esNuevoUsuario) {
+        datosCompra.estudiante = {
+          email: datosUsuario.email,
+          password: datosUsuario.password,
+          nombre: datosUsuario.nombre,
+          apellido: datosUsuario.apellido,
+          telefono: datosUsuario.telefono
+        };
+      }
 
-    } else {
-      console.error('❌ Error al crear preferencia:', resultado.message);
+      console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
+
+      const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
+
+      if (resultado.success) {
+        console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
+        
+        setMensaje({ 
+          tipo: 'exito', 
+          texto: '✅ Redirigiendo a Mercado Pago...' 
+        });
+
+        setTimeout(() => {
+          const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
+          comprasService.redirigirACheckout(initPoint);
+        }, 1000);
+
+      } else {
+        console.error('❌ Error al crear preferencia:', resultado.message);
+        setMensaje({ 
+          tipo: 'error', 
+          texto: resultado.message || 'Error al procesar el pago' 
+        });
+        setProcesando(false);
+      }
+
+    } catch (error) {
+      console.error('❌ Error en el proceso de compra:', error);
       setMensaje({ 
         tipo: 'error', 
-        texto: resultado.message || 'Error al procesar el pago' 
+        texto: 'Error al procesar el pago. Intenta de nuevo.' 
       });
       setProcesando(false);
     }
-
-  } catch (error) {
-    console.error('❌ Error en el proceso de compra:', error);
-    setMensaje({ 
-      tipo: 'error', 
-      texto: 'Error al procesar el pago. Intenta de nuevo.' 
-    });
-    setProcesando(false);
-  }
-};
-
+  };
 
   if (loading) {
     return (
@@ -219,7 +215,6 @@ const CheckoutPaquete = () => {
       </div>
 
       <div className="checkout-content">
-        {/* Resumen */}
         <div className="checkout-resumen">
           <h2>📦 Resumen de Compra</h2>
           
@@ -302,7 +297,6 @@ const CheckoutPaquete = () => {
           </div>
         </div>
 
-        {/* Formulario */}
         <div className="checkout-formulario">
           <form onSubmit={handleComprar}>
             {mensaje.texto && (
@@ -387,14 +381,15 @@ const CheckoutPaquete = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="password"
                       value={datosUsuario.password}
                       onChange={handleChangeUsuario}
-                      placeholder="Mínimo 6 caracteres"
                       disabled={procesando}
                       className={errores.password ? 'input-error' : ''}
+                      placeholder="Mínimo 6 caracteres"
+                      required={true}
+                      minLength={6}
                     />
                     {errores.password && (
                       <span className="error">{errores.password}</span>
@@ -403,14 +398,14 @@ const CheckoutPaquete = () => {
 
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="confirmarPassword"
                       value={datosUsuario.confirmarPassword}
                       onChange={handleChangeUsuario}
-                      placeholder="Repite tu contraseña"
                       disabled={procesando}
                       className={errores.confirmarPassword ? 'input-error' : ''}
+                      placeholder="Repite tu contraseña"
+                      required={true}
                     />
                     {errores.confirmarPassword && (
                       <span className="error">{errores.confirmarPassword}</span>

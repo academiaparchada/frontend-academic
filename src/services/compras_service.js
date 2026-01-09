@@ -24,10 +24,17 @@ class ComprasService {
    */
   async iniciarPagoMercadoPago(datosCompra) {
     try {
+      const token = localStorage.getItem('token');
+      const esUsuarioAutenticado = !!token;
+
+      console.log('💳 Iniciando pago MP...');
+      console.log('Usuario autenticado:', esUsuarioAutenticado);
+
       // Validar datos antes de enviar
-      const validacion = mercadoPagoService.validarDatosCompra(datosCompra);
+      const validacion = mercadoPagoService.validarDatosCompra(datosCompra, esUsuarioAutenticado);
       
       if (!validacion.valido) {
+        console.error('❌ Validación fallida:', validacion.errores);
         return {
           success: false,
           message: 'Datos de compra inválidos',
@@ -35,18 +42,32 @@ class ComprasService {
         };
       }
 
+      // ✅ NO eliminar estudiante aquí, mercadoPagoService lo manejará
+      console.log('📦 Datos preparados para envío:', {
+        ...datosCompra,
+        estudiante: datosCompra.estudiante ? '{ oculto }' : undefined,
+        usuarioAutenticado: esUsuarioAutenticado
+      });
+
+
+      console.log('📤 Datos finales:', {
+        ...datosCompra,
+        estudiante: datosCompra.estudiante ? '{ oculto }' : undefined
+      });
+
       // Crear preferencia en Mercado Pago
       const resultado = await mercadoPagoService.crearPreferencia(datosCompra);
 
       if (resultado.success) {
         // Guardar compra_id en localStorage para tracking
         localStorage.setItem('ultima_compra_id', resultado.data.compra_id);
+        console.log('✅ Compra ID guardado:', resultado.data.compra_id);
       }
 
       return resultado;
 
     } catch (error) {
-      console.error('Error iniciando pago:', error);
+      console.error('❌ Error iniciando pago:', error);
       return {
         success: false,
         message: 'Error al iniciar el proceso de pago'

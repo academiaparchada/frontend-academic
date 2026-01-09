@@ -1,6 +1,7 @@
 // src/pages/CheckoutCurso.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
 import '../styles/Checkout.css';
 
@@ -45,7 +46,6 @@ const CheckoutCurso = () => {
       console.log('User existe:', !!user);
 
       if (token && user) {
-        // Intentar validar el token con una petición al backend
         try {
           const response = await fetch('https://academiaparchada.onrender.com/api/compras/estudiante', {
             headers: {
@@ -58,7 +58,6 @@ const CheckoutCurso = () => {
             setTokenValido(true);
           } else {
             console.log('❌ Token inválido o vencido');
-            // Limpiar token inválido
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setTokenValido(false);
@@ -120,7 +119,6 @@ const CheckoutCurso = () => {
   const validarFormulario = () => {
     const nuevosErrores = {};
 
-    // Solo validar si NO está autenticado
     if (!tokenValido) {
       if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
         nuevosErrores.email = 'Email inválido';
@@ -166,13 +164,11 @@ const CheckoutCurso = () => {
     setMensaje({ tipo: '', texto: '' });
 
     try {
-      // Preparar datos base
       const datosCompra = {
         tipo_compra: 'curso',
         curso_id: cursoId
       };
 
-      // Si NO hay token válido, agregar estudiante
       if (!tokenValido) {
         console.log('👤 Agregando datos de estudiante (usuario nuevo)');
         datosCompra.estudiante = {
@@ -191,7 +187,6 @@ const CheckoutCurso = () => {
         estudiante: datosCompra.estudiante ? '{ ... datos ocultos ... }' : undefined
       });
 
-      // Crear preferencia
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
       console.log('📥 Respuesta del servicio:', resultado);
@@ -279,7 +274,6 @@ const CheckoutCurso = () => {
       </div>
 
       <div className="checkout-content">
-        {/* Resumen del curso */}
         <div className="checkout-resumen">
           <h2>Resumen del Curso</h2>
           <div className="curso-info-checkout">
@@ -319,7 +313,6 @@ const CheckoutCurso = () => {
           </div>
         </div>
 
-        {/* Formulario */}
         <div className="checkout-formulario">
           <h2>{tokenValido ? 'Confirmar Compra' : 'Completa tu Registro'}</h2>
           <p className="form-ayuda">
@@ -336,7 +329,6 @@ const CheckoutCurso = () => {
               </div>
             )}
 
-            {/* Formulario solo si NO está autenticado */}
             {!tokenValido && (
               <>
                 <div className="form-group">
@@ -400,28 +392,29 @@ const CheckoutCurso = () => {
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="password"
                       value={datosUsuario.password}
                       onChange={handleChangeUsuario}
                       disabled={procesando}
                       className={errores.password ? 'input-error' : ''}
                       placeholder="Mínimo 6 caracteres"
+                      required={true}
+                      minLength={6}
                     />
                     {errores.password && <span className="error">{errores.password}</span>}
                   </div>
 
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="confirmarPassword"
                       value={datosUsuario.confirmarPassword}
                       onChange={handleChangeUsuario}
                       disabled={procesando}
                       className={errores.confirmarPassword ? 'input-error' : ''}
                       placeholder="Repite la contraseña"
+                      required={true}
                     />
                     {errores.confirmarPassword && (
                       <span className="error">{errores.confirmarPassword}</span>

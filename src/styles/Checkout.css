@@ -547,3 +547,64 @@
     padding: 1rem;
   }
 }
+
+/* Selector de horas */
+.selector-horas {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.selector-horas label {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.selector-horas input[type="number"] {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1.1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.selector-horas input[type="number"]:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+/* Cálculo de precios */
+.calculo-precios {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e0e0e0;
+}
+
+.precio-linea {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  color: #4a5568;
+}
+
+.precio-linea.descuento {
+  color: #27ae60;
+  font-weight: 600;
+}
+
+.precio-linea.descuento span:first-child {
+  font-size: 0.95rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .selector-horas input[type="number"] {
+    font-size: 1rem;
+  }
+}

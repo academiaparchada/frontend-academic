@@ -1,9 +1,9 @@
-
 // src/pages/login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
+import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
 import '../styles/login.css';
 
@@ -26,17 +26,14 @@ export const Login = () => {
     set_loading(false);
 
     if (result.success) {
-      // Debug: Ver qué datos está devolviendo el backend
       console.log('Login exitoso - Datos completos:', result);
       console.log('Usuario:', result.data?.user);
       console.log('Rol del usuario:', result.data?.user?.rol);
       
-      // Intentar obtener el rol de diferentes ubicaciones posibles
       let user_role = result.data?.user?.rol || result.data?.rol || result.user?.rol;
       
       console.log('Rol detectado:', user_role);
       
-      // Redirigir según el rol del usuario
       if (user_role === 'admin' || user_role === 'administrador') {
         console.log('Redirigiendo a dashboard de admin');
         navigate('/admin/dashboard');
@@ -99,14 +96,13 @@ export const Login = () => {
                 <label htmlFor="password" className="form_label">
                   Contraseña:
                 </label>
-                <input
-                  type="password"
-                  id="password"
-                  className="form_input"
+                <PasswordInput
+                  name="password"
                   value={password}
                   onChange={(e) => set_password(e.target.value)}
-                  required
+                  placeholder="Ingresa tu contraseña"
                   disabled={loading}
+                  required={true}
                 />
               </div>
 

@@ -24,21 +24,34 @@ export const AuthProvider = ({ children }) => {
 
   const check_auth = async () => {
     set_loading(true);
-    if (auth_service.is_authenticated()) {
-      const result = await auth_service.get_me();
-      console.log('check_auth result:', result);
-      if (result.success) {
-        console.log('Usuario autenticado:', result.data);
-        set_user(result.data);
-        set_is_authenticated(true);
-      } else {
-        set_user(null);
-        set_is_authenticated(false);
-      }
-    } else {
+    
+    // Solo verificar si hay token
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      // No hay token, no está autenticado - NO hacer petición al servidor
       set_user(null);
       set_is_authenticated(false);
+      set_loading(false);
+      return;
     }
+
+    // Hay token, verificar con el backend
+    const result = await auth_service.get_me();
+    
+    if (result.success) {
+      console.log('Usuario autenticado:', result.data);
+      set_user(result.data);
+      set_is_authenticated(true);
+    } else {
+      // Token inválido o expirado
+      console.log('Token inválido, limpiando sesión');
+      set_user(null);
+      set_is_authenticated(false);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
+    
     set_loading(false);
   };
 
@@ -46,7 +59,6 @@ export const AuthProvider = ({ children }) => {
     const result = await auth_service.login(email, password);
     console.log('Login result en auth_context:', result);
     if (result.success) {
-      // Guardar el usuario completo
       const user_data = result.data?.user || result.data;
       console.log('Datos de usuario guardados:', user_data);
       set_user(user_data);

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
+import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
 import '../styles/register.css';
 
@@ -10,7 +11,6 @@ export const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
   
-  // Recuperar datos del sessionStorage o usar valores vacíos
   const [nombre, set_nombre] = useState(() => sessionStorage.getItem('register_nombre') || '');
   const [apellido, set_apellido] = useState(() => sessionStorage.getItem('register_apellido') || '');
   const [email, set_email] = useState(() => sessionStorage.getItem('register_email') || '');
@@ -21,7 +21,6 @@ export const Register = () => {
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
 
-  // Guardar datos en sessionStorage cuando cambien
   useEffect(() => {
     sessionStorage.setItem('register_nombre', nombre);
   }, [nombre]);
@@ -54,7 +53,6 @@ export const Register = () => {
     e.preventDefault();
     set_error('');
 
-    // Validaciones frontend
     if (password !== confirm_password) {
       set_error('Las contraseñas no coinciden');
       return;
@@ -85,7 +83,6 @@ export const Register = () => {
     set_loading(false);
 
     if (result.success) {
-      // Limpiar sessionStorage después del registro exitoso
       sessionStorage.removeItem('register_nombre');
       sessionStorage.removeItem('register_apellido');
       sessionStorage.removeItem('register_email');
@@ -94,10 +91,8 @@ export const Register = () => {
       sessionStorage.removeItem('register_confirm_password');
       sessionStorage.removeItem('register_accept_terms');
       
-      // Redirigir al dashboard de estudiante
       navigate('/estudiante/dashboard');
     } else {
-      // Mostrar errores
       if (result.errors && result.errors.length > 0) {
         const error_messages = result.errors.map(err => err.message).join(', ');
         set_error(error_messages);
@@ -193,14 +188,13 @@ export const Register = () => {
                 <label htmlFor="password" className="form_label">
                   Contraseña:
                 </label>
-                <input
-                  type="password"
-                  id="password"
-                  className="form_input"
+                <PasswordInput
+                  name="password"
                   value={password}
                   onChange={(e) => set_password(e.target.value)}
-                  required
+                  placeholder="Mínimo 6 caracteres"
                   disabled={loading}
+                  required={true}
                   minLength={6}
                 />
               </div>
@@ -209,14 +203,13 @@ export const Register = () => {
                 <label htmlFor="confirm_password" className="form_label">
                   Confirmar Contraseña:
                 </label>
-                <input
-                  type="password"
-                  id="confirm_password"
-                  className="form_input"
+                <PasswordInput
+                  name="confirm_password"
                   value={confirm_password}
                   onChange={(e) => set_confirm_password(e.target.value)}
-                  required
+                  placeholder="Repite la contraseña"
                   disabled={loading}
+                  required={true}
                 />
               </div>
 
