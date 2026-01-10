@@ -40,23 +40,44 @@ const CheckoutClase = () => {
   }, [claseId]);
 
   const cargarClase = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
-      const data = await response.json();
+  try {
+    setLoading(true);
+    const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
+    const data = await response.json();
+    
+    console.log('📚 RESPUESTA COMPLETA:', JSON.stringify(data, null, 2));
+    
+    if (response.ok && data.success) {
+      // Intentar extraer la clase de diferentes estructuras posibles
+      let claseData = null;
       
-      if (response.ok && data.success) {
-        setClase(data.data);
-      } else {
-        setError(data.message || 'Error al cargar la clase');
+      if (data.data?.clase) {
+        claseData = data.data.clase;
+      } else if (data.data?.clase_personalizada) {
+        claseData = data.data.clase_personalizada;
+      } else if (data.data) {
+        claseData = data.data;
       }
-    } catch (err) {
-      console.error('Error al cargar clase:', err);
-      setError('Error al cargar la clase');
-    } finally {
-      setLoading(false);
+      
+      console.log('✅ Clase extraída:', claseData);
+      console.log('💰 Precio encontrado:', claseData?.precio);
+      
+      if (claseData) {
+        setClase(claseData);
+      } else {
+        setError('No se pudo cargar la información de la clase');
+      }
+    } else {
+      setError(data.message || 'Error al cargar la clase');
     }
-  };
+  } catch (err) {
+    console.error('❌ Error al cargar clase:', err);
+    setError('Error al cargar la clase');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleChangeClase = (e) => {
     const { name, value } = e.target;
@@ -340,7 +361,7 @@ const CheckoutClase = () => {
                     name="email"
                     value={datosUsuario.email}
                     onChange={handleChangeUsuario}
-                    placeholder="tu@email.com"
+                    placeholder="Ingresa tu correo electronico"
                     disabled={procesando}
                     className={errores.email ? 'input-error' : ''}
                   />
@@ -357,7 +378,7 @@ const CheckoutClase = () => {
                       name="nombre"
                       value={datosUsuario.nombre}
                       onChange={handleChangeUsuario}
-                      placeholder="Juan"
+                      placeholder="Ingresa tu nombre"
                       disabled={procesando}
                       className={errores.nombre ? 'input-error' : ''}
                     />
@@ -373,7 +394,7 @@ const CheckoutClase = () => {
                       name="apellido"
                       value={datosUsuario.apellido}
                       onChange={handleChangeUsuario}
-                      placeholder="Pérez"
+                      placeholder="Ingresa tu apellido"
                       disabled={procesando}
                       className={errores.apellido ? 'input-error' : ''}
                     />
@@ -390,7 +411,7 @@ const CheckoutClase = () => {
                     name="telefono"
                     value={datosUsuario.telefono}
                     onChange={handleChangeUsuario}
-                    placeholder="+573001234567"
+                    placeholder="Ingresa tu numero telefonico"
                     disabled={procesando}
                     className={errores.telefono ? 'input-error' : ''}
                   />
@@ -408,7 +429,7 @@ const CheckoutClase = () => {
                       onChange={handleChangeUsuario}
                       disabled={procesando}
                       className={errores.password ? 'input-error' : ''}
-                      placeholder="Mínimo 6 caracteres"
+                      placeholder="Ingresa tu contraseña"
                       required={true}
                       minLength={6}
                     />
@@ -425,7 +446,7 @@ const CheckoutClase = () => {
                       onChange={handleChangeUsuario}
                       disabled={procesando}
                       className={errores.confirmarPassword ? 'input-error' : ''}
-                      placeholder="Repite tu contraseña"
+                      placeholder="Repite la contraseña"
                       required={true}
                     />
                     {errores.confirmarPassword && (

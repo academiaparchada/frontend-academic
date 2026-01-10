@@ -87,6 +87,7 @@ export const Login = () => {
                   className="form_input"
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
+                  placeholder="Ingresa tu correo electrónico "
                   required
                   disabled={loading}
                 />

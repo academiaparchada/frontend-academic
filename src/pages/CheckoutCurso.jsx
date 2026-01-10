@@ -15,11 +15,9 @@ const CheckoutCurso = () => {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   
-  // Verificar token y usuario
   const [tokenValido, setTokenValido] = useState(false);
   const [verificandoToken, setVerificandoToken] = useState(true);
 
-  // Datos del usuario nuevo
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
     nombre: '',
@@ -41,10 +39,6 @@ const CheckoutCurso = () => {
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
 
-      console.log('🔍 Verificando autenticación...');
-      console.log('Token existe:', !!token);
-      console.log('User existe:', !!user);
-
       if (token && user) {
         try {
           const response = await fetch('https://academiaparchada.onrender.com/api/compras/estudiante', {
@@ -54,22 +48,18 @@ const CheckoutCurso = () => {
           });
 
           if (response.ok) {
-            console.log('✅ Token válido');
             setTokenValido(true);
           } else {
-            console.log('❌ Token inválido o vencido');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             setTokenValido(false);
           }
         } catch (err) {
-          console.log('⚠️ No se pudo verificar token, asumiendo sin login');
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           setTokenValido(false);
         }
       } else {
-        console.log('ℹ️ No hay token, usuario nuevo');
         setTokenValido(false);
       }
     } catch (error) {
@@ -81,25 +71,29 @@ const CheckoutCurso = () => {
   };
 
   const cargarCurso = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch(`https://academiaparchada.onrender.com/api/cursos/${cursoId}`);
-      const data = await response.json();
+  try {
+    setLoading(true);
+    const response = await fetch(`https://academiaparchada.onrender.com/api/cursos/${cursoId}`);
+    const data = await response.json();
 
-      console.log('📚 Curso cargado:', data);
+    console.log('📚 RESPUESTA COMPLETA DE LA API:', JSON.stringify(data, null, 2));
 
-      if (response.ok && data.success) {
-        setCurso(data.data);
-      } else {
-        setError(data.message || 'No se pudo cargar el curso');
-      }
-    } catch (err) {
-      console.error('Error al cargar curso:', err);
-      setError('Error al cargar el curso');
-    } finally {
-      setLoading(false);
+    if (response.ok && data.success && data.data && data.data.curso) {
+      console.log('✅ Curso cargado exitosamente');
+      console.log('💰 Precio:', data.data.curso.precio);
+      setCurso(data.data.curso); // ⬅️ AQUÍ EL CAMBIO
+    } else {
+      console.error('❌ Error en respuesta:', data.message);
+      setError(data.message || 'No se pudo cargar el curso');
     }
-  };
+  } catch (err) {
+    console.error('❌ Error al cargar curso:', err);
+    setError('Error al cargar el curso');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
@@ -152,9 +146,6 @@ const CheckoutCurso = () => {
   const handleComprar = async (e) => {
     e.preventDefault();
 
-    console.log('🛒 Iniciando proceso de compra...');
-    console.log('¿Token válido?:', tokenValido);
-
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
@@ -170,7 +161,6 @@ const CheckoutCurso = () => {
       };
 
       if (!tokenValido) {
-        console.log('👤 Agregando datos de estudiante (usuario nuevo)');
         datosCompra.estudiante = {
           email: datosUsuario.email.trim(),
           password: datosUsuario.password,
@@ -178,22 +168,11 @@ const CheckoutCurso = () => {
           apellido: datosUsuario.apellido.trim(),
           telefono: datosUsuario.telefono.trim()
         };
-      } else {
-        console.log('👤 Usuario autenticado, no se envían datos de estudiante');
       }
-
-      console.log('📤 Datos finales a enviar:', {
-        ...datosCompra,
-        estudiante: datosCompra.estudiante ? '{ ... datos ocultos ... }' : undefined
-      });
 
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
-      console.log('📥 Respuesta del servicio:', resultado);
-
       if (resultado.success) {
-        console.log('✅ Preferencia creada exitosamente');
-        
         setMensaje({ 
           tipo: 'exito', 
           texto: '✅ Redirigiendo a Mercado Pago...' 
@@ -201,13 +180,10 @@ const CheckoutCurso = () => {
 
         setTimeout(() => {
           const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
-          console.log('🔗 Init point:', initPoint);
           
           if (initPoint) {
-            console.log('🔄 Redirigiendo...');
             window.location.href = initPoint;
           } else {
-            console.error('❌ No se recibió init_point');
             setMensaje({ 
               tipo: 'error', 
               texto: 'Error: No se pudo obtener el enlace de pago' 
@@ -217,7 +193,6 @@ const CheckoutCurso = () => {
         }, 1500);
 
       } else {
-        console.error('❌ Error:', resultado.message);
         setMensaje({ 
           tipo: 'error', 
           texto: resultado.message || 'Error al procesar el pago' 
@@ -237,6 +212,38 @@ const CheckoutCurso = () => {
 
   const handleCambiarALogin = () => {
     navigate(`/login?redirect=/checkout/curso/${cursoId}`);
+  };
+
+  // Función helper para obtener el precio de forma segura
+  const obtenerPrecio = () => {
+    if (!curso) return null;
+    
+    // Intentar obtener precio de diferentes propiedades posibles
+    const precio = curso.precio || curso.price || curso.valor || 0;
+    
+    console.log('🔍 Obteniendo precio:', precio);
+    return precio;
+  };
+
+  const formatearPrecioSeguro = () => {
+    const precio = obtenerPrecio();
+    
+    if (precio === null || precio === undefined) {
+      console.warn('⚠️ Precio no disponible');
+      return 'Precio no disponible';
+    }
+    
+    if (precio === 0) {
+      console.warn('⚠️ Precio es 0');
+      return 'Gratis';
+    }
+    
+    try {
+      return comprasService.formatearPrecio(precio);
+    } catch (error) {
+      console.error('❌ Error formateando precio:', error);
+      return `$ ${precio}`;
+    }
   };
 
   if (loading || verificandoToken) {
@@ -277,16 +284,18 @@ const CheckoutCurso = () => {
         <div className="checkout-resumen">
           <h2>Resumen del Curso</h2>
           <div className="curso-info-checkout">
-            <h3>{curso.nombre}</h3>
+            <h3>{curso.nombre || curso.title || 'Curso'}</h3>
             {curso.descripcion && (
               <p className="curso-descripcion">{curso.descripcion}</p>
             )}
 
             <div className="detalles-grid">
-              <div className="detalle-item">
-                <span className="detalle-label">⏱️ Duración:</span>
-                <span className="detalle-valor">{curso.duracion_horas} horas</span>
-              </div>
+              {curso.duracion_horas && (
+                <div className="detalle-item">
+                  <span className="detalle-label">⏱️ Duración:</span>
+                  <span className="detalle-valor">{curso.duracion_horas} horas</span>
+                </div>
+              )}
               {curso.profesor && (
                 <div className="detalle-item">
                   <span className="detalle-label">👨‍🏫 Profesor:</span>
@@ -299,9 +308,7 @@ const CheckoutCurso = () => {
 
             <div className="precio-total">
               <span>Total a pagar:</span>
-              <strong>
-                {curso.precio ? comprasService.formatearPrecio(curso.precio) : 'No disponible'}
-              </strong>
+              <strong>{formatearPrecioSeguro()}</strong>
             </div>
 
             <div className="info-box">

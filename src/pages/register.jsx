@@ -135,6 +135,7 @@ export const Register = () => {
                   className="form_input"
                   value={nombre}
                   onChange={(e) => set_nombre(e.target.value)}
+                  placeholder='Ingresa tu nombre'
                   required
                   disabled={loading}
                 />
@@ -150,6 +151,7 @@ export const Register = () => {
                   className="form_input"
                   value={apellido}
                   onChange={(e) => set_apellido(e.target.value)}
+                  placeholder='Ingresa tu apellido'
                   required
                   disabled={loading}
                 />
@@ -165,6 +167,7 @@ export const Register = () => {
                   className="form_input"
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
+                  placeholder='Ingresa tu correo electronico'
                   required
                   disabled={loading}
                 />
@@ -172,7 +175,7 @@ export const Register = () => {
 
               <div className="form_group">
                 <label htmlFor="telefono" className="form_label">
-                  Teléfono (Opcional):
+                  Teléfono:
                 </label>
                 <input
                   type="tel"
@@ -180,6 +183,7 @@ export const Register = () => {
                   className="form_input"
                   value={telefono}
                   onChange={(e) => set_telefono(e.target.value)}
+                  placeholder='Ingresa tu numero telefonico'
                   disabled={loading}
                 />
               </div>
@@ -192,7 +196,7 @@ export const Register = () => {
                   name="password"
                   value={password}
                   onChange={(e) => set_password(e.target.value)}
-                  placeholder="Mínimo 6 caracteres"
+                  placeholder="Ingresa tu contraseña"
                   disabled={loading}
                   required={true}
                   minLength={6}
@@ -207,7 +211,7 @@ export const Register = () => {
                   name="confirm_password"
                   value={confirm_password}
                   onChange={(e) => set_confirm_password(e.target.value)}
-                  placeholder="Repite la contraseña"
+                  placeholder="Repite tu contraseña"
                   disabled={loading}
                   required={true}
                 />
