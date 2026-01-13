@@ -163,25 +163,27 @@
 }
 
 .horas-controles button {
-  width: 45px;
-  height: 45px;
-  background: #3498db;
-  color: white;
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  font-size: 1.5rem;
+  outline: none;
+  box-shadow: none;
+  padding: 0;
+  color: rgb(0, 0, 0);
+  font-size: 2rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .horas-controles button:hover:not(:disabled) {
-  background: #2980b9;
+  color: #2c3e50;
   transform: scale(1.05);
+  outline: none;
+  box-shadow: none;
 }
 
 .horas-controles button:disabled {
-  background: #cbd5e0;
+  background: #a8a8a98c;
   cursor: not-allowed;
   transform: none;
 }
@@ -192,14 +194,15 @@
   text-align: center;
   font-size: 1.5rem;
   font-weight: bold;
-  border: 2px solid #e0e0e0;
+  background-color: #ffffff;
+  border: 2px solid #ffffff;
   border-radius: 8px;
-  color: #2c3e50;
+  color: #2c3e50f6;
 }
 
 .horas-controles input:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: #000000;
 }
 
 /* Ventajas del paquete */
@@ -274,6 +277,8 @@
   box-sizing: border-box;
   font-family: inherit;
   background: #ffff;
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .form-group textarea {

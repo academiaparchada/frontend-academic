@@ -83,6 +83,14 @@ export const AuthProvider = ({ children }) => {
     set_is_authenticated(false);
   };
 
+  // NUEVO: Método para actualizar usuario en contexto
+  const updateUser = (updatedUserData) => {
+    set_user(prevUser => ({
+      ...prevUser,
+      ...updatedUserData
+    }));
+  };
+
   const value = {
     user,
     loading,
@@ -90,7 +98,8 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    check_auth
+    check_auth,
+    updateUser // NUEVO
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

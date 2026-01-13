@@ -1,0 +1,215 @@
+/* src/styles/profesor_cursos.css */
+.profesor-cursos-container {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.profesor-cursos-container h1 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.cursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.curso-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.curso-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.curso-header {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.curso-header h3 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.badge-grupal {
+  background: #e1f5fe;
+  color: #0277bd;
+}
+
+.badge-pregrabado {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.badge-activo {
+  background: #e8f5e9;
+  color: #388e3c;
+}
+
+.badge-inactivo {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.badge-finalizado {
+  background: #f5f5f5;
+  color: #616161;
+}
+
+.curso-descripcion {
+  color: #666;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.curso-info {
+  margin: 1rem 0;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item .label {
+  font-weight: 600;
+  color: #555;
+}
+
+.info-item .value {
+  color: #333;
+}
+
+.btn-ver-inscritos {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 1rem;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-ver-inscritos:hover {
+  background: #1976d2;
+}
+
+/* Modal de Inscritos */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #999;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.btn-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.curso-nombre-modal {
+  color: #666;
+  margin-bottom: 1rem;
+  font-style: italic;
+}
+
+.tabla-inscritos {
+  overflow-x: auto;
+}
+
+.tabla-inscritos table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-inscritos th,
+.tabla-inscritos td {
+  padding: 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tabla-inscritos th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #555;
+}
+
+.tabla-inscritos tr:hover {
+  background: #fafafa;
+}

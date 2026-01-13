@@ -1,4 +1,6 @@
 // src/services/auth_service.js
+import { getBrowserTimeZone } from '../utils/timezone';
+
 // Usar proxy de Vite en desarrollo y ruta relativa en producción
 const API_URL = 'https://academiaparchada.onrender.com/api/auth';
 
@@ -19,7 +21,8 @@ class AuthService {
           password: user_data.password,
           nombre: user_data.nombre,
           apellido: user_data.apellido,
-          telefono: user_data.telefono || ''
+          telefono: user_data.telefono || '',
+          timezone: user_data.timezone || getBrowserTimeZone() // NUEVO: Agregar timezone
         })
       });
 

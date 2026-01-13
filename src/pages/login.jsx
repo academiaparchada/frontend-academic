@@ -128,18 +128,6 @@ export const Login = () => {
             <div className="social_login">
               <button
                 className="btn_social"
-                onClick={() => handle_social('Microsoft')}
-                aria-label="Iniciar sesión con Microsoft"
-                disabled={loading}
-              >
-                <img 
-                  src="/images/image.png" 
-                  alt="Microsoft" 
-                  className="social_icon"
-                />
-              </button>
-              <button
-                className="btn_social"
                 onClick={() => handle_social('Google')}
                 aria-label="Iniciar sesión con Google"
                 disabled={loading}
@@ -147,18 +135,6 @@ export const Login = () => {
                 <img 
                   src="/images/google.png" 
                   alt="Google" 
-                  className="social_icon"
-                />
-              </button>
-              <button
-                className="btn_social"
-                onClick={() => handle_social('Facebook')}
-                aria-label="Iniciar sesión con Facebook"
-                disabled={loading}
-              >
-                <img 
-                  src="/images/facebook.png" 
-                  alt="Facebook" 
                   className="social_icon"
                 />
               </button>

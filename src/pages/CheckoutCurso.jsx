@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
+import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/Checkout.css';
 
 const CheckoutCurso = () => {
@@ -23,6 +24,7 @@ const CheckoutCurso = () => {
     nombre: '',
     apellido: '',
     telefono: '',
+    timezone: getBrowserTimeZone(), // NUEVO
     password: '',
     confirmarPassword: ''
   });
@@ -71,29 +73,28 @@ const CheckoutCurso = () => {
   };
 
   const cargarCurso = async () => {
-  try {
-    setLoading(true);
-    const response = await fetch(`https://academiaparchada.onrender.com/api/cursos/${cursoId}`);
-    const data = await response.json();
+    try {
+      setLoading(true);
+      const response = await fetch(`https://academiaparchada.onrender.com/api/cursos/${cursoId}`);
+      const data = await response.json();
 
-    console.log('📚 RESPUESTA COMPLETA DE LA API:', JSON.stringify(data, null, 2));
+      console.log('📚 RESPUESTA COMPLETA DE LA API:', JSON.stringify(data, null, 2));
 
-    if (response.ok && data.success && data.data && data.data.curso) {
-      console.log('✅ Curso cargado exitosamente');
-      console.log('💰 Precio:', data.data.curso.precio);
-      setCurso(data.data.curso); // ⬅️ AQUÍ EL CAMBIO
-    } else {
-      console.error('❌ Error en respuesta:', data.message);
-      setError(data.message || 'No se pudo cargar el curso');
+      if (response.ok && data.success && data.data && data.data.curso) {
+        console.log('✅ Curso cargado exitosamente');
+        console.log('💰 Precio:', data.data.curso.precio);
+        setCurso(data.data.curso);
+      } else {
+        console.error('❌ Error en respuesta:', data.message);
+        setError(data.message || 'No se pudo cargar el curso');
+      }
+    } catch (err) {
+      console.error('❌ Error al cargar curso:', err);
+      setError('Error al cargar el curso');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('❌ Error al cargar curso:', err);
-    setError('Error al cargar el curso');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
@@ -128,6 +129,11 @@ const CheckoutCurso = () => {
 
       if (!datosUsuario.telefono) {
         nuevosErrores.telefono = 'El teléfono es obligatorio';
+      }
+
+      // NUEVO: Validar timezone
+      if (!datosUsuario.timezone) {
+        nuevosErrores.timezone = 'La zona horaria es obligatoria';
       }
 
       if (!datosUsuario.password || datosUsuario.password.length < 6) {
@@ -166,7 +172,8 @@ const CheckoutCurso = () => {
           password: datosUsuario.password,
           nombre: datosUsuario.nombre.trim(),
           apellido: datosUsuario.apellido.trim(),
-          telefono: datosUsuario.telefono.trim()
+          telefono: datosUsuario.telefono.trim(),
+          timezone: datosUsuario.timezone // NUEVO
         };
       }
 
@@ -214,13 +221,9 @@ const CheckoutCurso = () => {
     navigate(`/login?redirect=/checkout/curso/${cursoId}`);
   };
 
-  // Función helper para obtener el precio de forma segura
   const obtenerPrecio = () => {
     if (!curso) return null;
-    
-    // Intentar obtener precio de diferentes propiedades posibles
     const precio = curso.precio || curso.price || curso.valor || 0;
-    
     console.log('🔍 Obteniendo precio:', precio);
     return precio;
   };
@@ -394,6 +397,28 @@ const CheckoutCurso = () => {
                     placeholder="3001234567"
                   />
                   {errores.telefono && <span className="error">{errores.telefono}</span>}
+                </div>
+
+                {/* NUEVO CAMPO: Zona Horaria */}
+                <div className="form-group">
+                  <label>Zona Horaria *</label>
+                  <select
+                    name="timezone"
+                    value={datosUsuario.timezone}
+                    onChange={handleChangeUsuario}
+                    disabled={procesando}
+                    className={errores.timezone ? 'input-error' : ''}
+                  >
+                    {TIMEZONES_LATAM.map((tz) => (
+                      <option key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errores.timezone && <span className="error">{errores.timezone}</span>}
+                  <span className="help-text">
+                    Se detectó automáticamente tu zona horaria actual
+                  </span>
                 </div>
 
                 <div className="form-row">

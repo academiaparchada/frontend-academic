@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
+import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/Checkout.css';
 
 const CheckoutPaquete = () => {
@@ -25,6 +26,7 @@ const CheckoutPaquete = () => {
     nombre: '',
     apellido: '',
     telefono: '',
+    timezone: getBrowserTimeZone(), // NUEVO
     password: '',
     confirmarPassword: ''
   });
@@ -36,43 +38,42 @@ const CheckoutPaquete = () => {
   }, [claseId]);
 
   const cargarClase = async () => {
-  try {
-    setLoading(true);
-    const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
-    const data = await response.json();
-    
-    console.log('📚 RESPUESTA COMPLETA:', JSON.stringify(data, null, 2));
-    
-    if (response.ok && data.success) {
-      // Intentar extraer la clase de diferentes estructuras posibles
-      let claseData = null;
+    try {
+      setLoading(true);
+      const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
+      const data = await response.json();
       
-      if (data.data?.clase) {
-        claseData = data.data.clase;
-      } else if (data.data?.clase_personalizada) {
-        claseData = data.data.clase_personalizada;
-      } else if (data.data) {
-        claseData = data.data;
-      }
+      console.log('📚 RESPUESTA COMPLETA:', JSON.stringify(data, null, 2));
       
-      console.log('✅ Clase extraída:', claseData);
-      console.log('💰 Precio encontrado:', claseData?.precio);
-      
-      if (claseData) {
-        setClase(claseData);
+      if (response.ok && data.success) {
+        let claseData = null;
+        
+        if (data.data?.clase) {
+          claseData = data.data.clase;
+        } else if (data.data?.clase_personalizada) {
+          claseData = data.data.clase_personalizada;
+        } else if (data.data) {
+          claseData = data.data;
+        }
+        
+        console.log('✅ Clase extraída:', claseData);
+        console.log('💰 Precio encontrado:', claseData?.precio);
+        
+        if (claseData) {
+          setClase(claseData);
+        } else {
+          setError('No se pudo cargar la información de la clase');
+        }
       } else {
-        setError('No se pudo cargar la información de la clase');
+        setError(data.message || 'Error al cargar la clase');
       }
-    } else {
-      setError(data.message || 'Error al cargar la clase');
+    } catch (err) {
+      console.error('❌ Error al cargar clase:', err);
+      setError('Error al cargar la clase');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('❌ Error al cargar clase:', err);
-    setError('Error al cargar la clase');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
@@ -118,6 +119,11 @@ const CheckoutPaquete = () => {
         nuevosErrores.telefono = 'El teléfono es obligatorio';
       }
 
+      // NUEVO: Validar timezone
+      if (!datosUsuario.timezone) {
+        nuevosErrores.timezone = 'La zona horaria es obligatoria';
+      }
+
       if (datosUsuario.password.length < 6) {
         nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
       }
@@ -160,7 +166,8 @@ const CheckoutPaquete = () => {
           password: datosUsuario.password,
           nombre: datosUsuario.nombre,
           apellido: datosUsuario.apellido,
-          telefono: datosUsuario.telefono
+          telefono: datosUsuario.telefono,
+          timezone: datosUsuario.timezone // NUEVO
         };
       }
 
@@ -258,7 +265,7 @@ const CheckoutPaquete = () => {
                   onClick={() => setCantidadHoras(Math.max(1, cantidadHoras - 1))}
                   disabled={cantidadHoras <= 1 || procesando}
                 >
-                  -
+                 -
                 </button>
                 <input 
                   type="number" 
@@ -398,6 +405,29 @@ const CheckoutPaquete = () => {
                   )}
                 </div>
 
+                {/* NUEVO CAMPO: Zona Horaria */}
+                <div className="form-group">
+                  <label>Zona Horaria *</label>
+                  <select
+                    name="timezone"
+                    value={datosUsuario.timezone}
+                    onChange={handleChangeUsuario}
+                    disabled={procesando}
+                    className={errores.timezone ? 'input-error' : ''}
+                    
+                  >
+                    {TIMEZONES_LATAM.map((tz) => (
+                      <option key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </option>
+                    ))}
+                  </select>
+                  {errores.timezone && <span className="error">{errores.timezone}</span>}
+                  <span className="help-text">
+                    Se detectó automáticamente tu zona horaria actual
+                  </span>
+                </div>
+
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
@@ -466,7 +496,7 @@ const CheckoutPaquete = () => {
                   Procesando...
                 </>
               ) : (
-                <>💳 Comprar {cantidadHoras} Hora(s) - {comprasService.formatearPrecio(calcularPrecioTotal())}</>
+                <>💳 Pagar con Mercado Pago</>
               )}
             </button>
 

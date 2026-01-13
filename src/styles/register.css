@@ -85,6 +85,15 @@
   cursor: not-allowed;
 }
 
+/* NUEVO: Estilos para el hint del timezone */
+.form_hint {
+  display: block;
+  margin-top: 0.4rem;
+  color: #e0f0f0;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
 .terms_group {
   display: flex;
   gap: 0.75rem;
@@ -229,6 +238,10 @@
   }
 
   .terms_label {
+    font-size: 0.75rem;
+  }
+  
+  .form_hint {
     font-size: 0.75rem;
   }
 }

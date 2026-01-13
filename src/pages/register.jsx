@@ -5,6 +5,7 @@ import { Header } from '../components/header';
 import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
+import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/register.css';
 
 export const Register = () => {
@@ -15,6 +16,7 @@ export const Register = () => {
   const [apellido, set_apellido] = useState(() => sessionStorage.getItem('register_apellido') || '');
   const [email, set_email] = useState(() => sessionStorage.getItem('register_email') || '');
   const [telefono, set_telefono] = useState(() => sessionStorage.getItem('register_telefono') || '');
+  const [timezone, set_timezone] = useState(() => sessionStorage.getItem('register_timezone') || getBrowserTimeZone());
   const [password, set_password] = useState(() => sessionStorage.getItem('register_password') || '');
   const [confirm_password, set_confirm_password] = useState(() => sessionStorage.getItem('register_confirm_password') || '');
   const [accept_terms, set_accept_terms] = useState(() => sessionStorage.getItem('register_accept_terms') === 'true');
@@ -36,6 +38,10 @@ export const Register = () => {
   useEffect(() => {
     sessionStorage.setItem('register_telefono', telefono);
   }, [telefono]);
+
+  useEffect(() => {
+    sessionStorage.setItem('register_timezone', timezone);
+  }, [timezone]);
 
   useEffect(() => {
     sessionStorage.setItem('register_password', password);
@@ -75,7 +81,8 @@ export const Register = () => {
       apellido,
       email,
       telefono,
-      password
+      password,
+      timezone // NUEVO: Incluir timezone
     };
 
     const result = await register(user_data);
@@ -83,10 +90,12 @@ export const Register = () => {
     set_loading(false);
 
     if (result.success) {
+      // Limpiar sessionStorage
       sessionStorage.removeItem('register_nombre');
       sessionStorage.removeItem('register_apellido');
       sessionStorage.removeItem('register_email');
       sessionStorage.removeItem('register_telefono');
+      sessionStorage.removeItem('register_timezone');
       sessionStorage.removeItem('register_password');
       sessionStorage.removeItem('register_confirm_password');
       sessionStorage.removeItem('register_accept_terms');
@@ -159,7 +168,7 @@ export const Register = () => {
 
               <div className="form_group">
                 <label htmlFor="email" className="form_label">
-                  Correo Electronico:
+                  Correo Electrónico:
                 </label>
                 <input
                   type="email"
@@ -167,7 +176,7 @@ export const Register = () => {
                   className="form_input"
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
-                  placeholder='Ingresa tu correo electronico'
+                  placeholder='Ingresa tu correo electrónico'
                   required
                   disabled={loading}
                 />
@@ -183,9 +192,33 @@ export const Register = () => {
                   className="form_input"
                   value={telefono}
                   onChange={(e) => set_telefono(e.target.value)}
-                  placeholder='Ingresa tu numero telefonico'
+                  placeholder='Ingresa tu número telefónico'
                   disabled={loading}
                 />
+              </div>
+
+              {/* NUEVO CAMPO: Zona Horaria */}
+              <div className="form_group">
+                <label htmlFor="timezone" className="form_label">
+                  Zona Horaria:
+                </label>
+                <select
+                  id="timezone"
+                  className="form_input"
+                  value={timezone}
+                  onChange={(e) => set_timezone(e.target.value)}
+                  disabled={loading}
+                  required
+                >
+                  {TIMEZONES_LATAM.map((tz) => (
+                    <option key={tz.value} value={tz.value}>
+                      {tz.label}
+                    </option>
+                  ))}
+                </select>
+                <small className="form_hint">
+                  Se detectó automáticamente tu zona horaria actual
+                </small>
               </div>
 
               <div className="form_group">

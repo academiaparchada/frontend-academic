@@ -28,6 +28,9 @@ import ClasesPersonalizadasPublico from './pages/ClasesPersonalizadasPublico.jsx
 import PagoExitoso from './pages/PagoExitoso.jsx'
 import PagoPendiente from './pages/PagoPendiente.jsx'
 import PagoFallido from './pages/PagoFallido.jsx'
+import { MisClases } from './pages/profesor/MisClases.jsx'
+import { MisCursos } from './pages/profesor/MisCursos.jsx'
+import { MiPerfil } from './pages/profesor/MiPerfil.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -55,6 +58,9 @@ createRoot(document.getElementById('root')).render(
           
           {/* Profesor */}
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />
+          <Route path="/profesor/mis-clases" element={<MisClases />} />
+          <Route path="/profesor/mis-cursos" element={<MisCursos />} />
+          <Route path="/profesor/mi-perfil" element={<MiPerfil />} />
           
           {/* Público */}
           <Route path="/cursos" element={<CursosPublico />} />
