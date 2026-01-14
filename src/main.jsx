@@ -31,6 +31,7 @@ import PagoFallido from './pages/PagoFallido.jsx'
 import { MisClases } from './pages/profesor/MisClases.jsx'
 import { MisCursos } from './pages/profesor/MisCursos.jsx'
 import { MiPerfil } from './pages/profesor/MiPerfil.jsx'
+import { GoogleCallback } from './pages/GoogleCallback.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -75,10 +76,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="/estudiante/mis-compras" element={<MisCompras />} />
           <Route path="/estudiante/paquete/:compraId" element={<DetallePaquete />} />
           
-          {/*  Rutas de resultado de pago */}
+          {/* Rutas de resultado de pago */}
           <Route path="/pago/exitoso" element={<PagoExitoso />} />
           <Route path="/pago/pendiente" element={<PagoPendiente />} />
           <Route path="/pago/fallido" element={<PagoFallido />} />
+
+          {/* Callback de Google OAuth */}
+          <Route path="/auth/callback" element={<GoogleCallback />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

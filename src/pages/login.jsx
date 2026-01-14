@@ -5,6 +5,7 @@ import { Header } from '../components/header';
 import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
+import googleAuthService from '../services/google_auth_service';
 import '../styles/login.css';
 
 export const Login = () => {
@@ -49,8 +50,25 @@ export const Login = () => {
     }
   };
 
-  const handle_social = (provider) => {
-    set_error(`Inicio de sesión con ${provider} aún no disponible`);
+  // NUEVO: Manejar login con Google
+  const handle_google_login = async () => {
+    try {
+      set_error('');
+      set_loading(true);
+      
+      console.log('🔐 Iniciando login con Google...');
+      const result = await googleAuthService.signInWithGoogle();
+      
+      if (!result.success) {
+        set_error(result.message || 'Error al iniciar sesión con Google');
+        set_loading(false);
+      }
+      // Si es exitoso, el usuario será redirigido a Google y luego al callback
+    } catch (err) {
+      console.error('❌ Error al iniciar login con Google:', err);
+      set_error('Error al iniciar sesión con Google');
+      set_loading(false);
+    }
   };
 
   const handle_forgot_password = (e) => {
@@ -128,7 +146,7 @@ export const Login = () => {
             <div className="social_login">
               <button
                 className="btn_social"
-                onClick={() => handle_social('Google')}
+                onClick={handle_google_login}
                 aria-label="Iniciar sesión con Google"
                 disabled={loading}
               >

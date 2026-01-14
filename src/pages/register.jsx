@@ -6,6 +6,7 @@ import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
 import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
+import googleAuthService from '../services/google_auth_service';
 import '../styles/register.css';
 
 export const Register = () => {
@@ -111,9 +112,27 @@ export const Register = () => {
     }
   };
 
-  const handle_social = (provider) => {
-    set_error(`Registro con ${provider} aún no disponible`);
-  };
+  // NUEVO: Manejar registro con Google
+const handle_google_register = async () => {
+  try {
+    set_error('');
+    set_loading(true);
+    
+    console.log('🔐 Iniciando registro con Google...');
+    const result = await googleAuthService.signInWithGoogle();
+    
+    if (!result.success) {
+      set_error(result.message || 'Error al registrarse con Google');
+      set_loading(false);
+    }
+    // Si es exitoso, el usuario será redirigido a Google y luego al callback
+  } catch (err) {
+    console.error('❌ Error al iniciar registro con Google:', err);
+    set_error('Error al registrarse con Google');
+    set_loading(false);
+  }
+};
+
 
   return (
     <div className="page">
@@ -282,37 +301,13 @@ export const Register = () => {
             <div className="social_register">
               <button
                 className="btn_social"
-                onClick={() => handle_social('Microsoft')}
-                aria-label="Registrarse con Microsoft"
-                disabled={loading}
-              >
-                <img 
-                  src="/images/image.png" 
-                  alt="Microsoft" 
-                  className="social_icon"
-                />
-              </button>
-              <button
-                className="btn_social"
-                onClick={() => handle_social('Google')}
+                onClick={handle_google_register}
                 aria-label="Registrarse con Google"
                 disabled={loading}
               >
                 <img 
                   src="/images/google.png" 
                   alt="Google" 
-                  className="social_icon"
-                />
-              </button>
-              <button
-                className="btn_social"
-                onClick={() => handle_social('Facebook')}
-                aria-label="Registrarse con Facebook"
-                disabled={loading}
-              >
-                <img 
-                  src="/images/facebook.png" 
-                  alt="Facebook" 
                   className="social_icon"
                 />
               </button>
