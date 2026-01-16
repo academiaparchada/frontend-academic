@@ -31,23 +31,50 @@ const DetallePaquete = () => {
   }, [compraId]);
 
   const cargarDatos = async () => {
-    try {
-      setLoading(true);
-      const resultado = await comprasService.obtenerDetallePaquete(compraId);
-      
-      if (resultado.success) {
-        setPaquete(resultado.data);
-        setSesiones(resultado.sesiones || []);
-      } else {
-        setError(resultado.message);
-      }
-    } catch (err) {
-      console.error('Error al cargar paquete:', err);
-      setError('Error al cargar el paquete');
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    setError('');
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      throw new Error('No hay token de autenticación');
     }
-  };
+
+    const response = await fetch(
+      `https://api.parcheacademico.com/api/paquetes-horas/${compraId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Error ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // ESTRUCTURA: { success: true, data: { compra, sesiones, total_sesiones } }
+    const payload = data.data;
+    
+    console.log('Payload completo:', payload); // DEBUG TEMPORAL
+    
+    // ✅ paquete = payload COMPLETO (contiene compra, sesiones, etc.)
+    setPaquete(payload);
+    setSesiones(payload.sesiones || []);
+    
+  } catch (err) {
+    console.error('Error al cargar paquete:', err);
+    setError(err.message || 'Error al cargar el paquete');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleChangeSesion = (e) => {
     const { name, value } = e.target;
@@ -174,8 +201,17 @@ const DetallePaquete = () => {
     );
   }
 
-  const horasDisponibles = paquete.horas_totales - paquete.horas_usadas;
-  const porcentajeUsado = (paquete.horas_usadas / paquete.horas_totales) * 100;
+  const horasDisponibles = paquete?.compra?.horas_disponibles
+    ?? (paquete?.compra?.horas_totales - paquete?.compra?.horas_usadas) 
+    ?? 0;
+
+  const porcentajeUsado = paquete?.compra?.horas_totales 
+    ? (paquete?.compra?.horas_usadas / paquete?.compra?.horas_totales) * 100
+    : 0;
+
+  console.log('DEBUG - paquete.compra:', paquete?.compra);
+  console.log('DEBUG - horasDisponibles:', horasDisponibles);
+
 
   return (
     <div className="detalle-paquete-container">
@@ -188,7 +224,7 @@ const DetallePaquete = () => {
 
       <div className="paquete-info-principal">
         <div className="info-card">
-          <h2>📦 {paquete.clase_personalizada?.asignatura?.nombre}</h2>
+          <h2>📦 {paquete?.compra?.clase_personalizada?.asignatura?.nombre || 'Paquete'}</h2>
           
           <div className="horas-resumen">
             <div className="horas-circle">
@@ -213,11 +249,11 @@ const DetallePaquete = () => {
             <div className="horas-detalles">
               <div className="detalle-item">
                 <span className="label">Total:</span>
-                <span className="valor">{paquete.horas_totales}h</span>
+                <span className="valor">{paquete.compra.horas_totales}h</span>
               </div>
               <div className="detalle-item">
                 <span className="label">Usadas:</span>
-                <span className="valor usado">{paquete.horas_usadas}h</span>
+                <span className="valor usado">{paquete.compra.horas_usadas}h</span>
               </div>
               <div className="detalle-item">
                 <span className="label">Disponibles:</span>
@@ -231,7 +267,7 @@ const DetallePaquete = () => {
               <span className="icon">💰</span>
               <div>
                 <span className="label">Monto Total</span>
-                <strong>{comprasService.formatearPrecio(paquete.monto_total)}</strong>
+                <strong>{comprasService.formatearPrecio(paquete.compra.monto_total)}</strong>
               </div>
             </div>
 
@@ -239,7 +275,7 @@ const DetallePaquete = () => {
               <span className="icon">📅</span>
               <div>
                 <span className="label">Fecha de Compra</span>
-                <strong>{comprasService.formatearFecha(paquete.fecha_compra)}</strong>
+                <strong>{comprasService.formatearFecha(paquete.compra.fecha_compra)}</strong>
               </div>
             </div>
 
@@ -247,8 +283,8 @@ const DetallePaquete = () => {
               <span className="icon">✅</span>
               <div>
                 <span className="label">Estado</span>
-                <span className={`badge badge-${paquete.estado_pago}`}>
-                  {paquete.estado_pago === 'completado' ? 'Pagado' : paquete.estado_pago}
+                <span className={`badge badge-${paquete.compra.estado_pago}`}>
+                  {paquete.compra.estado_pago === 'completado' ? 'Pagado' : paquete.compra.estado_pago}
                 </span>
               </div>
             </div>

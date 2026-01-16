@@ -718,3 +718,134 @@
     width: 100%;
   }
 }
+
+.detalle-paquete-page {
+  min-height: 100vh;
+  
+  .paquete-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .paquete-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .horas-resumen {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    
+    .hora-item {
+      text-align: center;
+      
+      &.disponible {
+        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        font-size: 1.1em;
+      }
+    }
+  }
+  
+  .estado-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    
+    &.completado { background: #d4edda; color: #155724; }
+    &.pendiente { background: #fff3cd; color: #856404; }
+  }
+  
+  .sesiones-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+    
+    .sesiones-list {
+      .sesion-item {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        
+        .sesion-info {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
+  
+  .agendador-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    
+    .disponibles-text {
+      font-size: 1.2em;
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  .calendario-form {
+    display: grid;
+    gap: 1.5rem;
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      
+      label {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+      
+      input, select, textarea {
+        padding: 0.75rem;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 8px;
+        background: rgba(255,255,255,0.95);
+        font-size: 1rem;
+      }
+    }
+    
+    .btn-agendar {
+      background: #28a745;
+      color: white;
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      
+      &:hover {
+        background: #218838;
+        transform: translateY(-2px);
+      }
+    }
+  }
+}
