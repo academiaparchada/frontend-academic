@@ -614,3 +614,163 @@
     font-size: 1rem;
   }
 }
+
+/* ==================== ESTILOS PARA ADJUNTAR DOCUMENTO ==================== */
+
+.file-upload-container {
+  width: 100%;
+}
+
+.file-upload-area {
+  position: relative;
+  width: 100%;
+}
+
+.file-input-hidden {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  background: #f7fafc;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+  border-color: #667eea;
+  background: #edf2f7;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.25rem;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* Archivo seleccionado */
+.file-selected {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #edf2f7;
+  border: 2px solid #667eea;
+  border-radius: 8px;
+  gap: 1rem;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.file-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.file-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #2d3748;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-size {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.btn-eliminar-archivo {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fc8181;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-eliminar-archivo:hover:not(:disabled) {
+  background: #f56565;
+  transform: scale(1.1);
+}
+
+.btn-eliminar-archivo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive para archivos */
+@media (max-width: 768px) {
+  .file-upload-label {
+    padding: 1.5rem;
+  }
+
+  .upload-icon {
+    font-size: 2.5rem;
+  }
+
+  .upload-text {
+    font-size: 0.9rem;
+  }
+
+  .upload-hint {
+    font-size: 0.8rem;
+  }
+
+  .file-selected {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .file-info {
+    flex-direction: row;
+  }
+
+  .btn-eliminar-archivo {
+    align-self: flex-end;
+  }
+}
+

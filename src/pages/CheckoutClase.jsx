@@ -19,6 +19,10 @@ const CheckoutClase = () => {
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
+  // NUEVO: Estado para archivo
+  const [archivoAdjunto, setArchivoAdjunto] = useState(null);
+  const [errorArchivo, setErrorArchivo] = useState('');
+
   // Formulario
   const [datosClase, setDatosClase] = useState({
     fecha_hora: '',
@@ -30,7 +34,7 @@ const CheckoutClase = () => {
     nombre: '',
     apellido: '',
     telefono: '',
-    timezone: getBrowserTimeZone(), // NUEVO
+    timezone: getBrowserTimeZone(),
     password: '',
     confirmarPassword: ''
   });
@@ -109,6 +113,40 @@ const CheckoutClase = () => {
     }
   };
 
+  // NUEVO: Manejar selección de archivo
+  const handleArchivoChange = (e) => {
+    const archivo = e.target.files[0];
+    setErrorArchivo('');
+
+    if (!archivo) {
+      setArchivoAdjunto(null);
+      return;
+    }
+
+    // Validar archivo
+    const validacion = comprasService.validarArchivo(archivo);
+    if (!validacion.valido) {
+      setErrorArchivo(validacion.mensaje);
+      setArchivoAdjunto(null);
+      e.target.value = ''; // Limpiar input
+      return;
+    }
+
+    setArchivoAdjunto(archivo);
+    console.log('📎 Archivo seleccionado:', archivo.name, comprasService.formatearTamanoArchivo(archivo.size));
+  };
+
+  // NUEVO: Eliminar archivo adjunto
+  const handleEliminarArchivo = () => {
+    setArchivoAdjunto(null);
+    setErrorArchivo('');
+    // Limpiar el input file
+    const fileInput = document.getElementById('documento-input');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  };
+
   const validarFormulario = () => {
     const nuevosErrores = {};
 
@@ -147,7 +185,6 @@ const CheckoutClase = () => {
         nuevosErrores.telefono = 'El teléfono es obligatorio';
       }
 
-      // NUEVO: Validar timezone
       if (!datosUsuario.timezone) {
         nuevosErrores.timezone = 'La zona horaria es obligatoria';
       }
@@ -181,7 +218,8 @@ const CheckoutClase = () => {
         tipo_compra: 'clase_personalizada',
         clase_personalizada_id: claseId,
         fecha_hora: comprasService.convertirFechaAISO(datosClase.fecha_hora),
-        descripcion_estudiante: datosClase.descripcion_estudiante
+        descripcion_estudiante: datosClase.descripcion_estudiante,
+        estudiante_timezone: datosUsuario.timezone || 'America/Bogota'
       };
 
       if (esNuevoUsuario) {
@@ -191,13 +229,22 @@ const CheckoutClase = () => {
           nombre: datosUsuario.nombre,
           apellido: datosUsuario.apellido,
           telefono: datosUsuario.telefono,
-          timezone: datosUsuario.timezone // NUEVO
+          timezone: datosUsuario.timezone
         };
       }
 
       console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
+      console.log('📎 Archivo adjunto:', archivoAdjunto ? archivoAdjunto.name : 'ninguno');
 
-      const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
+      let resultado;
+
+      // Si hay archivo adjunto, usar FormData
+      if (archivoAdjunto) {
+        resultado = await comprasService.iniciarPagoMercadoPagoConArchivo(datosCompra, archivoAdjunto);
+      } else {
+        // Si no hay archivo, usar JSON normal
+        resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
+      }
 
       if (resultado.success) {
         console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
@@ -353,6 +400,58 @@ const CheckoutClase = () => {
               </span>
             </div>
 
+            {/* NUEVO: Campo para adjuntar documento */}
+            <div className="form-group">
+              <label>📎 Adjuntar Documento (Opcional)</label>
+              <div className="file-upload-container">
+                {!archivoAdjunto ? (
+                  <div className="file-upload-area">
+                    <input
+                      type="file"
+                      id="documento-input"
+                      onChange={handleArchivoChange}
+                      disabled={procesando}
+                      accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip,.rar,.7z"
+                      className="file-input-hidden"
+                    />
+                    <label htmlFor="documento-input" className="file-upload-label">
+                      <span className="upload-icon">📄</span>
+                      <span className="upload-text">Click para seleccionar archivo</span>
+                      <span className="upload-hint">
+                        PDF, DOC, IMG, ZIP (máx. 25MB)
+                      </span>
+                    </label>
+                  </div>
+                ) : (
+                  <div className="file-selected">
+                    <div className="file-info">
+                      <span className="file-icon">📎</span>
+                      <div className="file-details">
+                        <span className="file-name">{archivoAdjunto.name}</span>
+                        <span className="file-size">
+                          {comprasService.formatearTamanoArchivo(archivoAdjunto.size)}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleEliminarArchivo}
+                      className="btn-eliminar-archivo"
+                      disabled={procesando}
+                    >
+                      ✖
+                    </button>
+                  </div>
+                )}
+              </div>
+              {errorArchivo && (
+                <span className="error">{errorArchivo}</span>
+              )}
+              <span className="help-text">
+                Puedes adjuntar ejercicios, guías o material de estudio para que el profesor lo revise
+              </span>
+            </div>
+
             {esNuevoUsuario && (
               <>
                 <h2>👤 Tus Datos</h2>
@@ -426,7 +525,6 @@ const CheckoutClase = () => {
                   )}
                 </div>
 
-                {/* NUEVO CAMPO: Zona Horaria */}
                 <div className="form-group">
                   <label>Zona Horaria *</label>
                   <select

@@ -15,6 +15,14 @@ class ComprasService {
     };
   }
 
+  _getHeadersMultipart() {
+    const token = this._getToken();
+    return token ? {
+      'Authorization': `Bearer ${token}`
+      // NO incluir Content-Type para que el navegador lo configure automáticamente con boundary
+    } : {};
+  }
+
   // ==================== MÉTODOS DE MERCADO PAGO ====================
 
   /**
@@ -73,6 +81,148 @@ class ComprasService {
         message: 'Error al iniciar el proceso de pago'
       };
     }
+  }
+
+  /**
+   * NUEVO: Iniciar proceso de pago con Mercado Pago CON ARCHIVO (multipart/form-data)
+   * Usar para clases personalizadas que necesiten adjuntar documento
+   * @param {Object} datosCompra - Datos de la compra
+   * @param {File} archivoDocumento - Archivo adjunto (opcional)
+   * @returns {Promise<Object>}
+   */
+  async iniciarPagoMercadoPagoConArchivo(datosCompra, archivoDocumento = null) {
+    try {
+      const token = localStorage.getItem('token');
+      const esUsuarioAutenticado = !!token;
+
+      console.log('💳 Iniciando pago MP (FormData con archivo)...');
+      console.log('Usuario autenticado:', esUsuarioAutenticado);
+      console.log('Archivo adjunto:', archivoDocumento ? archivoDocumento.name : 'ninguno');
+
+      // Validar archivo si existe
+      if (archivoDocumento) {
+        const validacionArchivo = this.validarArchivo(archivoDocumento);
+        if (!validacionArchivo.valido) {
+          return {
+            success: false,
+            message: validacionArchivo.mensaje
+          };
+        }
+      }
+
+      // Crear FormData
+      const formData = new FormData();
+
+      // Agregar campos de texto
+      formData.append('tipo_compra', datosCompra.tipo_compra);
+      
+      if (datosCompra.tipo_compra === 'curso') {
+        formData.append('curso_id', datosCompra.curso_id);
+      } else if (datosCompra.tipo_compra === 'clase_personalizada') {
+        formData.append('clase_personalizada_id', datosCompra.clase_personalizada_id);
+        formData.append('fecha_hora', datosCompra.fecha_hora);
+        if (datosCompra.descripcion_estudiante) {
+          formData.append('descripcion_estudiante', datosCompra.descripcion_estudiante);
+        }
+        if (datosCompra.estudiante_timezone) {
+          formData.append('estudiante_timezone', datosCompra.estudiante_timezone);
+        }
+      } else if (datosCompra.tipo_compra === 'paquete_horas') {
+        formData.append('clase_personalizada_id', datosCompra.clase_personalizada_id);
+        formData.append('cantidad_horas', datosCompra.cantidad_horas);
+      }
+
+      // Agregar datos de estudiante si es nuevo usuario
+      if (!esUsuarioAutenticado && datosCompra.estudiante) {
+        formData.append('estudiante[email]', datosCompra.estudiante.email);
+        formData.append('estudiante[password]', datosCompra.estudiante.password);
+        formData.append('estudiante[nombre]', datosCompra.estudiante.nombre);
+        formData.append('estudiante[apellido]', datosCompra.estudiante.apellido);
+        formData.append('estudiante[telefono]', datosCompra.estudiante.telefono);
+        if (datosCompra.estudiante.timezone) {
+          formData.append('estudiante[timezone]', datosCompra.estudiante.timezone);
+        }
+      }
+
+      // Agregar archivo si existe
+      if (archivoDocumento) {
+        formData.append('documento', archivoDocumento);
+      }
+
+      // Enviar al backend
+      const response = await fetch(`${API_URL}/pagos/mercadopago/checkout`, {
+        method: 'POST',
+        headers: this._getHeadersMultipart(),
+        body: formData
+      });
+
+      const data = await response.json();
+      console.log('📥 Respuesta del servidor:', data);
+
+      if (!response.ok) {
+        return {
+          success: false,
+          message: data.message || 'Error al crear la preferencia de pago',
+          errors: data.errors || []
+        };
+      }
+
+      // Guardar compra_id
+      if (data.data?.compra_id) {
+        localStorage.setItem('ultima_compra_id', data.data.compra_id);
+        console.log('✅ Compra ID guardado:', data.data.compra_id);
+      }
+
+      return {
+        success: true,
+        data: data.data,
+        message: data.message
+      };
+
+    } catch (error) {
+      console.error('❌ Error iniciando pago con archivo:', error);
+      return {
+        success: false,
+        message: 'Error al iniciar el proceso de pago'
+      };
+    }
+  }
+
+  /**
+   * NUEVO: Validar archivo adjunto
+   * @param {File} archivo - Archivo a validar
+   * @returns {Object} - {valido: boolean, mensaje: string}
+   */
+  validarArchivo(archivo) {
+    const MAX_SIZE = 25 * 1024 * 1024; // 25MB
+    const EXTENSIONES_PERMITIDAS = [
+      'pdf', 'doc', 'docx', 'txt', 
+      'jpg', 'jpeg', 'png', 
+      'zip', 'rar', '7z'
+    ];
+
+    if (!archivo) {
+      return { valido: true }; // Archivo opcional
+    }
+
+    // Validar tamaño
+    if (archivo.size > MAX_SIZE) {
+      return {
+        valido: false,
+        mensaje: 'El archivo no puede pesar más de 25MB'
+      };
+    }
+
+    // Validar extensión
+    const extension = archivo.name.split('.').pop().toLowerCase();
+    if (!EXTENSIONES_PERMITIDAS.includes(extension)) {
+      return {
+        valido: false,
+        mensaje: `Formato no permitido. Usa: ${EXTENSIONES_PERMITIDAS.join(', ')}`
+      };
+    }
+
+    return { valido: true };
   }
 
   /**
@@ -416,6 +566,15 @@ class ComprasService {
     // Salida: "2026-01-07T14:00:00-05:00"
     if (!fechaLocal) return null;
     return `${fechaLocal}:00-05:00`;
+  }
+
+  // NUEVO: Formatear tamaño de archivo
+  formatearTamanoArchivo(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   }
 
   // Validar datos de estudiante nuevo
