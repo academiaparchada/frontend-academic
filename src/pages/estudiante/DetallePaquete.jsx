@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
+import { getBrowserTimeZone } from '../../utils/timezone';
 import '../../styles/DetallePaquete.css';
 
 const DetallePaquete = () => {
@@ -31,50 +32,30 @@ const DetallePaquete = () => {
   }, [compraId]);
 
   const cargarDatos = async () => {
-  try {
-    setLoading(true);
-    setError('');
+    try {
+      setLoading(true);
+      setError('');
 
-    const token = localStorage.getItem('token');
-    if (!token) {
-      throw new Error('No hay token de autenticación');
-    }
+      console.log('🔄 Cargando paquete con ID:', compraId);
 
-    const response = await fetch(
-      `https://api.parcheacademico.com/api/paquetes-horas/${compraId}`,
-      {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      const resultado = await comprasService.obtenerDetallePaquete(compraId);
+
+      if (resultado.success) {
+        console.log('✅ Datos del paquete recibidos:', resultado.data);
+        
+        // El backend devuelve: { data: { compra, sesiones, total_sesiones } }
+        setPaquete(resultado.data);
+        setSesiones(resultado.sesiones || []);
+      } else {
+        setError(resultado.message || 'Error al cargar el paquete');
       }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Error ${response.status}`);
+    } catch (err) {
+      console.error('❌ Error al cargar paquete:', err);
+      setError(err.message || 'Error al cargar el paquete');
+    } finally {
+      setLoading(false);
     }
-
-    const data = await response.json();
-    
-    // ESTRUCTURA: { success: true, data: { compra, sesiones, total_sesiones } }
-    const payload = data.data;
-    
-    console.log('Payload completo:', payload); // DEBUG TEMPORAL
-    
-    // ✅ paquete = payload COMPLETO (contiene compra, sesiones, etc.)
-    setPaquete(payload);
-    setSesiones(payload.sesiones || []);
-    
-  } catch (err) {
-    console.error('Error al cargar paquete:', err);
-    setError(err.message || 'Error al cargar el paquete');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleChangeSesion = (e) => {
     const { name, value } = e.target;
@@ -93,6 +74,11 @@ const DetallePaquete = () => {
 
   const validarFormulario = () => {
     const nuevosErrores = {};
+    const horasDisponibles = paquete?.compra?.horas_disponibles || 0;
+
+    console.log('🔍 VALIDANDO FORMULARIO');
+    console.log('  → Horas disponibles:', horasDisponibles);
+    console.log('  → Duración solicitada:', nuevaSesion.duracion_horas);
 
     if (!nuevaSesion.fecha_hora) {
       nuevosErrores.fecha_hora = 'La fecha y hora son obligatorias';
@@ -105,13 +91,20 @@ const DetallePaquete = () => {
       }
     }
 
-    if (nuevaSesion.duracion_horas < 1 || nuevaSesion.duracion_horas > (paquete?.horas_disponibles || 0)) {
-      nuevosErrores.duracion_horas = `Debes seleccionar entre 1 y ${paquete?.horas_disponibles} hora(s)`;
+    if (nuevaSesion.duracion_horas < 1) {
+      nuevosErrores.duracion_horas = 'La duración debe ser al menos 1 hora';
+    } else if (nuevaSesion.duracion_horas > 8) {
+      nuevosErrores.duracion_horas = 'La duración no puede ser mayor a 8 horas';
+    } else if (nuevaSesion.duracion_horas > horasDisponibles) {
+      nuevosErrores.duracion_horas = `Solo tienes ${horasDisponibles} hora(s) disponible(s)`;
+      console.log('⚠️ ERROR: Duración excede horas disponibles');
     }
 
     if (!nuevaSesion.descripcion_estudiante || nuevaSesion.descripcion_estudiante.trim().length < 10) {
       nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
     }
+
+    console.log('✅ Validación:', Object.keys(nuevosErrores).length === 0 ? 'PASÓ' : 'FALLÓ', nuevosErrores);
 
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
@@ -119,6 +112,10 @@ const DetallePaquete = () => {
 
   const handleAgendarSesion = async (e) => {
     e.preventDefault();
+    
+    console.log('═══════════════════════════════════════════════');
+    console.log('🚀 INICIANDO AGENDAMIENTO DE SESIÓN');
+    console.log('═══════════════════════════════════════════════');
     
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
@@ -129,18 +126,34 @@ const DetallePaquete = () => {
     setMensaje({ tipo: '', texto: '' });
 
     try {
+      // Convertir fecha a ISO 8601 con zona horaria
+      const fechaISO = comprasService.convertirFechaAISO(nuevaSesion.fecha_hora);
+      
+      console.log('📋 DATOS A ENVIAR:');
+      console.log('  → Compra ID:', compraId);
+      console.log('  → Fecha original:', nuevaSesion.fecha_hora);
+      console.log('  → Fecha ISO 8601:', fechaISO);
+      console.log('  → Duración:', nuevaSesion.duracion_horas, 'hora(s)');
+      console.log('  → Descripción:', nuevaSesion.descripcion_estudiante);
+
       const datosSesion = {
-        fecha_hora: comprasService.convertirFechaAISO(nuevaSesion.fecha_hora),
+        fecha_hora: fechaISO,
         duracion_horas: nuevaSesion.duracion_horas,
-        descripcion_estudiante: nuevaSesion.descripcion_estudiante
+        descripcion_estudiante: nuevaSesion.descripcion_estudiante.trim()
       };
+
+      console.log('📤 PAYLOAD:', JSON.stringify(datosSesion, null, 2));
 
       const resultado = await comprasService.agendarSesionPaquete(compraId, datosSesion);
 
+      console.log('📥 RESPUESTA COMPLETA:', JSON.stringify(resultado, null, 2));
+
       if (resultado.success) {
+        console.log('✅ SESIÓN AGENDADA EXITOSAMENTE');
+        
         setMensaje({ 
           tipo: 'exito', 
-          texto: '¡Sesión agendada exitosamente!' 
+          texto: '¡Sesión agendada exitosamente! 🎉' 
         });
 
         // Limpiar formulario
@@ -149,31 +162,56 @@ const DetallePaquete = () => {
           duracion_horas: 1,
           descripcion_estudiante: ''
         });
+        setErrores({});
 
         // Recargar datos
         setTimeout(() => {
           setModalAbierto(false);
           setMensaje({ tipo: '', texto: '' });
           cargarDatos();
-        }, 2000);
+        }, 1500);
       } else {
-        setMensaje({ tipo: 'error', texto: resultado.message });
+        console.error('❌ ERROR AL AGENDAR:');
+        console.error('  → Mensaje:', resultado.message);
+        console.error('  → Errores:', resultado.errors);
+        
+        setMensaje({ 
+          tipo: 'error', 
+          texto: resultado.message || 'Error al agendar la sesión' 
+        });
       }
     } catch (err) {
-      console.error('Error al agendar sesión:', err);
-      setMensaje({ tipo: 'error', texto: 'Error al agendar la sesión' });
+      console.error('❌ EXCEPCIÓN:', err);
+      setMensaje({ 
+        tipo: 'error', 
+        texto: 'Error al agendar la sesión. Intenta de nuevo.' 
+      });
     } finally {
       setProcesando(false);
+      console.log('═══════════════════════════════════════════════');
     }
   };
 
   const abrirModal = () => {
-    if ((paquete?.horas_disponibles || 0) <= 0) {
+    const horasDisponibles = paquete?.compra?.horas_disponibles || 0;
+    
+    console.log('🔓 ABRIENDO MODAL');
+    console.log('  → Horas disponibles:', horasDisponibles);
+    console.log('  → Estado pago:', paquete?.compra?.estado_pago);
+    
+    if (horasDisponibles <= 0) {
       alert('No tienes horas disponibles para agendar');
       return;
     }
+
+    if (paquete?.compra?.estado_pago !== 'completado') {
+      alert('El paquete debe estar pagado para agendar clases');
+      return;
+    }
+
     setModalAbierto(true);
     setMensaje({ tipo: '', texto: '' });
+    setErrores({});
   };
 
   if (loading) {
@@ -201,6 +239,7 @@ const DetallePaquete = () => {
     );
   }
 
+  // ✅ CORRECTO: Leer desde paquete.compra
   const horasDisponibles = paquete?.compra?.horas_disponibles
     ?? (paquete?.compra?.horas_totales - paquete?.compra?.horas_usadas) 
     ?? 0;
@@ -208,10 +247,6 @@ const DetallePaquete = () => {
   const porcentajeUsado = paquete?.compra?.horas_totales 
     ? (paquete?.compra?.horas_usadas / paquete?.compra?.horas_totales) * 100
     : 0;
-
-  console.log('DEBUG - paquete.compra:', paquete?.compra);
-  console.log('DEBUG - horasDisponibles:', horasDisponibles);
-
 
   return (
     <div className="detalle-paquete-container">
