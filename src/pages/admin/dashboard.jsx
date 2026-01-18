@@ -39,11 +39,25 @@ export const AdminDashboard = () => {
     navigate('/login');
   };
 
-  const estudiantes = metricas?.usuarios?.por_rol?.estudiante ?? 0;
   const profesores = metricas?.usuarios?.por_rol?.profesor ?? 0;
   const cursosTotal = metricas?.cursos?.total ?? 0;
   const cursosActivos = metricas?.cursos?.activos ?? 0;
   const ingresos = metricas?.ingresos?.total_rango ?? 0;
+
+  // Nota: no conocemos el shape exacto del backend para estos contadores,
+  // por eso se dejan varios fallbacks razonables.
+  const clasesPersonalizadasTotal =
+    metricas?.clases_personalizadas?.total ??
+    metricas?.clasesPersonalizadas?.total ??
+    metricas?.clases_personalizadas_total ??
+    metricas?.clases_personalizadas ??
+    0;
+
+  const asignaturasTotal =
+    metricas?.asignaturas?.total ??
+    metricas?.asignaturas_total ??
+    metricas?.asignaturas ??
+    0;
 
   if (loading) return <div className="loading">Cargando...</div>;
 
@@ -57,7 +71,10 @@ export const AdminDashboard = () => {
             <div className="welcome_section">
               <h1 className="dashboard_title">¡Bienvenido, Admin {user?.nombre}!</h1>
               <p className="dashboard_subtitle">
-                Panel de Administración {metricas?.rango?.fechaInicio && metricas?.rango?.fechaFin ? `· Rango: ${metricas.rango.fechaInicio} → ${metricas.rango.fechaFin}` : ''}
+                Panel de Administración{' '}
+                {metricas?.rango?.fechaInicio && metricas?.rango?.fechaFin
+                  ? `· Rango: ${metricas.rango.fechaInicio} → ${metricas.rango.fechaFin}`
+                  : ''}
               </p>
             </div>
             <button onClick={handle_logout} className="btn_logout">
@@ -66,15 +83,7 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="dashboard_grid">
-            <div className="dashboard_card">
-              <div className="card_icon">🎓</div>
-              <h2 className="card_title">Estudiantes</h2>
-              <p className="card_number">{loadingMetricas ? '…' : estudiantes}</p>
-              <p className="card_description">Usuarios con rol estudiante</p>
-              <button className="btn_card" onClick={() => navigate('/admin/contabilidad')}>
-                Ver en Contabilidad
-              </button>
-            </div>
+            {/* (ELIMINADA) Tarjeta Estudiantes */}
 
             <div className="dashboard_card">
               <div className="card_icon">👨‍🏫</div>
@@ -89,7 +98,7 @@ export const AdminDashboard = () => {
             <div className="dashboard_card">
               <div className="card_icon">🧑‍💻</div>
               <h2 className="card_title">Clases Personalizadas</h2>
-              <p className="card_number">—</p>
+              <p className="card_number">{loadingMetricas ? '…' : clasesPersonalizadasTotal}</p>
               <p className="card_description">Configuración y gestión</p>
               <button className="btn_card" onClick={() => navigate('/admin/clases-personalizadas')}>
                 Ver Clases
@@ -109,7 +118,9 @@ export const AdminDashboard = () => {
             <div className="dashboard_card">
               <div className="card_icon">💰</div>
               <h2 className="card_title">Ingresos (rango)</h2>
-              <p className="card_number">{loadingMetricas ? '…' : contabilidadAdminService.formatearPrecio(ingresos)}</p>
+              <p className="card_number">
+                {loadingMetricas ? '…' : contabilidadAdminService.formatearPrecio(ingresos)}
+              </p>
               <p className="card_description">Compras completadas del rango</p>
               <button className="btn_card" onClick={() => navigate('/admin/contabilidad')}>
                 Ver Contabilidad
@@ -119,7 +130,7 @@ export const AdminDashboard = () => {
             <div className="dashboard_card">
               <div className="card_icon">🧾</div>
               <h2 className="card_title">Asignaturas</h2>
-              <p className="card_number">—</p>
+              <p className="card_number">{loadingMetricas ? '…' : asignaturasTotal}</p>
               <p className="card_description">Gestión de asignaturas</p>
               <button className="btn_card" onClick={() => navigate('/admin/asignaturas')}>
                 Gestionar
@@ -132,7 +143,9 @@ export const AdminDashboard = () => {
             <div className="user_info_grid">
               <div className="info_item">
                 <span className="info_label">Nombre:</span>
-                <span className="info_value">{user?.nombre} {user?.apellido}</span>
+                <span className="info_value">
+                  {user?.nombre} {user?.apellido}
+                </span>
               </div>
               <div className="info_item">
                 <span className="info_label">Email:</span>
@@ -148,7 +161,6 @@ export const AdminDashboard = () => {
               </div>
             </div>
           </div>
-
         </div>
       </main>
 
