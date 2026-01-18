@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import contabilidadAdminService from '../../services/contabilidad_admin_service';
 import adminMetricasService from '../../services/admin_metricas_service';
 import adminComprasService from '../../services/admin_compras_service';
+import ingresosAdicionalesAdminService from '../../services/ingresos_adicionales_admin_service';
 
 import { Line } from 'react-chartjs-2';
 import {
@@ -39,6 +40,13 @@ const ContabilidadAdmin = () => {
   const [comprasLoading, setComprasLoading] = useState(false);
   const [comprasError, setComprasError] = useState('');
   const [comprasData, setComprasData] = useState({ items: [], total: 0, totalPages: 1 });
+
+  // NUEVO: Form ingreso adicional (CU-048)
+  const [iaDescripcion, setIaDescripcion] = useState('');
+  const [iaMonto, setIaMonto] = useState('');
+  const [iaFecha, setIaFecha] = useState(''); // datetime-local
+  const [iaLoading, setIaLoading] = useState(false);
+  const [iaMsg, setIaMsg] = useState({ tipo: '', texto: '' });
 
   const pagosOrdenados = useMemo(() => {
     const pagos = data?.pagos_por_profesor || [];
@@ -117,6 +125,13 @@ const ContabilidadAdmin = () => {
     setComprasLimit(10);
     setComprasError('');
     setComprasData({ items: [], total: 0, totalPages: 1 });
+
+    // NUEVO
+    setIaDescripcion('');
+    setIaMonto('');
+    setIaFecha('');
+    setIaMsg({ tipo: '', texto: '' });
+    setIaLoading(false);
   };
 
   const serie = metricas?.ingresos?.serie_por_dia || [];
@@ -231,6 +246,94 @@ const ContabilidadAdmin = () => {
     await cargarCompras({ page: prev });
   };
 
+  // =========================
+  // NUEVO: Ingreso adicional
+  // =========================
+  const validarIngresoAdicional = () => {
+    const errores = {};
+
+    const desc = (iaDescripcion || '').trim();
+    if (!desc) errores.descripcion = 'La descripción es obligatoria';
+
+    const montoNum = Number(iaMonto);
+    if (iaMonto === '' || !Number.isFinite(montoNum) || montoNum < 0) {
+      errores.monto = 'El monto debe ser un número válido (>= 0)';
+    }
+
+    if (!iaFecha) {
+      errores.fecha_ingreso = 'La fecha de ingreso es obligatoria';
+    } else {
+      const d = new Date(iaFecha);
+      if (Number.isNaN(d.getTime())) errores.fecha_ingreso = 'Fecha inválida';
+    }
+
+    return { ok: Object.keys(errores).length === 0, errores };
+  };
+
+  const manejarErrorIngresoAdicional = (status, message) => {
+    if (status === 401) {
+      localStorage.removeItem('token');
+      setIaMsg({ tipo: 'error', texto: 'Sesión expirada. Inicia sesión nuevamente.' });
+      window.location.href = '/login';
+      return;
+    }
+    if (status === 403) {
+      setIaMsg({ tipo: 'error', texto: 'No tienes permisos para esta acción.' });
+      return;
+    }
+    setIaMsg({ tipo: 'error', texto: message || 'Error creando ingreso adicional' });
+  };
+
+  const crearIngresoAdicional = async (e) => {
+    e.preventDefault();
+    setIaMsg({ tipo: '', texto: '' });
+
+    const v = validarIngresoAdicional();
+    if (!v.ok) {
+      const msg =
+        v.errores.descripcion ||
+        v.errores.monto ||
+        v.errores.fecha_ingreso ||
+        'Por favor corrige el formulario';
+      setIaMsg({ tipo: 'error', texto: msg });
+      return;
+    }
+
+    const payload = {
+      descripcion: iaDescripcion.trim(),
+      monto: Number(iaMonto),
+      fecha_ingreso: new Date(iaFecha).toISOString(),
+    };
+
+    try {
+      setIaLoading(true);
+
+      const res = await ingresosAdicionalesAdminService.crearIngresoAdicional(payload);
+
+      if (!res.success) {
+        manejarErrorIngresoAdicional(res.status, res.message);
+        return;
+      }
+
+      setIaMsg({ tipo: 'exito', texto: 'Ingreso adicional registrado correctamente.' });
+
+      // Reset form
+      setIaDescripcion('');
+      setIaMonto('');
+      setIaFecha('');
+
+      // Si ya hay un rango consultado, refrescar contabilidad para ver KPIs actualizados
+      if (fechaInicio && fechaFin) {
+        await consultar();
+      }
+    } catch (err) {
+      console.error(err);
+      setIaMsg({ tipo: 'error', texto: 'Error inesperado registrando el ingreso adicional.' });
+    } finally {
+      setIaLoading(false);
+    }
+  };
+
   return (
     <div className="contabilidad-admin-container">
       <div className="contabilidad-header">
@@ -262,6 +365,66 @@ const ContabilidadAdmin = () => {
       </div>
 
       {error && <div className="mensaje-error">{error}</div>}
+
+      {/* NUEVO: registrar ingreso adicional */}
+      <div className="tabla-container">
+        <div className="tabla-header">
+          <h3>Registrar ingreso adicional</h3>
+          <small>Registra ingresos manuales (no provenientes de compras/pagos).</small>
+        </div>
+
+        {iaMsg.texto ? (
+          <div className={iaMsg.tipo === 'exito' ? 'mensaje-exito' : 'mensaje-error'}>
+            {iaMsg.texto}
+          </div>
+        ) : null}
+
+        <form onSubmit={crearIngresoAdicional} className="contabilidad-filtros" style={{ marginTop: 10 }}>
+          <div className="filtro" style={{ minWidth: 260 }}>
+            <label>Descripción *</label>
+            <input
+              type="text"
+              value={iaDescripcion}
+              onChange={(e) => setIaDescripcion(e.target.value)}
+              placeholder="Ej: Pago en efectivo (evento)"
+              disabled={iaLoading}
+            />
+          </div>
+
+          <div className="filtro" style={{ minWidth: 180 }}>
+            <label>Monto (COP) *</label>
+            <input
+              type="number"
+              value={iaMonto}
+              onChange={(e) => setIaMonto(e.target.value)}
+              min="0"
+              step="1"
+              placeholder="50000"
+              disabled={iaLoading}
+            />
+          </div>
+
+          <div className="filtro" style={{ minWidth: 240 }}>
+            <label>Fecha ingreso *</label>
+            <input
+              type="datetime-local"
+              value={iaFecha}
+              onChange={(e) => setIaFecha(e.target.value)}
+              disabled={iaLoading}
+            />
+          </div>
+
+          <div className="acciones">
+            <button className="btn-consultar" type="submit" disabled={iaLoading}>
+              {iaLoading ? 'Guardando...' : 'Registrar'}
+            </button>
+          </div>
+        </form>
+
+        <small className="subtitulo" style={{ display: 'block', marginTop: 8 }}>
+          Se enviará la fecha en formato ISO (UTC) al backend.
+        </small>
+      </div>
 
       {metricas && (
         <div className="contabilidad-chart-container">
@@ -338,7 +501,7 @@ const ContabilidadAdmin = () => {
             </table>
           </div>
 
-          {/* NUEVO: Compras dentro de Contabilidad */}
+          {/* Compras dentro de Contabilidad */}
           <div className="compras-container">
             <div className="compras-header">
               <h3>Compras</h3>
