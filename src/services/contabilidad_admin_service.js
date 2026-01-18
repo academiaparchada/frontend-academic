@@ -1,6 +1,6 @@
 // src/services/contabilidad_admin_service.js
 
-const API_URL = 'https://academiaparchada.onrender.com/api/admin/contabilidad';
+const API_URL = 'https://api.parcheacademico.com/api/admin/contabilidad';
 
 class ContabilidadAdminService {
   _getToken() {
@@ -9,8 +9,8 @@ class ContabilidadAdminService {
 
   _getAuthHeaders() {
     return {
-      'Authorization': `Bearer ${this._getToken()}`,
-      'Accept': 'application/json'
+      Authorization: `Bearer ${this._getToken()}`,
+      Accept: 'application/json',
     };
   }
 
@@ -25,7 +25,7 @@ class ContabilidadAdminService {
 
       const response = await fetch(url, {
         method: 'GET',
-        headers: this._getAuthHeaders()
+        headers: this._getAuthHeaders(),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -35,35 +35,29 @@ class ContabilidadAdminService {
           success: false,
           status: response.status,
           message: data?.message || 'Error consultando contabilidad',
-          raw: data
+          raw: data,
         };
       }
 
-      return {
-        success: true,
-        data: data.data
-      };
+      return { success: true, data: data.data };
     } catch (error) {
       console.error('Error obteniendo contabilidad:', error);
-      return {
-        success: false,
-        status: 0,
-        message: 'Error de conexión. Intenta más tarde.'
-      };
+      return { success: false, status: 0, message: 'Error de conexión. Intenta más tarde.' };
     }
   }
 
-  // Helpers de UI
   formatearPrecio(precio) {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
       currency: 'COP',
-      minimumFractionDigits: 0
+      minimumFractionDigits: 0,
     }).format(Number(precio || 0));
   }
 
   ordenarPagosPorProfesor(pagos = []) {
-    return [...pagos].sort((a, b) => (Number(b.total_pago_profesor || 0) - Number(a.total_pago_profesor || 0)));
+    return [...pagos].sort(
+      (a, b) => Number(b.total_pago_profesor || 0) - Number(a.total_pago_profesor || 0)
+    );
   }
 }
 

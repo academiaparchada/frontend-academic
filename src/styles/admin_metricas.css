@@ -1,0 +1,210 @@
+/* src/styles/admin_metricas.css */
+
+:root{
+  --teal-900: #1f3c3c;
+  --teal-800: #2d5555;
+  --teal-600: #3d7373;
+  --teal-500: #5b9999;
+
+  --beige-50: #f5f0e8;
+  --beige-100: #e8dcc8;
+
+  --panel: #ffffff;
+  --border: rgba(31, 60, 60, 0.14);
+  --shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  --radius: 14px;
+}
+
+.admin_metricas_filtros{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
+}
+
+.admin_metricas_filtro{
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.admin_metricas_filtro label{
+  color: var(--teal-800);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.admin_metricas_filtro input[type="date"]{
+  height: 44px;
+  padding: 0 0.85rem;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2a37;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.admin_metricas_filtro input[type="date"]:focus{
+  outline: none;
+  border-color: rgba(91, 153, 153, 0.65);
+  box-shadow: 0 0 0 4px rgba(91, 153, 153, 0.18);
+}
+
+.admin_metricas_acciones{
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: end;
+}
+
+.admin_metricas_btn_consultar{
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-600) 100%);
+  box-shadow: 0 10px 20px rgba(91, 153, 153, 0.35);
+  transition: all 0.25s ease;
+}
+
+.admin_metricas_btn_consultar:hover:not(:disabled){
+  transform: translateY(-2px);
+}
+
+.admin_metricas_btn_limpiar{
+  height: 44px;
+  border: 2px solid rgba(45, 85, 85, 0.35);
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  background: rgba(91, 153, 153, 0.15);
+  color: var(--teal-800);
+  transition: all 0.25s ease;
+}
+
+.admin_metricas_btn_limpiar:hover:not(:disabled){
+  background: rgba(91, 153, 153, 0.22);
+  transform: translateY(-2px);
+}
+
+.admin_metricas_error{
+  background: rgba(255, 71, 87, 0.12);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.25);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.admin_metricas_chart{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(31, 60, 60, 0.08);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.admin_metricas_chart_header{
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.10);
+  background: linear-gradient(135deg, rgba(245, 240, 232, 0.55) 0%, rgba(232, 220, 200, 0.35) 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.admin_metricas_chart_title{
+  margin: 0;
+  color: var(--teal-900);
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.admin_metricas_chart_range{
+  color: rgba(45, 85, 85, 0.75);
+  font-weight: 700;
+}
+
+.admin_metricas_chart_loading{
+  padding: 1.5rem;
+  color: #666;
+  font-weight: 700;
+}
+
+.admin_metricas_bars{
+  height: 260px;
+  padding: 1rem 1.25rem 1.25rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(26px, 1fr);
+  gap: 10px;
+  align-items: end;
+}
+
+.admin_metricas_bar_item{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 22px;
+}
+
+.admin_metricas_bar{
+  width: 100%;
+  max-width: 34px;
+  border-radius: 10px 10px 6px 6px;
+  background: linear-gradient(180deg, var(--teal-500) 0%, var(--teal-900) 100%);
+  box-shadow: 0 10px 18px rgba(31, 60, 60, 0.22);
+}
+
+.admin_metricas_bar_label{
+  font-size: 0.78rem;
+  color: rgba(45, 85, 85, 0.85);
+  font-weight: 800;
+}
+
+.admin_metricas_empty{
+  grid-column: 1 / -1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-weight: 800;
+}
+
+@media (max-width: 768px){
+  .admin_metricas_filtros{
+    grid-template-columns: 1fr;
+  }
+
+  .admin_metricas_acciones{
+    flex-direction: row;
+  }
+
+  .admin_metricas_btn_consultar,
+  .admin_metricas_btn_limpiar{
+    width: 100%;
+  }
+
+  .admin_metricas_bars{
+    height: 220px;
+    overflow-x: auto;
+    grid-auto-columns: 34px;
+    justify-content: start;
+  }
+}

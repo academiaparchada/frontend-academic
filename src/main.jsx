@@ -32,6 +32,9 @@ import { MisCursos } from './pages/profesor/MisCursos.jsx'
 import { MiPerfil } from './pages/profesor/MiPerfil.jsx'
 import { GoogleCallback } from './pages/GoogleCallback.jsx'
 import ContabilidadAdmin from './pages/admin/ContabilidadAdmin.jsx'
+import ComprasAdmin from './pages/admin/compras.jsx'
+import SesionesPendientes from './pages/admin/sesiones_pendientes.jsx'
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -56,6 +59,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
           <Route path="/admin/cursos" element={<CursosAdmin />} />
           <Route path="/admin/contabilidad" element={<ContabilidadAdmin />} />
+          <Route path="/admin/compras" element={<ComprasAdmin />} />
+          <Route path="/admin/sesiones-pendientes" element={<SesionesPendientes />} />
+
 
           {/* Profesor */}
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />

@@ -306,3 +306,182 @@ body{
     min-width: 650px;
   }
 }
+/* ===== NUEVO: Gráfica en contabilidad ===== */
+.contabilidad-chart-container{
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(31, 60, 60, 0.08);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.contabilidad-chart-header{
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.10);
+  background: linear-gradient(135deg, rgba(245, 240, 232, 0.55) 0%, rgba(232, 220, 200, 0.35) 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.contabilidad-chart-header h3{
+  margin: 0;
+  color: #1f3c3c;
+  font-weight: 900;
+}
+
+.contabilidad-chart-header small{
+  color: rgba(45, 85, 85, 0.75);
+  font-weight: 800;
+}
+
+.contabilidad-chart{
+  height: 320px;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.contabilidad-chart-empty{
+  padding: 1.25rem;
+  text-align: center;
+  color: #666;
+  font-weight: 800;
+}
+/* ===== NUEVO: Compras en contabilidad ===== */
+.compras-container{
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(31, 60, 60, 0.08);
+  overflow: hidden;
+  margin-top: 1.5rem;
+}
+
+.compras-header{
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.10);
+  background: linear-gradient(135deg, rgba(245, 240, 232, 0.55) 0%, rgba(232, 220, 200, 0.35) 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.compras-header h3{
+  margin: 0;
+  color: #1f3c3c;
+  font-weight: 900;
+}
+
+.compras-header small{
+  color: rgba(45, 85, 85, 0.75);
+  font-weight: 800;
+}
+
+.compras-filtros{
+  padding: 1rem 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.08);
+}
+
+.compras-filtro{
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.compras-filtro label{
+  color: #2d5555;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.compras-filtro select{
+  height: 44px;
+  padding: 0 0.85rem;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2a37;
+  font-size: 0.95rem;
+}
+
+.compras-acciones{
+  display: flex;
+  justify-content: end;
+}
+
+.compras-error{
+  margin: 0.75rem 1.25rem 0;
+  background: rgba(255, 71, 87, 0.12);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.25);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  font-weight: 900;
+}
+
+.compras-table-wrap{
+  overflow-x: auto;
+}
+
+.compras-table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.compras-table thead{
+  background: #f7f7f8;
+}
+
+.compras-table th,
+.compras-table td{
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.08);
+  font-size: 0.95rem;
+  color: #1f3c3c;
+}
+
+.compras-table th{
+  color: #2d5555;
+  font-weight: 900;
+}
+
+.compras-table tbody tr:hover{
+  background: rgba(91, 153, 153, 0.06);
+}
+
+.compras-paginacion{
+  padding: 1rem 1.25rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(31, 60, 60, 0.08);
+}
+
+.compras-pageinfo{
+  color: rgba(45, 85, 85, 0.85);
+  font-weight: 900;
+}
+
+.compras-limit{
+  height: 44px;
+  border-radius: 10px;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  background: #fff;
+  color: #1f2a37;
+  font-weight: 800;
+  padding: 0 0.75rem;
+}
+
+@media (max-width: 768px){
+  .compras-filtros{
+    grid-template-columns: 1fr;
+  }
+}

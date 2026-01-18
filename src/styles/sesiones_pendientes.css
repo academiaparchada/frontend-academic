@@ -1,0 +1,163 @@
+/* src/styles/sesiones_pendientes.css */
+
+:root{
+  --teal-900: #1f3c3c;
+  --teal-800: #2d5555;
+  --teal-600: #3d7373;
+  --teal-500: #5b9999;
+
+  --beige-50: #f5f0e8;
+  --beige-100: #e8dcc8;
+
+  --panel: #ffffff;
+  --border: rgba(31, 60, 60, 0.14);
+  --shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  --radius: 14px;
+}
+
+.sesiones_container{
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.sesiones_header{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sesiones_header h1{
+  margin: 0 0 0.25rem 0;
+  color: var(--teal-800);
+  font-weight: 900;
+}
+
+.sesiones_header p{
+  margin: 0;
+  color: rgba(245, 240, 232, 0.75);
+}
+
+.sesiones_btn_back{
+  height: 44px;
+  padding: 0 1.25rem;
+  border-radius: 10px;
+  border: 2px solid rgba(245, 240, 232, 0.35);
+  background: rgba(245, 240, 232, 0.10);
+  color: rgba(245, 240, 232, 0.95);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.sesiones_error{
+  background: rgba(255, 71, 87, 0.12);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.25);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 900;
+}
+
+.sesiones_panel{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(31, 60, 60, 0.08);
+  overflow: hidden;
+}
+
+.sesiones_loading,
+.sesiones_empty{
+  padding: 1.5rem;
+  color: #666;
+  font-weight: 900;
+  text-align: center;
+}
+
+.sesiones_table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sesiones_table thead{
+  background: linear-gradient(135deg, rgba(245, 240, 232, 0.55) 0%, rgba(232, 220, 200, 0.35) 100%);
+}
+
+.sesiones_table th,
+.sesiones_table td{
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.10);
+  font-size: 0.95rem;
+  color: var(--teal-900);
+  vertical-align: top;
+}
+
+.sesiones_table th{
+  font-weight: 900;
+  color: var(--teal-800);
+}
+
+.sesiones_table tbody tr:hover{
+  background: rgba(91, 153, 153, 0.06);
+}
+
+.sesiones_edit{
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.5rem;
+  align-items: center;
+  min-width: 360px;
+}
+
+.sesiones_input{
+  height: 42px;
+  padding: 0 0.85rem;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2a37;
+  font-weight: 700;
+}
+
+.sesiones_input:focus{
+  outline: none;
+  border-color: rgba(91, 153, 153, 0.65);
+  box-shadow: 0 0 0 4px rgba(91, 153, 153, 0.18);
+}
+
+.sesiones_btn_primary{
+  height: 42px;
+  border: none;
+  border-radius: 10px;
+  padding: 0 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-600) 100%);
+  box-shadow: 0 10px 20px rgba(91, 153, 153, 0.28);
+}
+
+.sesiones_btn_secondary{
+  height: 42px;
+  border: 2px solid rgba(45, 85, 85, 0.35);
+  border-radius: 10px;
+  padding: 0 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  background: rgba(91, 153, 153, 0.15);
+  color: var(--teal-800);
+}
+
+.mono{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@media (max-width: 900px){
+  .sesiones_edit{
+    grid-template-columns: 1fr;
+    min-width: 240px;
+  }
+}

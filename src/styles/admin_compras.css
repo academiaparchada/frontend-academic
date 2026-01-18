@@ -1,0 +1,261 @@
+/* src/styles/admin_compras.css */
+
+:root{
+  --teal-900: #1f3c3c;
+  --teal-800: #2d5555;
+  --teal-600: #3d7373;
+  --teal-500: #5b9999;
+
+  --beige-50: #f5f0e8;
+  --beige-100: #e8dcc8;
+
+  --panel: #ffffff;
+  --border: rgba(31, 60, 60, 0.14);
+  --shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  --radius: 14px;
+}
+
+.admin_compras_container{
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.admin_compras_header{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.admin_compras_header h1{
+  margin: 0 0 0.25rem 0;
+  color: var(--teal-800);
+  font-weight: 900;
+}
+
+.admin_compras_header p{
+  margin: 0;
+  color: rgba(245, 240, 232, 0.75);
+}
+
+.admin_compras_logout{
+  padding: 0.75rem 1.5rem;
+  background-color: var(--teal-800);
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin_compras_logout:hover{
+  background-color: var(--teal-900);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(31, 60, 60, 0.35);
+}
+
+.admin_compras_filters{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.admin_compras_filter{
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.admin_compras_filter label{
+  color: var(--teal-800);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.admin_compras_filter input,
+.admin_compras_filter select{
+  height: 44px;
+  padding: 0 0.85rem;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  border-radius: 10px;
+  background: #fff;
+  color: #1f2a37;
+  font-size: 0.95rem;
+}
+
+.admin_compras_filter input:focus,
+.admin_compras_filter select:focus{
+  outline: none;
+  border-color: rgba(91, 153, 153, 0.65);
+  box-shadow: 0 0 0 4px rgba(91, 153, 153, 0.18);
+}
+
+.admin_compras_actions{
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.admin_compras_btn_primary{
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-600) 100%);
+  box-shadow: 0 10px 20px rgba(91, 153, 153, 0.35);
+}
+
+.admin_compras_btn_secondary{
+  height: 44px;
+  border: 2px solid rgba(45, 85, 85, 0.35);
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  background: rgba(91, 153, 153, 0.15);
+  color: var(--teal-800);
+}
+
+.admin_compras_error{
+  background: rgba(255, 71, 87, 0.12);
+  color: #ff4757;
+  border: 1px solid rgba(255, 71, 87, 0.25);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+  font-weight: 800;
+}
+
+.admin_compras_table_wrap{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(31, 60, 60, 0.08);
+  overflow: hidden;
+}
+
+.admin_compras_table{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin_compras_table thead{
+  background: linear-gradient(135deg, rgba(245, 240, 232, 0.55) 0%, rgba(232, 220, 200, 0.35) 100%);
+}
+
+.admin_compras_table th,
+.admin_compras_table td{
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.10);
+  font-size: 0.95rem;
+  color: var(--teal-900);
+}
+
+.admin_compras_table th{
+  font-weight: 900;
+  color: var(--teal-800);
+}
+
+.admin_compras_table tbody tr:hover{
+  background: rgba(91, 153, 153, 0.06);
+}
+
+.admin_compras_empty{
+  text-align: center;
+  color: #666;
+  font-weight: 800;
+}
+
+.right{ text-align: right; }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+.admin_compras_pagination{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.admin_compras_pagebtn{
+  height: 40px;
+  padding: 0 1rem;
+  border-radius: 10px;
+  border: 2px solid rgba(245, 240, 232, 0.35);
+  background: rgba(245, 240, 232, 0.10);
+  color: rgba(245, 240, 232, 0.95);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.admin_compras_pagebtn:disabled{
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin_compras_pageinfo{
+  color: rgba(245, 240, 232, 0.85);
+  font-weight: 800;
+}
+
+.admin_compras_limit{
+  height: 40px;
+  border-radius: 10px;
+  border: 2px solid rgba(245, 240, 232, 0.35);
+  background: rgba(245, 240, 232, 0.10);
+  color: rgba(245, 240, 232, 0.95);
+  font-weight: 800;
+  padding: 0 0.75rem;
+}
+
+.admin_compras_back{
+  margin-top: 1rem;
+}
+
+@media (max-width: 1100px){
+  .admin_compras_filters{
+    grid-template-columns: 1fr 1fr;
+  }
+  .admin_compras_actions{
+    grid-column: 1 / -1;
+    flex-direction: row;
+  }
+  .admin_compras_btn_primary,
+  .admin_compras_btn_secondary{
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px){
+  .admin_compras_header{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin_compras_logout{
+    width: 100%;
+  }
+
+  .admin_compras_pagination{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin_compras_pagebtn,
+  .admin_compras_limit{
+    width: 100%;
+  }
+}
