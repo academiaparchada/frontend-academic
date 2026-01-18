@@ -13,8 +13,7 @@ import { EstudianteDashboard } from './pages/estudiante/dashboard.jsx'
 import { ProfesorDashboard } from './pages/profesor/dashboard.jsx'
 import { AdminDashboard } from './pages/admin/dashboard.jsx'
 import AsignaturasPage from './pages/AsignaturasPage.jsx'
-import ProfesoresPage from './pages/ProfesoresPage.jsx'
-import FranjasHorariasAdmin from './pages/admin/FranjasHorariasAdmin.jsx'
+import GestionProfesoresAdmin from './pages/admin/GestionProfesoresAdmin.jsx'
 import FranjasHorariasProfesor from './pages/profesor/FranjasHorariasProfesor.jsx'
 import ClasesPersonalizadasAdmin from './pages/admin/ClasesPersonalizadasAdmin.jsx'
 import CursosAdmin from './pages/admin/CursosAdmin.jsx'
@@ -52,8 +51,7 @@ createRoot(document.getElementById('root')).render(
           
           {/* Admin */}
           <Route path="/admin/asignaturas" element={<AsignaturasPage />} />
-          <Route path="/admin/profesores" element={<ProfesoresPage />} />
-          <Route path="/admin/franjas-horarias" element={<FranjasHorariasAdmin />} />
+          <Route path="/admin/gestion-profesores" element={<GestionProfesoresAdmin />} />
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
           <Route path="/admin/cursos" element={<CursosAdmin />} />
           

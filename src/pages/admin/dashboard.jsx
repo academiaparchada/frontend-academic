@@ -42,13 +42,18 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="dashboard_grid">
-            {/* Total Franjas */}
+            {/* Gestión de Profesores (unifica Profesores + Franjas) */}
             <div className="dashboard_card">
-              <div className="card_icon">🗓️</div>
-              <h2 className="card_title">Franjas horarias</h2>
+              <div className="card_icon">👨‍🏫</div>
+              <h2 className="card_title">Gestión de Profesores</h2>
               <p className="card_number">0</p>
-              <p className="card_description">Franjas registradas</p>
-              <button className="btn_card" onClick={() => navigate('/admin/franjas-horarias')}>Gestionar Franjas</button>
+              <p className="card_description">Profesores y franjas horarias</p>
+              <button
+                className="btn_card"
+                onClick={() => navigate('/admin/gestion-profesores')}
+              >
+                Gestionar
+              </button>
             </div>
 
             {/* Total Cursos */}
@@ -57,25 +62,20 @@ export const AdminDashboard = () => {
               <h2 className="card_title">Cursos</h2>
               <p className="card_number">0</p>
               <p className="card_description">Cursos activos</p>
-              <button className="btn_card" onClick={() => navigate('/admin/asignaturas')}>Gestionar Cursos</button>
+              <button className="btn_card" onClick={() => navigate('/admin/asignaturas')}>
+                Gestionar Cursos
+              </button>
             </div>
 
-            {/* Profesores */}
-            <div className="dashboard_card">
-              <div className="card_icon">👨‍🏫</div>
-              <h2 className="card_title">Profesores</h2>
-              <p className="card_number">0</p>
-              <p className="card_description">Profesores activos</p>
-              <button className="btn_card" onClick={() => navigate('/admin/profesores')}>Ver Profesores</button>
-            </div>
-
-            {/* Ingresos */}
+            {/* Clases Personalizadas */}
             <div className="dashboard_card">
               <div className="card_icon">📚</div>
               <h2 className="card_title">Clases Personalizadas</h2>
               <p className="card_number">0</p>
               <p className="card_description">Clases Registradas</p>
-              <button className="btn_card" onClick={() => navigate('/admin/clases-personalizadas')}>Ver Clases</button>
+              <button className="btn_card" onClick={() => navigate('/admin/clases-personalizadas')}>
+                Ver Clases
+              </button>
             </div>
 
             {/* cursos */}
@@ -84,7 +84,9 @@ export const AdminDashboard = () => {
               <h2 className="card_title">Cursos</h2>
               <p className="card_number">0</p>
               <p className="card_description">Cursos Activos</p>
-              <button className="btn_card" onClick={() => navigate('/admin/cursos')}>Gestionar Cursos</button>
+              <button className="btn_card" onClick={() => navigate('/admin/cursos')}>
+                Gestionar Cursos
+              </button>
             </div>
 
             {/* Clases */}
