@@ -5,26 +5,30 @@ import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import { useAuth } from '../../context/auth_context';
 import admin_service from '../../services/admin_service';
+import cursosService from '../../services/cursos_service';
 import '../../styles/sesiones_pendientes.css';
 
 const SesionesPendientes = () => {
   const navigate = useNavigate();
   const { is_authenticated, loading } = useAuth();
 
+  // curso seleccionado
   const [cursoId, setCursoId] = useState('');
+  const [cursos, setCursos] = useState([]);
+  const [loadingCursos, setLoadingCursos] = useState(false);
 
   const [items, setItems] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
   const [error, setError] = useState('');
 
-  // crear sesiones (batch)
+  // crear sesiones
   const [sesionesDraft, setSesionesDraft] = useState([
     { fecha_hora: '', duracion_min: 60 },
   ]);
   const [creating, setCreating] = useState(false);
   const [createMsg, setCreateMsg] = useState('');
 
-  // editar meet por sesión
+  // editar meet
   const [editingId, setEditingId] = useState(null);
   const [linkMeet, setLinkMeet] = useState('');
   const [saving, setSaving] = useState(false);
@@ -34,7 +38,28 @@ const SesionesPendientes = () => {
     if (!loading && !is_authenticated) navigate('/login');
   }, [is_authenticated, loading, navigate]);
 
-  const canLoad = useMemo(() => !!cursoId && cursoId.trim().length > 5, [cursoId]);
+  // cargar lista de cursos (solo grupales, activos)
+  useEffect(() => {
+    const cargar = async () => {
+      if (loading || !is_authenticated) return;
+      try {
+        setLoadingCursos(true);
+        const res = await cursosService.listarCursos({ limit: 100, tipo: 'grupal', estado: 'activo' });
+        if (res.success) {
+          setCursos(res.data.cursos || []);
+        } else {
+          console.error('Error cargando cursos:', res.message);
+        }
+      } catch (e) {
+        console.error('Error cargando cursos:', e);
+      } finally {
+        setLoadingCursos(false);
+      }
+    };
+    cargar();
+  }, [loading, is_authenticated]);
+
+  const canLoad = useMemo(() => !!cursoId, [cursoId]);
 
   const load = async () => {
     if (!canLoad) return;
@@ -44,7 +69,7 @@ const SesionesPendientes = () => {
     setWarning('');
     setCreateMsg('');
 
-    const result = await admin_service.get_curso_sesiones({ cursoId: cursoId.trim() });
+    const result = await admin_service.get_curso_sesiones({ cursoId });
 
     if (result?.success) {
       const data = result.data || {};
@@ -74,7 +99,7 @@ const SesionesPendientes = () => {
 
   const crearSesiones = async () => {
     if (!canLoad) {
-      setError('Debes ingresar un cursoId válido.');
+      setError('Debes seleccionar un curso.');
       return;
     }
 
@@ -95,7 +120,7 @@ const SesionesPendientes = () => {
     setCreateMsg('');
     setWarning('');
 
-    const res = await admin_service.post_curso_sesiones({ cursoId: cursoId.trim(), sesiones: payload });
+    const res = await admin_service.post_curso_sesiones({ cursoId, sesiones: payload });
 
     if (res?.success) {
       setCreateMsg(res?.message || 'Sesiones creadas');
@@ -132,7 +157,7 @@ const SesionesPendientes = () => {
     setWarning('');
 
     const res = await admin_service.put_curso_sesion_meet({
-      cursoId: cursoId.trim(),
+      cursoId,
       sesionId: editingId,
       link_meet: linkMeet,
     });
@@ -162,25 +187,35 @@ const SesionesPendientes = () => {
           <div className="sesiones_header">
             <div>
               <h1>Sesiones de curso (Admin)</h1>
-              <p>Crea sesiones para cursos grupales y asigna link Meet (notifica por email al asignar/actualizar).</p>
+              <p>Cursos grupales: crea sesiones y asigna link Meet (se notifica al asignar).</p>
             </div>
             <button className="sesiones_btn_back" onClick={() => navigate('/admin/dashboard')}>
               Volver
             </button>
           </div>
 
+          {/* Selección de curso */}
           <div className="sesiones_panel" style={{ marginBottom: '1rem' }}>
             <div style={{ padding: '1rem 1.25rem' }}>
-              <label style={{ fontWeight: 800, color: '#2d5555' }}>Curso ID</label>
+              <label style={{ fontWeight: 800, color: '#2d5555' }}>Curso</label>
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
-                <input
+                <select
                   className="sesiones_input"
-                  placeholder="uuid del curso"
                   value={cursoId}
                   onChange={(e) => setCursoId(e.target.value)}
-                  disabled={loadingData || creating || saving}
+                  disabled={loadingCursos || creating || saving}
                   style={{ minWidth: 320 }}
-                />
+                >
+                  <option value="">
+                    {loadingCursos ? 'Cargando cursos...' : 'Selecciona un curso grupal activo'}
+                  </option>
+                  {cursos.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre} {c.tipo === 'grupal' ? '· 👥' : ''} · {c.asignatura?.nombre || 'Sin asignatura'}
+                    </option>
+                  ))}
+                </select>
+
                 <button className="sesiones_btn_primary" onClick={load} disabled={!canLoad || loadingData}>
                   {loadingData ? 'Cargando...' : 'Cargar sesiones'}
                 </button>
@@ -189,8 +224,22 @@ const SesionesPendientes = () => {
           </div>
 
           {error ? <div className="sesiones_error">{error}</div> : null}
-          {warning ? <div className="sesiones_error" style={{ color: '#b7791f', borderColor: 'rgba(183,121,31,0.25)', background: 'rgba(183,121,31,0.12)' }}>{warning}</div> : null}
-          {createMsg ? <div className="sesiones_error" style={{ color: '#2f855a', borderColor: 'rgba(47,133,90,0.25)', background: 'rgba(47,133,90,0.12)' }}>{createMsg}</div> : null}
+          {warning ? (
+            <div
+              className="sesiones_error"
+              style={{ color: '#b7791f', borderColor: 'rgba(183,121,31,0.25)', background: 'rgba(183,121,31,0.12)' }}
+            >
+              {warning}
+            </div>
+          ) : null}
+          {createMsg ? (
+            <div
+              className="sesiones_error"
+              style={{ color: '#2f855a', borderColor: 'rgba(47,133,90,0.25)', background: 'rgba(47,133,90,0.12)' }}
+            >
+              {createMsg}
+            </div>
+          ) : null}
 
           {/* Crear sesiones */}
           <div className="sesiones_panel" style={{ marginBottom: '1rem' }}>
@@ -202,13 +251,16 @@ const SesionesPendientes = () => {
 
               <div style={{ marginTop: '0.75rem', display: 'grid', gap: '0.6rem' }}>
                 {sesionesDraft.map((s, idx) => (
-                  <div key={idx} style={{ display: 'grid', gridTemplateColumns: '1fr 160px 120px', gap: '0.6rem' }}>
+                  <div
+                    key={idx}
+                    style={{ display: 'grid', gridTemplateColumns: '1fr 160px 120px', gap: '0.6rem' }}
+                  >
                     <input
                       className="sesiones_input"
                       type="datetime-local"
                       value={s.fecha_hora}
                       onChange={(e) => updateDraft(idx, 'fecha_hora', e.target.value)}
-                      disabled={creating}
+                      disabled={creating || !canLoad}
                     />
                     <input
                       className="sesiones_input"
@@ -217,7 +269,7 @@ const SesionesPendientes = () => {
                       step={5}
                       value={s.duracion_min}
                       onChange={(e) => updateDraft(idx, 'duracion_min', e.target.value)}
-                      disabled={creating}
+                      disabled={creating || !canLoad}
                     />
                     <button
                       className="sesiones_btn_secondary"
@@ -231,7 +283,7 @@ const SesionesPendientes = () => {
               </div>
 
               <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.9rem', flexWrap: 'wrap' }}>
-                <button className="sesiones_btn_secondary" onClick={addDraftRow} disabled={creating}>
+                <button className="sesiones_btn_secondary" onClick={addDraftRow} disabled={creating || !canLoad}>
                   Agregar fila
                 </button>
                 <button className="sesiones_btn_primary" onClick={crearSesiones} disabled={creating || !canLoad}>
@@ -246,7 +298,9 @@ const SesionesPendientes = () => {
             {loadingData ? (
               <div className="sesiones_loading">Cargando sesiones...</div>
             ) : items.length === 0 ? (
-              <div className="sesiones_empty">No hay sesiones para este curso.</div>
+              <div className="sesiones_empty">
+                {canLoad ? 'No hay sesiones para este curso.' : 'Selecciona un curso para ver sus sesiones.'}
+              </div>
             ) : (
               <table className="sesiones_table">
                 <thead>
