@@ -31,8 +31,24 @@ class CursosService {
 
       if (k === 'image') return;
 
-      // Arrays (como franja_horaria_ids): mandarlos como JSON string
+      // arrays -> JSON string
       if (Array.isArray(v)) {
+        fd.append(k, JSON.stringify(v));
+        return;
+      }
+
+      // NUEVO: sesiones_programadas debe ir como JSON string
+      if (k === 'sesiones_programadas') {
+        if (typeof v === 'string') {
+          fd.append(k, v);
+        } else {
+          fd.append(k, JSON.stringify(v));
+        }
+        return;
+      }
+
+      // Objetos genéricos: por seguridad, stringificar (evita "[object Object]")
+      if (typeof v === 'object') {
         fd.append(k, JSON.stringify(v));
         return;
       }
@@ -47,7 +63,7 @@ class CursosService {
     return fd;
   }
 
-  // Crear un nuevo curso (AHORA con imagen opcional)
+  // Crear un nuevo curso (con imagen opcional)
   async crearCurso(cursoData) {
     try {
       console.log('Creando curso:', cursoData);
@@ -149,7 +165,7 @@ class CursosService {
     }
   }
 
-  // Actualizar un curso (AHORA con imagen opcional, mismo endpoint PUT /cursos/:id)
+  // Actualizar un curso (con imagen opcional)
   async actualizarCurso(cursoId, cambios) {
     try {
       console.log(`Actualizando curso ${cursoId}:`, cambios);
@@ -300,6 +316,33 @@ class CursosService {
       errores.tipo = 'Debes seleccionar el tipo de curso';
     } else if (!['grupal', 'pregrabado'].includes(cursoData.tipo)) {
       errores.tipo = 'El tipo debe ser "grupal" o "pregrabado"';
+    }
+
+    // Validaciones sesiones_programadas (NUEVO)
+    if (cursoData.sesiones_programadas) {
+      if (cursoData.tipo !== 'grupal') {
+        errores.sesiones_programadas = 'Las sesiones automáticas solo aplican a cursos grupales';
+      }
+
+      if (!cursoData.fecha_inicio || !cursoData.fecha_fin) {
+        errores.fecha_inicio = errores.fecha_inicio || 'Requerida si generas sesiones automáticas';
+        errores.fecha_fin = errores.fecha_fin || 'Requerida si generas sesiones automáticas';
+      }
+
+      const sp = cursoData.sesiones_programadas;
+
+      if (!sp.days_of_week || !Array.isArray(sp.days_of_week) || sp.days_of_week.length === 0) {
+        errores.sesiones_programadas = 'Selecciona al menos un día (days_of_week)';
+      }
+
+      if (!sp.hora_inicio || !sp.hora_fin) {
+        errores.sesiones_programadas = 'Debes indicar hora_inicio y hora_fin';
+      } else {
+        // comparación simple HH:mm
+        if (String(sp.hora_fin) <= String(sp.hora_inicio)) {
+          errores.sesiones_programadas = 'hora_fin debe ser mayor que hora_inicio';
+        }
+      }
     }
 
     if (cursoData.tipo_pago_profesor) {

@@ -3,6 +3,16 @@ import React, { useState, useEffect } from 'react';
 import cursosService from '../services/cursos_service';
 import '../styles/ModalCurso.css';
 
+const DAYS = [
+  { key: 'MON', label: 'Lun' },
+  { key: 'TUE', label: 'Mar' },
+  { key: 'WED', label: 'Mié' },
+  { key: 'THU', label: 'Jue' },
+  { key: 'FRI', label: 'Vie' },
+  { key: 'SAT', label: 'Sáb' },
+  { key: 'SUN', label: 'Dom' },
+];
+
 const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, franjasHorarias, onCursoSaved }) => {
   const [formData, setFormData] = useState({
     nombre: '',
@@ -18,7 +28,16 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
     asignatura_id: '',
     profesor_id: '',
     franja_horaria_ids: [],
-    image: null, // NUEVO
+    image: null,
+
+    // NUEVO (UI): sesiones automáticas
+    auto_sesiones_enabled: false,
+    auto_timezone: 'America/Bogota',
+    auto_days_of_week: [],
+    auto_hora_inicio: '',
+    auto_hora_fin: '',
+    auto_exclude_dates: [],
+    auto_exclude_date_input: '',
   });
 
   const [errores, setErrores] = useState({});
@@ -42,7 +61,16 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
           asignatura_id: cursoEditar.asignatura_id || '',
           profesor_id: cursoEditar.profesor_id || '',
           franja_horaria_ids: cursoEditar.franja_horaria_ids || [],
-          image: null, // solo si el admin selecciona una nueva
+          image: null,
+
+          // al editar: por defecto NO autogeneramos (no hay confirmación en UI)
+          auto_sesiones_enabled: false,
+          auto_timezone: 'America/Bogota',
+          auto_days_of_week: [],
+          auto_hora_inicio: '',
+          auto_hora_fin: '',
+          auto_exclude_dates: [],
+          auto_exclude_date_input: '',
         });
       } else {
         resetForm();
@@ -68,6 +96,14 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       profesor_id: '',
       franja_horaria_ids: [],
       image: null,
+
+      auto_sesiones_enabled: false,
+      auto_timezone: 'America/Bogota',
+      auto_days_of_week: [],
+      auto_hora_inicio: '',
+      auto_hora_fin: '',
+      auto_exclude_dates: [],
+      auto_exclude_date_input: '',
     });
   };
 
@@ -92,6 +128,21 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
         ...prev,
         franja_horaria_ids: newFranjas
       }));
+    } else if (name === 'auto_days_of_week') {
+      const day = value;
+      const next = checked
+        ? [...formData.auto_days_of_week, day]
+        : formData.auto_days_of_week.filter(d => d !== day);
+
+      setFormData(prev => ({
+        ...prev,
+        auto_days_of_week: next
+      }));
+    } else if (type === 'checkbox') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: checked
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -107,9 +158,44 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
     }
   };
 
+  const addExcludeDate = () => {
+    const d = (formData.auto_exclude_date_input || '').trim();
+    if (!d) return;
+
+    if (formData.auto_exclude_dates.includes(d)) {
+      setFormData(prev => ({ ...prev, auto_exclude_date_input: '' }));
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      auto_exclude_dates: [...prev.auto_exclude_dates, d].sort(),
+      auto_exclude_date_input: ''
+    }));
+  };
+
+  const removeExcludeDate = (d) => {
+    setFormData(prev => ({
+      ...prev,
+      auto_exclude_dates: prev.auto_exclude_dates.filter(x => x !== d)
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMensaje({ tipo: '', texto: '' });
+
+    const sesiones_programadas =
+      formData.tipo === 'grupal' && formData.auto_sesiones_enabled
+        ? {
+            timezone: formData.auto_timezone || 'America/Bogota',
+            days_of_week: formData.auto_days_of_week,
+            hora_inicio: formData.auto_hora_inicio,
+            hora_fin: formData.auto_hora_fin,
+            exclude_dates: formData.auto_exclude_dates.length > 0 ? formData.auto_exclude_dates : undefined,
+            estado: 'programada',
+          }
+        : null;
 
     const cursoData = {
       nombre: formData.nombre.trim(),
@@ -125,7 +211,10 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       tipo_pago_profesor: formData.tipo_pago_profesor || null,
       valor_pago_profesor: formData.valor_pago_profesor ? parseFloat(formData.valor_pago_profesor) : null,
       franja_horaria_ids: formData.franja_horaria_ids.length > 0 ? formData.franja_horaria_ids : null,
-      image: formData.image instanceof File ? formData.image : undefined, // NUEVO
+      image: formData.image instanceof File ? formData.image : undefined,
+
+      // NUEVO: se envía como objeto; cursos_service lo serializa a JSON string
+      sesiones_programadas: sesiones_programadas || null,
     };
 
     const { valido, errores: erroresValidacion } = cursosService.validarCurso(cursoData);
@@ -362,6 +451,132 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
               </div>
             </div>
           </div>
+
+          {formData.tipo === 'grupal' && (
+            <div className="form-section">
+              <h3>📅 Sesiones automáticas (opcional)</h3>
+
+              <div className="form-group">
+                <label className="checkbox-label" style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <input
+                    type="checkbox"
+                    name="auto_sesiones_enabled"
+                    checked={!!formData.auto_sesiones_enabled}
+                    onChange={handleChange}
+                    disabled={loading}
+                  />
+                  <span>Generar sesiones automáticamente al crear el curso</span>
+                </label>
+                {errores.sesiones_programadas && <span className="error">{errores.sesiones_programadas}</span>}
+                <small className="help-text">
+                  Requiere fecha_inicio y fecha_fin, y define los días y rango de horas (duración = hora_fin - hora_inicio).
+                </small>
+              </div>
+
+              {formData.auto_sesiones_enabled && (
+                <>
+                  <div className="form-group">
+                    <label>Timezone (IANA)</label>
+                    <input
+                      type="text"
+                      name="auto_timezone"
+                      value={formData.auto_timezone}
+                      onChange={handleChange}
+                      placeholder="America/Bogota"
+                      disabled={loading}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Días de la semana</label>
+                    <div className="checkbox-group">
+                      {DAYS.map((d) => (
+                        <label key={d.key} className="checkbox-label">
+                          <input
+                            type="checkbox"
+                            name="auto_days_of_week"
+                            value={d.key}
+                            checked={formData.auto_days_of_week.includes(d.key)}
+                            onChange={handleChange}
+                            disabled={loading}
+                          />
+                          <span>{d.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Hora inicio</label>
+                      <input
+                        type="time"
+                        name="auto_hora_inicio"
+                        value={formData.auto_hora_inicio}
+                        onChange={handleChange}
+                        disabled={loading}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label>Hora fin</label>
+                      <input
+                        type="time"
+                        name="auto_hora_fin"
+                        value={formData.auto_hora_fin}
+                        onChange={handleChange}
+                        disabled={loading}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Excluir fechas (opcional)</label>
+
+                    <div className="form-row" style={{ alignItems: 'flex-end' }}>
+                      <div className="form-group" style={{ flex: 1 }}>
+                        <input
+                          type="date"
+                          name="auto_exclude_date_input"
+                          value={formData.auto_exclude_date_input}
+                          onChange={handleChange}
+                          disabled={loading}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-crear"
+                        onClick={addExcludeDate}
+                        disabled={loading || !formData.auto_exclude_date_input}
+                        style={{ height: 42 }}
+                      >
+                        + Agregar
+                      </button>
+                    </div>
+
+                    {formData.auto_exclude_dates.length > 0 && (
+                      <div className="checkbox-group" style={{ marginTop: 8 }}>
+                        {formData.auto_exclude_dates.map((d) => (
+                          <label key={d} className="checkbox-label" style={{ display: 'flex', gap: 8 }}>
+                            <span>{d}</span>
+                            <button
+                              type="button"
+                              className="btn-eliminar"
+                              onClick={() => removeExcludeDate(d)}
+                              disabled={loading}
+                              style={{ padding: '4px 10px' }}
+                            >
+                              Quitar
+                            </button>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
 
           {formData.tipo === 'grupal' && (
             <div className="form-section">
