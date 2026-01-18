@@ -21,6 +21,10 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
     duracion_horas: '',
     tipo: 'grupal',
     estado: 'activo',
+
+    // NUEVO: cupo
+    capacidad_maxima: '',
+
     tipo_pago_profesor: 'porcentaje',
     valor_pago_profesor: '',
     fecha_inicio: '',
@@ -30,7 +34,7 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
     franja_horaria_ids: [],
     image: null,
 
-    // NUEVO (UI): sesiones automáticas
+    // sesiones automáticas
     auto_sesiones_enabled: false,
     auto_timezone: 'America/Bogota',
     auto_days_of_week: [],
@@ -54,6 +58,12 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
           duracion_horas: cursoEditar.duracion_horas || '',
           tipo: cursoEditar.tipo || 'grupal',
           estado: cursoEditar.estado || 'activo',
+
+          capacidad_maxima:
+            cursoEditar.capacidad_maxima !== undefined && cursoEditar.capacidad_maxima !== null
+              ? String(cursoEditar.capacidad_maxima)
+              : '',
+
           tipo_pago_profesor: cursoEditar.tipo_pago_profesor || 'porcentaje',
           valor_pago_profesor: cursoEditar.valor_pago_profesor || '',
           fecha_inicio: cursoEditar.fecha_inicio ? cursoEditar.fecha_inicio.split('T')[0] : '',
@@ -88,6 +98,7 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       duracion_horas: '',
       tipo: 'grupal',
       estado: 'activo',
+      capacidad_maxima: '',
       tipo_pago_profesor: 'porcentaje',
       valor_pago_profesor: '',
       fecha_inicio: '',
@@ -197,6 +208,13 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
           }
         : null;
 
+    const capacidad =
+      formData.capacidad_maxima !== '' &&
+      formData.capacidad_maxima !== null &&
+      formData.capacidad_maxima !== undefined
+        ? Number(formData.capacidad_maxima)
+        : null;
+
     const cursoData = {
       nombre: formData.nombre.trim(),
       descripcion: formData.descripcion.trim() || null,
@@ -204,6 +222,11 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       duracion_horas: parseInt(formData.duracion_horas),
       tipo: formData.tipo,
       estado: formData.estado,
+
+      // NUEVO: si es null, el service no lo agrega al FormData (por su regla null/undefined)
+      // => backend aplica default (25).
+      capacidad_maxima: capacidad,
+
       asignatura_id: formData.asignatura_id,
       profesor_id: formData.profesor_id || null,
       fecha_inicio: formData.fecha_inicio ? `${formData.fecha_inicio}T00:00:00Z` : null,
@@ -213,7 +236,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       franja_horaria_ids: formData.franja_horaria_ids.length > 0 ? formData.franja_horaria_ids : null,
       image: formData.image instanceof File ? formData.image : undefined,
 
-      // NUEVO: se envía como objeto; cursos_service lo serializa a JSON string
       sesiones_programadas: sesiones_programadas || null,
     };
 
@@ -449,6 +471,23 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
                   <option value="finalizado">✔️ Finalizado</option>
                 </select>
               </div>
+            </div>
+
+            {/* NUEVO: cupo */}
+            <div className="form-group">
+              <label>Cupo máximo (capacidad)</label>
+              <input
+                type="number"
+                name="capacidad_maxima"
+                value={formData.capacidad_maxima}
+                onChange={handleChange}
+                placeholder="25"
+                min="1"
+                disabled={loading}
+                className={errores.capacidad_maxima ? 'input-error' : ''}
+              />
+              {errores.capacidad_maxima && <span className="error">{errores.capacidad_maxima}</span>}
+              <small className="help-text">Si lo dejas vacío, el backend usará 25 por defecto.</small>
             </div>
           </div>
 
