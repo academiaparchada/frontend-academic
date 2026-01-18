@@ -1,4 +1,5 @@
 /* src/styles/ModalFranja.css */
+/* Ajustado a paleta profesores.css: beige #f5f0e8, teal #2d5555/#5b9999/#4a8080 */
 
 .modal-overlay {
   position: fixed;
@@ -12,6 +13,7 @@
   justify-content: center;
   z-index: 1000;
   backdrop-filter: blur(3px);
+  padding: 1rem;
 }
 
 .modal-contenido {
@@ -21,8 +23,9 @@
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: modalSlideIn 0.3s ease-out;
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 @keyframes modalSlideIn {
@@ -41,8 +44,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 2px solid #e9ecef;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 1px solid #e0e0e0;
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
   color: white;
   border-radius: 12px 12px 0 0;
 }
@@ -64,7 +67,8 @@
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
+  line-height: 1;
 }
 
 .btn-cerrar:hover {
@@ -80,8 +84,9 @@
   padding: 1rem;
   border-radius: 6px;
   margin-bottom: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   text-align: center;
+  border: 1px solid #e0e0e0;
 }
 
 .mensaje.exito {
@@ -115,7 +120,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 0.95rem;
 }
 
@@ -126,14 +131,16 @@
   border: 2px solid #e0e0e0;
   border-radius: 6px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
   box-sizing: border-box;
+  background: white;
 }
 
 .form-group select:focus,
 .form-group input:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: #5b9999;
+  box-shadow: 0 0 0 3px rgba(91, 153, 153, 0.1);
 }
 
 .form-group input:disabled,
@@ -144,12 +151,12 @@
 }
 
 .form-group .input-error {
-  border-color: #e74c3c;
+  border-color: #dc3545;
 }
 
 .form-group .error {
   display: block;
-  color: #e74c3c;
+  color: #dc3545;
   font-size: 0.85rem;
   margin-top: 0.3rem;
 }
@@ -170,32 +177,36 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 
 .btn-cancelar {
-  background: #e0e0e0;
-  color: #2c3e50;
+  background: transparent;
+  color: #666;
+  border: 2px solid #e0e0e0;
 }
 
 .btn-cancelar:hover:not(:disabled) {
-  background: #d0d0d0;
+  background: #f0f0f0;
+  border-color: #ccc;
+  transform: translateY(-2px);
 }
 
 .btn-guardar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
   color: white;
 }
 
 .btn-guardar:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 8px 20px rgba(91, 153, 153, 0.3);
 }
 
 .btn-cancelar:disabled,
 .btn-guardar:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* Responsive */

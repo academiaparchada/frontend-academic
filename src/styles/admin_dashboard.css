@@ -1,46 +1,57 @@
 /* src/styles/admin_dashboard.css */
+/* Paleta clara estilo profesores.css (beige + teal, alto contraste) */
 
-/* Paleta tomada del home/footer:
-  - #1f3c3c (teal oscuro)
-  - #2d5555 (teal)
-  - #5b9999 (teal acento)
-  - #3d7373 (teal acento oscuro)
-  - #f5f0e8 / #e8dcc8 (beige)
-*/
 :root{
   --teal-900: #1f3c3c;
   --teal-800: #2d5555;
-  --teal-600: #3d7373;
+  --teal-600: #4a8080;
   --teal-500: #5b9999;
 
   --beige-50: #f5f0e8;
   --beige-100: #e8dcc8;
 
   --panel: #ffffff;
+  --panel-soft: #f9f9f9;
+
   --text: #1f2a37;
   --muted: #666;
+  --muted-2: #5a6774;
 
-  --border: rgba(31, 60, 60, 0.14);
-  --shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+  --border: rgba(0, 0, 0, 0.10);
+  --shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 
   --radius: 1rem;
+}
+
+/* Importante: NO forzar body oscuro aquí; el admin debe ser claro */
+.page{
+  background-color: var(--beige-50);
+}
+
+.main{
+  background-color: var(--beige-50);
 }
 
 .dashboard_container{
   max-width: 1400px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
   min-height: calc(100vh - 200px);
 }
 
 /* Header */
 .dashboard_header{
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid rgba(91, 153, 153, 0.55);
+  gap: 2rem;
 }
 
 .welcome_section{
@@ -62,21 +73,22 @@
 
 /* Logout */
 .btn_logout{
-  padding: 0.75rem 1.5rem;
-  background-color: var(--teal-800);
+  background: var(--teal-800);
   color: white;
   border: none;
+  padding: 1rem 2rem;
   border-radius: 0.5rem;
-  font-size: 1rem;
   font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .btn_logout:hover{
-  background-color: var(--teal-900);
+  background: var(--teal-900);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(31, 60, 60, 0.35);
+  box-shadow: 0 8px 20px rgba(31, 60, 60, 0.20);
 }
 
 /* Grid */
@@ -84,23 +96,23 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
-/* Cards (degradado teal como logo_circle del home) */
+/* Cards claras */
 .dashboard_card{
-  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-600) 100%);
+  background: var(--panel);
   padding: 2rem;
   border-radius: var(--radius);
   text-align: center;
   box-shadow: var(--shadow);
+  border: 1px solid var(--border);
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .dashboard_card:hover{
-  transform: translateY(-5px);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.08);
 }
 
 .card_icon{
@@ -111,42 +123,40 @@
 .card_title{
   font-size: 1.25rem;
   font-weight: 800;
-  color: white;
+  color: var(--teal-800);
   margin: 0 0 1rem 0;
 }
 
-/* Contraste alto para el número */
 .card_number{
   font-size: 2.5rem;
   font-weight: 900;
-  color: var(--beige-50);
+  color: var(--teal-900);
   margin: 0 0 0.5rem 0;
 }
 
-/* Contraste alto, pero un poco más suave que el título */
 .card_description{
-  font-size: 0.9rem;
-  color: rgba(245, 240, 232, 0.9);
+  font-size: 0.95rem;
+  color: var(--muted);
   margin: 0 0 1.5rem 0;
 }
 
-/* Botón dentro de card (beige + teal) */
+/* Botón dentro de card (teal gradient) */
 .btn_card{
-  padding: 0.75rem 1.5rem;
-  background-color: var(--beige-50);
-  color: var(--teal-800);
-  border: 2px solid rgba(245, 240, 232, 0.65);
+  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-600) 100%);
+  color: white;
+  border: none;
+  padding: 0.9rem 1.5rem;
   border-radius: 0.5rem;
   font-size: 0.95rem;
-  font-weight: 800;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
 }
 
 .btn_card:hover{
-  background-color: var(--beige-100);
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(91, 153, 153, 0.25);
 }
 
 /* Info del usuario */
@@ -155,7 +165,7 @@
   padding: 2rem;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  border: 1px solid rgba(31, 60, 60, 0.08);
+  border: 1px solid var(--border);
 }
 
 .section_title{
@@ -164,7 +174,7 @@
   color: var(--teal-800);
   margin: 0 0 1.5rem 0;
   padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(91, 153, 153, 0.25);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .user_info_grid{
@@ -182,7 +192,7 @@
 .info_label{
   font-size: 0.875rem;
   font-weight: 800;
-  color: #5a6774;
+  color: var(--muted-2);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -195,20 +205,24 @@
 
 /* Loading */
 .loading{
+  background-color: var(--beige-50);
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--teal-800);
 }
 
 /* Responsive */
 @media (max-width: 768px){
+  .dashboard_container{
+    padding: 1rem;
+  }
+
   .dashboard_header{
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: stretch;
   }
 
   .btn_logout{
