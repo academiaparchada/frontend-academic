@@ -1,0 +1,308 @@
+/* src/styles/ContabilidadAdmin.css */
+
+/* Paleta (home/footer):
+  - Teal oscuro: #1f3c3c
+  - Teal: #2d5555
+  - Teal acento: #5b9999 / #3d7373
+  - Beige fondo: #f5f0e8 / #e8dcc8
+*/
+:root{
+  --teal-900: #1f3c3c;
+  --teal-800: #2d5555;
+  --teal-600: #3d7373;
+  --teal-500: #5b9999;
+
+  --beige-50: #f5f0e8;
+  --beige-100: #e8dcc8;
+
+  --panel: #ffffff;
+  --panel-soft: #f7f7f8;
+
+  --text: #1f2a37;
+  --muted: #666;
+
+  --border: rgba(31, 60, 60, 0.12);
+  --shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+
+  --danger: #ff4757;
+
+  --radius: 14px;
+}
+
+/* Fondo (similar a tu captura, pero con teal del proyecto) */
+body{
+  background: linear-gradient(180deg, #1b2f2f 0%, var(--teal-900) 60%, #172727 100%);
+}
+
+/* Contenedor */
+.contabilidad-admin-container{
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Header */
+.contabilidad-header{
+  margin-bottom: 1.25rem;
+}
+
+.contabilidad-header h1{
+  color: var(--teal-500);
+  font-size: 2.1rem;
+  margin: 0 0 0.35rem 0;
+  font-weight: 800;
+}
+
+.contabilidad-header .subtitulo{
+  color: rgba(245, 240, 232, 0.75); /* beige claro sobre fondo oscuro */
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Filtros (tarjeta grande) */
+.contabilidad-filtros{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1rem;
+  align-items: end;
+  margin-bottom: 1.25rem;
+
+  /* sutil borde teal */
+  border: 1px solid var(--border);
+}
+
+/* Inputs */
+.filtro{
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.filtro label{
+  color: var(--teal-800);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.filtro input[type="date"]{
+  height: 44px;
+  padding: 0 0.85rem;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.filtro input[type="date"]:focus{
+  outline: none;
+  border-color: rgba(91, 153, 153, 0.65);
+  box-shadow: 0 0 0 4px rgba(91, 153, 153, 0.18);
+}
+
+/* Acciones (botones a la derecha, como captura) */
+.acciones{
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: end;
+}
+
+/* Botón primario con colores del home */
+.btn-consultar{
+  height: 44px;
+  border: none;
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: white;
+
+  background: linear-gradient(135deg, var(--teal-500) 0%, var(--teal-600) 100%);
+  box-shadow: 0 10px 20px rgba(91, 153, 153, 0.35);
+  transition: all 0.25s ease;
+}
+
+.btn-consultar:hover:not(:disabled){
+  transform: translateY(-2px);
+  filter: brightness(1.02);
+}
+
+/* Botón secundario (estilo suave) */
+.btn-limpiar{
+  height: 44px;
+  border: 2px solid rgba(45, 85, 85, 0.35);
+  border-radius: 10px;
+  padding: 0 1.25rem;
+  font-weight: 800;
+  cursor: pointer;
+
+  background: rgba(91, 153, 153, 0.15);
+  color: var(--teal-800);
+  transition: all 0.25s ease;
+}
+
+.btn-limpiar:hover:not(:disabled){
+  background: rgba(91, 153, 153, 0.22);
+  transform: translateY(-2px);
+}
+
+.btn-consultar:disabled,
+.btn-limpiar:disabled,
+.filtro input:disabled{
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* KPIs */
+.kpis-grid{
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpi-card{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(31, 60, 60, 0.08);
+  padding: 1.05rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.kpi-label{
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.kpi-value{
+  color: var(--teal-900);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+/* Neto destacado en teal */
+.kpi-neto .kpi-value{
+  color: var(--teal-500);
+}
+
+/* Tabla */
+.tabla-container{
+  background: var(--panel);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid rgba(31, 60, 60, 0.08);
+}
+
+.tabla-header{
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.10);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+
+  /* leve toque beige como home */
+  background: linear-gradient(135deg, rgba(245, 240, 232, 0.55) 0%, rgba(232, 220, 200, 0.35) 100%);
+}
+
+.tabla-header h3{
+  margin: 0;
+  color: var(--teal-900);
+  font-weight: 900;
+}
+
+.tabla-header small{
+  color: rgba(45, 85, 85, 0.75);
+  font-weight: 700;
+}
+
+/* Tabla interna */
+.tabla-pagos{
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-pagos thead{
+  background: var(--panel-soft);
+}
+
+.tabla-pagos th,
+.tabla-pagos td{
+  padding: 0.95rem 1.25rem;
+  border-bottom: 1px solid rgba(31, 60, 60, 0.08);
+  font-size: 0.95rem;
+  color: var(--teal-900);
+}
+
+.tabla-pagos th{
+  font-weight: 900;
+  color: var(--teal-800);
+}
+
+.tabla-pagos tbody tr:hover{
+  background: rgba(91, 153, 153, 0.06);
+}
+
+.text-right{ text-align: right; }
+.text-center{ text-align: center; }
+
+/* Mensajes */
+.mensaje-error{
+  background: var(--danger);
+  color: white;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-top: 0.75rem;
+  text-align: center;
+  font-weight: 800;
+}
+
+/* Responsive */
+@media (max-width: 1100px){
+  .kpis-grid{
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+@media (max-width: 768px){
+  .contabilidad-admin-container{
+    padding: 1rem;
+  }
+
+  .contabilidad-filtros{
+    grid-template-columns: 1fr;
+  }
+
+  .acciones{
+    flex-direction: row;
+  }
+
+  .btn-consultar,
+  .btn-limpiar{
+    width: 100%;
+  }
+
+  .kpis-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .tabla-container{
+    overflow-x: auto;
+  }
+
+  .tabla-pagos{
+    min-width: 650px;
+  }
+}

@@ -31,6 +31,7 @@ import { MisClases } from './pages/profesor/MisClases.jsx'
 import { MisCursos } from './pages/profesor/MisCursos.jsx'
 import { MiPerfil } from './pages/profesor/MiPerfil.jsx'
 import { GoogleCallback } from './pages/GoogleCallback.jsx'
+import ContabilidadAdmin from './pages/admin/ContabilidadAdmin.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -43,37 +44,38 @@ createRoot(document.getElementById('root')).render(
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms-and-policies" element={<TermsAndPolicies />} />
-          
+
           {/* Dashboards */}
           <Route path="/estudiante/dashboard" element={<EstudianteDashboard />} />
           <Route path="/profesor/dashboard" element={<ProfesorDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          
+
           {/* Admin */}
           <Route path="/admin/asignaturas" element={<AsignaturasPage />} />
           <Route path="/admin/gestion-profesores" element={<GestionProfesoresAdmin />} />
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
           <Route path="/admin/cursos" element={<CursosAdmin />} />
-          
+          <Route path="/admin/contabilidad" element={<ContabilidadAdmin />} />
+
           {/* Profesor */}
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />
           <Route path="/profesor/mis-clases" element={<MisClases />} />
           <Route path="/profesor/mis-cursos" element={<MisCursos />} />
           <Route path="/profesor/mi-perfil" element={<MiPerfil />} />
-          
+
           {/* Público */}
           <Route path="/cursos" element={<CursosPublico />} />
           <Route path="/clases-personalizadas" element={<ClasesPersonalizadasPublico />} />
-          
+
           {/* Rutas de checkout */}
           <Route path="/checkout/curso/:cursoId" element={<CheckoutCurso />} />
           <Route path="/checkout/clase/:claseId" element={<CheckoutClase />} />
           <Route path="/checkout/paquete/:claseId" element={<CheckoutPaquete />} />
-          
+
           {/* Rutas de estudiante */}
           <Route path="/estudiante/mis-compras" element={<MisCompras />} />
           <Route path="/estudiante/paquete/:compraId" element={<DetallePaquete />} />
-          
+
           {/* Rutas de resultado de pago */}
           <Route path="/pago/exitoso" element={<PagoExitoso />} />
           <Route path="/pago/pendiente" element={<PagoPendiente />} />

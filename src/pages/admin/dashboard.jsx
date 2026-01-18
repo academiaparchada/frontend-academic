@@ -89,6 +89,17 @@ export const AdminDashboard = () => {
               </button>
             </div>
 
+            {/* NUEVO: Contabilidad */}
+            <div className="dashboard_card">
+              <div className="card_icon">💰</div>
+              <h2 className="card_title">Contabilidad</h2>
+              <p className="card_number">—</p>
+              <p className="card_description">Ingresos, pagos y neto por rango</p>
+              <button className="btn_card" onClick={() => navigate('/admin/contabilidad')}>
+                Ver Contabilidad
+              </button>
+            </div>
+
             {/* Clases */}
             <div className="dashboard_card">
               <div className="card_icon">📅</div>
