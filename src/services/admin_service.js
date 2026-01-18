@@ -42,7 +42,30 @@ const admin_service = {
     return apiFetch(`/api/admin/compras${qs}`, { method: 'GET' });
   },
 
-  // CU-050
+  // ===== NUEVO: FASE X (Sesiones de curso grupal) =====
+
+  // POST /cursos/:cursoId/sesiones
+  post_curso_sesiones: async ({ cursoId, sesiones }) => {
+    return apiFetch(`/api/cursos/${cursoId}/sesiones`, {
+      method: 'POST',
+      body: JSON.stringify({ sesiones }),
+    });
+  },
+
+  // GET /cursos/:cursoId/sesiones
+  get_curso_sesiones: async ({ cursoId }) => {
+    return apiFetch(`/api/cursos/${cursoId}/sesiones`, { method: 'GET' });
+  },
+
+  // PUT /cursos/:cursoId/sesiones/:sesionId/meet
+  put_curso_sesion_meet: async ({ cursoId, sesionId, link_meet }) => {
+    return apiFetch(`/api/cursos/${cursoId}/sesiones/${sesionId}/meet`, {
+      method: 'PUT',
+      body: JSON.stringify({ link_meet }),
+    });
+  },
+
+  // (LEGACY) si aún existe en backend viejo
   get_sesiones_pendientes: async () => {
     return apiFetch(`/api/sesiones/pendientes`, { method: 'GET' });
   },

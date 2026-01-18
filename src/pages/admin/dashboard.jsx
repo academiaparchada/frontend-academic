@@ -26,7 +26,7 @@ export const AdminDashboard = () => {
       if (loading || !is_authenticated) return;
 
       setLoadingMetricas(true);
-      const res = await adminMetricasService.obtenerMetricas(); // últimos 30 días por backend
+      const res = await adminMetricasService.obtenerMetricas();
       if (res.success) setMetricas(res.data);
       setLoadingMetricas(false);
     };
@@ -44,8 +44,6 @@ export const AdminDashboard = () => {
   const cursosActivos = metricas?.cursos?.activos ?? 0;
   const ingresos = metricas?.ingresos?.total_rango ?? 0;
 
-  // Nota: no conocemos el shape exacto del backend para estos contadores,
-  // por eso se dejan varios fallbacks razonables.
   const clasesPersonalizadasTotal =
     metricas?.clases_personalizadas?.total ??
     metricas?.clasesPersonalizadas?.total ??
@@ -83,8 +81,6 @@ export const AdminDashboard = () => {
           </div>
 
           <div className="dashboard_grid">
-            {/* (ELIMINADA) Tarjeta Estudiantes */}
-
             <div className="dashboard_card">
               <div className="card_icon">👨‍🏫</div>
               <h2 className="card_title">Profesores</h2>
@@ -136,6 +132,17 @@ export const AdminDashboard = () => {
                 Gestionar
               </button>
             </div>
+
+            {/* NUEVO: acceso a panel de sesiones + meet */}
+            <div className="dashboard_card">
+              <div className="card_icon">🎥</div>
+              <h2 className="card_title">Sesiones (Meet)</h2>
+              <p className="card_number">—</p>
+              <p className="card_description">Crear sesiones y asignar link</p>
+              <button className="btn_card" onClick={() => navigate('/admin/sesiones-pendientes')}>
+                Gestionar
+              </button>
+            </div>
           </div>
 
           <div className="user_info_section">
@@ -143,9 +150,7 @@ export const AdminDashboard = () => {
             <div className="user_info_grid">
               <div className="info_item">
                 <span className="info_label">Nombre:</span>
-                <span className="info_value">
-                  {user?.nombre} {user?.apellido}
-                </span>
+                <span className="info_value">{user?.nombre} {user?.apellido}</span>
               </div>
               <div className="info_item">
                 <span className="info_label">Email:</span>
@@ -161,6 +166,7 @@ export const AdminDashboard = () => {
               </div>
             </div>
           </div>
+
         </div>
       </main>
 
