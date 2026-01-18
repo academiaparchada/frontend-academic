@@ -12,7 +12,7 @@ const ClasesPersonalizadasAdmin = () => {
   const [pagination, setPagination] = useState({});
   const [page, setPage] = useState(1);
   const [filtroAsignatura, setFiltroAsignatura] = useState('');
-  
+
   // Estados del modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [claseEditar, setClaseEditar] = useState(null);
@@ -41,10 +41,10 @@ const ClasesPersonalizadasAdmin = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
-        const listaAsignaturas = Array.isArray(data.data?.asignaturas) 
-          ? data.data.asignaturas 
+        const listaAsignaturas = Array.isArray(data.data?.asignaturas)
+          ? data.data.asignaturas
           : [];
         setAsignaturas(listaAsignaturas);
       }
@@ -58,13 +58,13 @@ const ClasesPersonalizadasAdmin = () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const resultado = await clasesService.listarClases(
-        page, 
-        limit, 
+        page,
+        limit,
         filtroAsignatura || null
       );
-      
+
       if (resultado.success) {
         setClases(resultado.data.clases || []);
         setPagination(resultado.data.pagination || {});
@@ -104,7 +104,7 @@ const ClasesPersonalizadasAdmin = () => {
     try {
       setLoading(true);
       const resultado = await clasesService.eliminarClase(clase.id);
-      
+
       if (resultado.success) {
         alert(resultado.message);
         await cargarClases();
@@ -127,7 +127,7 @@ const ClasesPersonalizadasAdmin = () => {
   // Cambiar filtro de asignatura
   const handleFiltroChange = (e) => {
     setFiltroAsignatura(e.target.value);
-    setPage(1); // Resetear a página 1
+    setPage(1);
   };
 
   return (
@@ -160,7 +160,7 @@ const ClasesPersonalizadasAdmin = () => {
             ))}
           </select>
         </div>
-        
+
         {pagination.total > 0 && (
           <div className="resultados-info">
             Mostrando {clases.length} de {pagination.total} clases
@@ -189,6 +189,7 @@ const ClasesPersonalizadasAdmin = () => {
           <table className="tabla-clases">
             <thead>
               <tr>
+                <th>Imagen</th>
                 <th>Asignatura</th>
                 <th>Duración</th>
                 <th>Precio Estudiante</th>
@@ -203,48 +204,77 @@ const ClasesPersonalizadasAdmin = () => {
               {clases.map(clase => {
                 const pagoProfesor = clasesService.calcularPagoProfesor(clase);
                 const ganancia = clase.precio - pagoProfesor;
-                
+
                 return (
                   <tr key={clase.id}>
+                    <td className="text-center">
+                      {clase.imagen_url ? (
+                        <a
+                          href={clase.imagen_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Abrir imagen"
+                          className="clase-thumb-link"
+                        >
+                          <img
+                            src={clase.imagen_url}
+                            alt={`Imagen ${clase.asignatura?.nombre || ''}`}
+                            className="clase-thumb"
+                            loading="lazy"
+                            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                          />
+                        </a>
+                      ) : (
+                        <span className="clase-thumb-fallback">—</span>
+                      )}
+                    </td>
+
                     <td>
                       <div className="asignatura-cell">
                         <strong>{clase.asignatura.nombre}</strong>
                         <small>{clase.asignatura.descripcion}</small>
                       </div>
                     </td>
+
                     <td className="text-center">
                       <span className="badge-duracion">{clase.duracion_horas}h</span>
                     </td>
+
                     <td className="text-right">
                       <strong>{clasesService.formatearPrecio(clase.precio)}</strong>
                     </td>
+
                     <td className="text-center">
                       <span className={`badge-tipo ${clase.tipo_pago_profesor}`}>
                         {clase.tipo_pago_profesor === 'porcentaje' ? '📊 Porcentaje' : '💵 Monto Fijo'}
                       </span>
                     </td>
+
                     <td className="text-right">
-                      {clase.tipo_pago_profesor === 'porcentaje' 
+                      {clase.tipo_pago_profesor === 'porcentaje'
                         ? `${clase.valor_pago_profesor}%`
                         : clasesService.formatearPrecio(clase.valor_pago_profesor)
                       }
                     </td>
+
                     <td className="text-right pago-profesor">
                       <strong>{clasesService.formatearPrecio(pagoProfesor)}</strong>
                     </td>
+
                     <td className="text-right ganancia">
                       <strong>{clasesService.formatearPrecio(ganancia)}</strong>
                     </td>
+
                     <td>
                       <div className="acciones-cell">
-                        <button 
+                        <button
                           className="btn-accion btn-editar"
                           onClick={() => handleEditarClase(clase)}
                           title="Editar clase"
                         >
                           ✏️
                         </button>
-                        <button 
+                        <button
                           className="btn-accion btn-eliminar"
                           onClick={() => handleEliminarClase(clase)}
                           title="Eliminar clase"
@@ -275,7 +305,7 @@ const ClasesPersonalizadasAdmin = () => {
       {/* Paginación */}
       {pagination.total_pages > 1 && !loading && (
         <div className="pagination">
-          <button 
+          <button
             className="btn-page"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
@@ -287,7 +317,7 @@ const ClasesPersonalizadasAdmin = () => {
             Página {page} de {pagination.total_pages}
           </span>
 
-          <button 
+          <button
             className="btn-page"
             disabled={page === pagination.total_pages}
             onClick={() => setPage(page + 1)}

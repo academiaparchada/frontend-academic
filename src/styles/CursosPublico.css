@@ -94,6 +94,21 @@
   font-size: 0.9rem;
 }
 
+/* NUEVO: imagen del curso */
+.curso-publico-imagen {
+  width: 100%;
+  height: 190px;
+  background: #f7fafc;
+  overflow: hidden;
+}
+
+.curso-publico-imagen img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
 .curso-publico-header {
   padding: 1.5rem 1.5rem 1rem;
   display: flex;
@@ -342,5 +357,9 @@
 
   .pagination-publico .btn-page {
     width: 100%;
+  }
+
+  .curso-publico-imagen {
+    height: 170px;
   }
 }

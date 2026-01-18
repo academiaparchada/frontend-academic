@@ -1,29 +1,63 @@
 // src/services/cursos_service.js
 const API_URL = 'https://academiaparchada.onrender.com/api/cursos';
+const API_IMAGENES_CURSOS_URL = 'https://academiaparchada.onrender.com/api/imagenes/cursos';
 
 class CursosService {
-  // Obtener el token del localStorage
   _getToken() {
     return localStorage.getItem('token');
   }
 
-  // Obtener headers con autenticación
-  _getHeaders() {
+  // Solo auth (para FormData NO se debe setear Content-Type)
+  _getAuthHeaders() {
+    return {
+      'Authorization': `Bearer ${this._getToken()}`
+    };
+  }
+
+  // JSON headers (para endpoints JSON)
+  _getJsonHeaders() {
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this._getToken()}`
     };
   }
 
-  // Crear un nuevo curso
+  // Armar FormData para curso (incluye image opcional)
+  _buildCursoFormData(payload = {}) {
+    const fd = new FormData();
+
+    Object.entries(payload).forEach(([k, v]) => {
+      if (v === undefined || v === null) return;
+
+      if (k === 'image') return;
+
+      // Arrays (como franja_horaria_ids): mandarlos como JSON string
+      if (Array.isArray(v)) {
+        fd.append(k, JSON.stringify(v));
+        return;
+      }
+
+      fd.append(k, String(v));
+    });
+
+    if (payload.image instanceof File) {
+      fd.append('image', payload.image); // clave exacta: "image"
+    }
+
+    return fd;
+  }
+
+  // Crear un nuevo curso (AHORA con imagen opcional)
   async crearCurso(cursoData) {
     try {
       console.log('Creando curso:', cursoData);
-      
+
+      const fd = this._buildCursoFormData(cursoData);
+
       const response = await fetch(API_URL, {
         method: 'POST',
-        headers: this._getHeaders(),
-        body: JSON.stringify(cursoData)
+        headers: this._getAuthHeaders(),
+        body: fd
       });
 
       const data = await response.json();
@@ -51,7 +85,7 @@ class CursosService {
   async listarCursos(filtros = {}) {
     try {
       const params = new URLSearchParams();
-      
+
       if (filtros.page) params.append('page', filtros.page);
       if (filtros.limit) params.append('limit', filtros.limit);
       if (filtros.estado) params.append('estado', filtros.estado);
@@ -61,15 +95,15 @@ class CursosService {
 
       const url = `${API_URL}?${params.toString()}`;
       console.log('Listando cursos:', url);
-      
+
       const response = await fetch(url);
       const data = await response.json();
-      
+
       console.log('Respuesta listar cursos:', data);
 
       if (response.ok) {
-        return { 
-          success: true, 
+        return {
+          success: true,
           data: {
             cursos: data.data?.cursos || [],
             pagination: data.data?.pagination || {}
@@ -94,7 +128,7 @@ class CursosService {
   async obtenerCurso(cursoId) {
     try {
       console.log(`Obteniendo curso ${cursoId}`);
-      
+
       const response = await fetch(`${API_URL}/${cursoId}`);
       const data = await response.json();
 
@@ -115,15 +149,17 @@ class CursosService {
     }
   }
 
-  // Actualizar un curso
+  // Actualizar un curso (AHORA con imagen opcional, mismo endpoint PUT /cursos/:id)
   async actualizarCurso(cursoId, cambios) {
     try {
       console.log(`Actualizando curso ${cursoId}:`, cambios);
-      
+
+      const fd = this._buildCursoFormData(cambios);
+
       const response = await fetch(`${API_URL}/${cursoId}`, {
         method: 'PUT',
-        headers: this._getHeaders(),
-        body: JSON.stringify(cambios)
+        headers: this._getAuthHeaders(),
+        body: fd
       });
 
       const data = await response.json();
@@ -147,14 +183,50 @@ class CursosService {
     }
   }
 
+  // (Opcional) Actualizar SOLO imagen del curso (endpoint dedicado)
+  async actualizarImagenCurso(cursoId, imageFile) {
+    try {
+      if (!(imageFile instanceof File)) {
+        return { success: false, message: 'Archivo de imagen inválido' };
+      }
+
+      const fd = new FormData();
+      fd.append('image', imageFile);
+
+      const response = await fetch(`${API_IMAGENES_CURSOS_URL}/${cursoId}`, {
+        method: 'PUT',
+        headers: this._getAuthHeaders(),
+        body: fd
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error actualizando imagen',
+          errors: data.errors || []
+        };
+      }
+    } catch (error) {
+      console.error('Error al actualizar imagen del curso:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
+
   // Eliminar un curso
   async eliminarCurso(cursoId) {
     try {
       console.log(`Eliminando curso ${cursoId}`);
-      
+
       const response = await fetch(`${API_URL}/${cursoId}`, {
         method: 'DELETE',
-        headers: this._getHeaders()
+        headers: this._getJsonHeaders()
       });
 
       const data = await response.json();
@@ -177,7 +249,6 @@ class CursosService {
     }
   }
 
-  // Calcular el pago al profesor
   calcularPagoProfesor(curso) {
     if (!curso.tipo_pago_profesor || !curso.valor_pago_profesor) {
       return 0;
@@ -189,7 +260,6 @@ class CursosService {
     return curso.valor_pago_profesor;
   }
 
-  // Formatear precio en COP
   formatearPrecio(precio) {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -198,7 +268,6 @@ class CursosService {
     }).format(precio);
   }
 
-  // Formatear fecha
   formatearFecha(fecha) {
     if (!fecha) return 'No especificada';
     return new Date(fecha).toLocaleDateString('es-CO', {
@@ -208,11 +277,9 @@ class CursosService {
     });
   }
 
-  // Validar datos de curso
   validarCurso(cursoData) {
     const errores = {};
 
-    // Campos obligatorios
     if (!cursoData.nombre || cursoData.nombre.trim() === '') {
       errores.nombre = 'El nombre es obligatorio';
     }
@@ -235,7 +302,6 @@ class CursosService {
       errores.tipo = 'El tipo debe ser "grupal" o "pregrabado"';
     }
 
-    // Validar pago al profesor
     if (cursoData.tipo_pago_profesor) {
       if (!['porcentaje', 'monto_fijo'].includes(cursoData.tipo_pago_profesor)) {
         errores.tipo_pago_profesor = 'El tipo de pago debe ser "porcentaje" o "monto_fijo"';
@@ -254,17 +320,15 @@ class CursosService {
       }
     }
 
-    // Validar fechas
     if (cursoData.fecha_inicio && cursoData.fecha_fin) {
       const inicio = new Date(cursoData.fecha_inicio);
       const fin = new Date(cursoData.fecha_fin);
-      
+
       if (fin <= inicio) {
         errores.fecha_fin = 'La fecha de fin debe ser posterior a la fecha de inicio';
       }
     }
 
-    // Validar curso grupal requiere profesor
     if (cursoData.tipo === 'grupal' && !cursoData.profesor_id) {
       errores.profesor_id = 'Los cursos grupales requieren un profesor asignado';
     }
@@ -275,14 +339,12 @@ class CursosService {
     };
   }
 
-  // Obtener badge de tipo
   obtenerBadgeTipo(tipo) {
-    return tipo === 'grupal' 
+    return tipo === 'grupal'
       ? { text: '👥 Grupal', class: 'badge-grupal' }
       : { text: '🎥 Pregrabado', class: 'badge-pregrabado' };
   }
 
-  // Obtener badge de estado
   obtenerBadgeEstado(estado) {
     const badges = {
       'activo': { text: '✅ Activo', class: 'badge-activo' },

@@ -13,22 +13,19 @@ const CursosAdmin = () => {
   const [error, setError] = useState('');
   const [pagination, setPagination] = useState({});
   const [page, setPage] = useState(1);
-  
-  // Estados de filtros
+
   const [filtros, setFiltros] = useState({
     estado: '',
     tipo: '',
     asignatura_id: '',
     profesor_id: ''
   });
-  
-  // Estados del modal
+
   const [modalAbierto, setModalAbierto] = useState(false);
   const [cursoEditar, setCursoEditar] = useState(null);
 
   const limit = 12;
 
-  // Cargar datos iniciales
   useEffect(() => {
     cargarAsignaturas();
     cargarProfesores();
@@ -36,12 +33,10 @@ const CursosAdmin = () => {
     cargarCursos();
   }, []);
 
-  // Recargar cursos cuando cambia la página o los filtros
   useEffect(() => {
     cargarCursos();
   }, [page, filtros]);
 
-  // Cargar asignaturas
   const cargarAsignaturas = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -50,7 +45,7 @@ const CursosAdmin = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setAsignaturas(data.data?.asignaturas || []);
       }
@@ -59,7 +54,6 @@ const CursosAdmin = () => {
     }
   };
 
-  // Cargar profesores
   const cargarProfesores = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -68,7 +62,7 @@ const CursosAdmin = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setProfesores(data.data?.profesores || []);
       }
@@ -77,7 +71,6 @@ const CursosAdmin = () => {
     }
   };
 
-  // Cargar franjas horarias
   const cargarFranjasHorarias = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -86,7 +79,7 @@ const CursosAdmin = () => {
       });
 
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setFranjasHorarias(data.data?.franjas_horarias || data.data?.franjasHorarias || []);
       }
@@ -95,12 +88,11 @@ const CursosAdmin = () => {
     }
   };
 
-  // Cargar cursos
   const cargarCursos = async () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const filtrosLimpios = {
         page,
         limit,
@@ -108,9 +100,9 @@ const CursosAdmin = () => {
           Object.entries(filtros).filter(([_, v]) => v !== '')
         )
       };
-      
+
       const resultado = await cursosService.listarCursos(filtrosLimpios);
-      
+
       if (resultado.success) {
         setCursos(resultado.data.cursos || []);
         setPagination(resultado.data.pagination || {});
@@ -127,19 +119,16 @@ const CursosAdmin = () => {
     }
   };
 
-  // Abrir modal para crear curso
   const handleCrearCurso = () => {
     setCursoEditar(null);
     setModalAbierto(true);
   };
 
-  // Abrir modal para editar curso
   const handleEditarCurso = (curso) => {
     setCursoEditar(curso);
     setModalAbierto(true);
   };
 
-  // Eliminar curso
   const handleEliminarCurso = async (curso) => {
     const confirmacion = window.confirm(
       `¿Estás seguro de eliminar el curso "${curso.nombre}"?\n\n` +
@@ -153,7 +142,7 @@ const CursosAdmin = () => {
     try {
       setLoading(true);
       const resultado = await cursosService.eliminarCurso(curso.id);
-      
+
       if (resultado.success) {
         alert(resultado.message);
         await cargarCursos();
@@ -168,21 +157,18 @@ const CursosAdmin = () => {
     }
   };
 
-  // Callback cuando se guarda un curso
   const handleCursoSaved = () => {
     cargarCursos();
   };
 
-  // Cambiar filtro
   const handleFiltroChange = (campo, valor) => {
     setFiltros(prev => ({
       ...prev,
       [campo]: valor
     }));
-    setPage(1); // Resetear a página 1
+    setPage(1);
   };
 
-  // Limpiar filtros
   const limpiarFiltros = () => {
     setFiltros({
       estado: '',
@@ -205,7 +191,6 @@ const CursosAdmin = () => {
         </button>
       </div>
 
-      {/* Filtros */}
       <div className="filtros-container">
         <div className="filtros-grid">
           <div className="filtro-item">
@@ -269,14 +254,14 @@ const CursosAdmin = () => {
         </div>
 
         <div className="filtros-acciones">
-          <button 
-            className="btn-limpiar-filtros" 
+          <button
+            className="btn-limpiar-filtros"
             onClick={limpiarFiltros}
             disabled={loading}
           >
             🗑️ Limpiar Filtros
           </button>
-          
+
           {pagination.total > 0 && (
             <div className="resultados-info">
               Mostrando {cursos.length} de {pagination.total} cursos
@@ -285,14 +270,12 @@ const CursosAdmin = () => {
         </div>
       </div>
 
-      {/* Mensajes de error */}
       {error && (
         <div className="mensaje-error">
           {error}
         </div>
       )}
 
-      {/* Indicador de carga */}
       {loading && (
         <div className="loading-spinner">
           <div className="spinner"></div>
@@ -300,7 +283,6 @@ const CursosAdmin = () => {
         </div>
       )}
 
-      {/* Grid de cursos */}
       {!loading && cursos.length > 0 && (
         <div className="cursos-grid">
           {cursos.map(curso => {
@@ -312,13 +294,21 @@ const CursosAdmin = () => {
             return (
               <div key={curso.id} className="curso-card">
                 <div className="curso-badges">
-                  <span className={`badge ${badgeTipo.class}`}>
-                    {badgeTipo.text}
-                  </span>
-                  <span className={`badge ${badgeEstado.class}`}>
-                    {badgeEstado.text}
-                  </span>
+                  <span className={`badge ${badgeTipo.class}`}>{badgeTipo.text}</span>
+                  <span className={`badge ${badgeEstado.class}`}>{badgeEstado.text}</span>
                 </div>
+
+                {/* IMAGEN */}
+                {curso.imagen_url ? (
+                  <div className="curso-imagen">
+                    <img
+                      src={curso.imagen_url}
+                      alt={`Portada del curso ${curso.nombre}`}
+                      loading="lazy"
+                      onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    />
+                  </div>
+                ) : null}
 
                 <div className="curso-header">
                   <h3>{curso.nombre}</h3>
@@ -379,6 +369,7 @@ const CursosAdmin = () => {
                       {cursosService.formatearPrecio(curso.precio)}
                     </strong>
                   </div>
+
                   {pagoProfesor > 0 && (
                     <>
                       <div className="precio-row">
@@ -398,14 +389,14 @@ const CursosAdmin = () => {
                 </div>
 
                 <div className="curso-acciones">
-                  <button 
+                  <button
                     className="btn-editar"
                     onClick={() => handleEditarCurso(curso)}
                     title="Editar curso"
                   >
                     ✏️ Editar
                   </button>
-                  <button 
+                  <button
                     className="btn-eliminar"
                     onClick={() => handleEliminarCurso(curso)}
                     title="Eliminar curso"
@@ -419,16 +410,16 @@ const CursosAdmin = () => {
         </div>
       )}
 
-      {/* Mensaje cuando no hay cursos */}
       {!loading && cursos.length === 0 && (
         <div className="mensaje-vacio">
           <h3>📚 No hay cursos</h3>
           <p>
-            {Object.values(filtros).some(v => v !== '') 
+            {Object.values(filtros).some(v => v !== '')
               ? 'No se encontraron cursos con los filtros aplicados'
               : 'Crea tu primer curso para empezar'
             }
           </p>
+
           {Object.values(filtros).some(v => v !== '') ? (
             <button className="btn-limpiar-grande" onClick={limpiarFiltros}>
               🗑️ Limpiar Filtros
@@ -441,10 +432,9 @@ const CursosAdmin = () => {
         </div>
       )}
 
-      {/* Paginación */}
       {pagination.total_pages > 1 && !loading && (
         <div className="pagination">
-          <button 
+          <button
             className="btn-page"
             disabled={page === 1}
             onClick={() => setPage(page - 1)}
@@ -456,7 +446,7 @@ const CursosAdmin = () => {
             Página {page} de {pagination.total_pages}
           </span>
 
-          <button 
+          <button
             className="btn-page"
             disabled={page === pagination.total_pages}
             onClick={() => setPage(page + 1)}
@@ -466,7 +456,6 @@ const CursosAdmin = () => {
         </div>
       )}
 
-      {/* Modal para crear/editar curso */}
       <ModalCurso
         isOpen={modalAbierto}
         onClose={() => setModalAbierto(false)}

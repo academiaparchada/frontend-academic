@@ -37,14 +37,21 @@
 .clase-card {
   background: white;
   border-radius: 16px;
-  padding: 2rem;
+  padding: 1.5rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s, box-shadow 0.3s;
+
   display: flex;
   flex-direction: column;
-  align-items: center;
+
+  /* importante para que la imagen y secciones ocupen ancho completo */
+  align-items: stretch;
+
   text-align: center;
-  gap: 1.5rem;
+  gap: 1.25rem;
+
+  /* por seguridad si algo intenta salirse */
+  overflow: hidden;
 }
 
 .clase-card:hover {
@@ -52,6 +59,23 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
+/* NUEVO: contenedor de portada */
+.clase-imagen {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f7fafc;
+}
+
+.clase-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* clave: recorta sin deformar */
+  display: block;
+}
+
+/* Fallback icon */
 .clase-icon {
   width: 80px;
   height: 80px;
@@ -61,6 +85,7 @@
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
+  margin: 0 auto; /* para que quede centrado aunque el card sea stretch */
 }
 
 .clase-card h3 {
@@ -97,7 +122,7 @@
   flex-direction: column;
   gap: 0.25rem;
   width: 100%;
-  padding: 1.5rem;
+  padding: 1.25rem;
   background: #f7fafc;
   border-radius: 8px;
 }
@@ -275,5 +300,9 @@
 
   .precio-valor {
     font-size: 1.75rem;
+  }
+
+  .clase-imagen {
+    height: 160px;
   }
 }

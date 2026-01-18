@@ -19,14 +19,12 @@ const ClasesPersonalizadasPublico = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // Usar el servicio que ya maneja la estructura correcta
+
       const resultado = await clasesPersonalizadasService.listarClases();
-      
+
       console.log('Resultado completo:', resultado);
 
       if (resultado.success) {
-        // El servicio ya devuelve la estructura correcta en resultado.data.clases
         setClases(resultado.data.clases || []);
         console.log('Clases cargadas:', resultado.data.clases);
       } else {
@@ -84,9 +82,22 @@ const ClasesPersonalizadasPublico = () => {
       <div className="clases-grid">
         {clases.map((clase) => (
           <div key={clase.id} className="clase-card">
-            <div className="clase-icon">
-              📚
-            </div>
+            {/* IMAGEN / FALLBACK */}
+            {clase.imagen_url ? (
+              <div className="clase-imagen">
+                <img
+                  src={clase.imagen_url}
+                  alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
+                  loading="lazy"
+                  onError={(e) => {
+                    // si falla la carga, ocultar imagen y dejar que el layout siga normal
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="clase-icon">📚</div>
+            )}
 
             <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
 
@@ -115,13 +126,13 @@ const ClasesPersonalizadasPublico = () => {
             </div>
 
             <div className="clase-acciones">
-              <button 
+              <button
                 className="btn-comprar-clase"
                 onClick={() => handleComprarClase(clase)}
               >
                 Comprar 1 Clase
               </button>
-              <button 
+              <button
                 className="btn-comprar-paquete"
                 onClick={() => handleComprarPaquete(clase)}
               >

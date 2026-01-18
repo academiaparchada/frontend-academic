@@ -150,6 +150,23 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
+/* NUEVO: Portada curso (admin) */
+.curso-imagen {
+  width: 100%;
+  height: 160px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f7fafc;
+  margin: 0.25rem 0 0.5rem;
+}
+
+.curso-imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* Badges */
 .curso-badges {
   display: flex;
@@ -534,5 +551,9 @@
   
   .btn-page {
     width: 100%;
+  }
+
+  .curso-imagen {
+    height: 150px;
   }
 }

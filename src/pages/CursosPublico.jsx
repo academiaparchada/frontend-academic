@@ -12,7 +12,7 @@ const CursosPublico = () => {
   const [pagination, setPagination] = useState({});
   const [page, setPage] = useState(1);
   const [filtros, setFiltros] = useState({
-    estado: 'activo', // Solo cursos activos
+    estado: 'activo',
     tipo: ''
   });
   const limit = 12;
@@ -51,10 +51,8 @@ const CursosPublico = () => {
   };
 
   const handleInscribirse = (curso) => {
-  // Redirigir directamente al checkout
-  navigate(`/checkout/curso/${curso.id}`);
-};
-
+    navigate(`/checkout/curso/${curso.id}`);
+  };
 
   if (loading && cursos.length === 0) {
     return (
@@ -82,7 +80,6 @@ const CursosPublico = () => {
         <p>Encuentra el curso perfecto para ti y comienza a aprender hoy</p>
       </header>
 
-      {/* Filtros */}
       <div className="filtros-publico">
         <button
           className={`filtro-btn ${filtros.tipo === '' ? 'active' : ''}`}
@@ -113,6 +110,18 @@ const CursosPublico = () => {
               <div className="curso-tipo-badge">
                 <span className={badgeTipo.class}>{badgeTipo.text}</span>
               </div>
+
+              {/* IMAGEN */}
+              {curso.imagen_url ? (
+                <div className="curso-publico-imagen">
+                  <img
+                    src={curso.imagen_url}
+                    alt={`Portada del curso ${curso.nombre}`}
+                    loading="lazy"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                </div>
+              ) : null}
 
               <div className="curso-publico-header">
                 <h3>{curso.nombre}</h3>
@@ -186,7 +195,6 @@ const CursosPublico = () => {
         })}
       </div>
 
-      {/* Sin resultados */}
       {cursos.length === 0 && !loading && (
         <div className="sin-cursos">
           <h3>📚 No hay cursos disponibles</h3>
@@ -194,7 +202,6 @@ const CursosPublico = () => {
         </div>
       )}
 
-      {/* Paginación */}
       {pagination.total_pages > 1 && (
         <div className="pagination-publico">
           <button

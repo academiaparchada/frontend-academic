@@ -17,18 +17,17 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
     fecha_fin: '',
     asignatura_id: '',
     profesor_id: '',
-    franja_horaria_ids: []
+    franja_horaria_ids: [],
+    image: null, // NUEVO
   });
 
   const [errores, setErrores] = useState({});
   const [loading, setLoading] = useState(false);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
-  // Inicializar formulario
   useEffect(() => {
     if (isOpen) {
       if (cursoEditar) {
-        // Modo edición
         setFormData({
           nombre: cursoEditar.nombre || '',
           descripcion: cursoEditar.descripcion || '',
@@ -42,10 +41,10 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
           fecha_fin: cursoEditar.fecha_fin ? cursoEditar.fecha_fin.split('T')[0] : '',
           asignatura_id: cursoEditar.asignatura_id || '',
           profesor_id: cursoEditar.profesor_id || '',
-          franja_horaria_ids: cursoEditar.franja_horaria_ids || []
+          franja_horaria_ids: cursoEditar.franja_horaria_ids || [],
+          image: null, // solo si el admin selecciona una nueva
         });
       } else {
-        // Modo creación
         resetForm();
       }
       setErrores({});
@@ -67,19 +66,28 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       fecha_fin: '',
       asignatura_id: '',
       profesor_id: '',
-      franja_horaria_ids: []
+      franja_horaria_ids: [],
+      image: null,
     });
   };
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    
+    const { name, value, type, checked, files } = e.target;
+
+    if (type === 'file') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: files && files[0] ? files[0] : null
+      }));
+      return;
+    }
+
     if (name === 'franja_horaria_ids') {
       const franjaId = value;
       const newFranjas = checked
         ? [...formData.franja_horaria_ids, franjaId]
         : formData.franja_horaria_ids.filter(id => id !== franjaId);
-      
+
       setFormData(prev => ({
         ...prev,
         franja_horaria_ids: newFranjas
@@ -91,7 +99,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       }));
     }
 
-    // Limpiar error del campo
     if (errores[name]) {
       setErrores(prev => ({
         ...prev,
@@ -104,7 +111,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
     e.preventDefault();
     setMensaje({ tipo: '', texto: '' });
 
-    // Preparar datos para enviar
     const cursoData = {
       nombre: formData.nombre.trim(),
       descripcion: formData.descripcion.trim() || null,
@@ -118,12 +124,12 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
       fecha_fin: formData.fecha_fin ? `${formData.fecha_fin}T23:59:59Z` : null,
       tipo_pago_profesor: formData.tipo_pago_profesor || null,
       valor_pago_profesor: formData.valor_pago_profesor ? parseFloat(formData.valor_pago_profesor) : null,
-      franja_horaria_ids: formData.franja_horaria_ids.length > 0 ? formData.franja_horaria_ids : null
+      franja_horaria_ids: formData.franja_horaria_ids.length > 0 ? formData.franja_horaria_ids : null,
+      image: formData.image instanceof File ? formData.image : undefined, // NUEVO
     };
 
-    // Validar
     const { valido, errores: erroresValidacion } = cursosService.validarCurso(cursoData);
-    
+
     if (!valido) {
       setErrores(erroresValidacion);
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
@@ -134,21 +140,19 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
 
     try {
       let resultado;
-      
+
       if (cursoEditar) {
-        // Actualizar
         resultado = await cursosService.actualizarCurso(cursoEditar.id, cursoData);
       } else {
-        // Crear
         resultado = await cursosService.crearCurso(cursoData);
       }
 
       if (resultado.success) {
-        setMensaje({ 
-          tipo: 'exito', 
-          texto: cursoEditar ? 'Curso actualizado exitosamente' : 'Curso creado exitosamente' 
+        setMensaje({
+          tipo: 'exito',
+          texto: cursoEditar ? 'Curso actualizado exitosamente' : 'Curso creado exitosamente'
         });
-        
+
         setTimeout(() => {
           onCursoSaved();
           handleClose();
@@ -175,12 +179,10 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
 
   if (!isOpen) return null;
 
-  // Filtrar franjas del profesor seleccionado
   const franjasDelProfesor = franjasHorarias.filter(
     franja => franja.profesor_id === formData.profesor_id
   );
 
-  // Calcular pago al profesor en tiempo real
   const pagoProfesor = formData.precio && formData.valor_pago_profesor
     ? cursosService.calcularPagoProfesor(formData)
     : 0;
@@ -188,6 +190,8 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
   const ganancia = formData.precio && pagoProfesor
     ? parseFloat(formData.precio) - pagoProfesor
     : 0;
+
+  const imagenActual = cursoEditar?.imagen_url || null;
 
   return (
     <div className="modal-overlay" onClick={handleClose}>
@@ -204,10 +208,9 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
             </div>
           )}
 
-          {/* Información Básica */}
           <div className="form-section">
             <h3>📝 Información Básica</h3>
-            
+
             <div className="form-group">
               <label>Nombre del Curso *</label>
               <input
@@ -286,9 +289,31 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
               {errores.asignatura_id && <span className="error">{errores.asignatura_id}</span>}
               {cursoEditar && <span className="help-text">La asignatura no se puede cambiar</span>}
             </div>
+
+            {/* IMAGEN */}
+            <div className="form-group">
+              <label htmlFor="image">Imagen (opcional)</label>
+
+              {imagenActual && (
+                <div className="help-text">
+                  Imagen actual: <a href={imagenActual} target="_blank" rel="noreferrer">ver</a>
+                </div>
+              )}
+
+              <input
+                type="file"
+                id="image"
+                name="image"
+                accept="image/*"
+                onChange={handleChange}
+                disabled={loading}
+              />
+              <small className="help-text">
+                {cursoEditar ? 'Si seleccionas una imagen nueva, se reemplazará la actual.' : 'Puedes crear el curso sin imagen.'}
+              </small>
+            </div>
           </div>
 
-          {/* Tipo y Estado */}
           <div className="form-section">
             <h3>⚙️ Configuración</h3>
 
@@ -338,7 +363,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
             </div>
           </div>
 
-          {/* Profesor y Franjas (solo para cursos grupales) */}
           {formData.tipo === 'grupal' && (
             <div className="form-section">
               <h3>👨‍🏫 Profesor y Horarios</h3>
@@ -396,7 +420,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
             </div>
           )}
 
-          {/* Fechas */}
           <div className="form-section">
             <h3>📅 Fechas</h3>
 
@@ -429,7 +452,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
             </div>
           </div>
 
-          {/* Pago al Profesor */}
           <div className="form-section">
             <h3>💵 Pago al Profesor</h3>
 
@@ -480,7 +502,6 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
               {errores.valor_pago_profesor && <span className="error">{errores.valor_pago_profesor}</span>}
             </div>
 
-            {/* Vista previa del pago */}
             {formData.precio && formData.valor_pago_profesor && (
               <div className="pago-preview">
                 <h4>💰 Vista Previa de Pagos</h4>
@@ -493,9 +514,7 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
                     <span>Pago al Profesor:</span>
                     <strong className="pago-profesor">
                       {cursosService.formatearPrecio(pagoProfesor)}
-                      {formData.tipo_pago_profesor === 'porcentaje' && 
-                        ` (${formData.valor_pago_profesor}%)`
-                      }
+                      {formData.tipo_pago_profesor === 'porcentaje' && ` (${formData.valor_pago_profesor}%)`}
                     </strong>
                   </div>
                   <div className="pago-item">
@@ -509,18 +528,17 @@ const ModalCurso = ({ isOpen, onClose, cursoEditar, asignaturas, profesores, fra
             )}
           </div>
 
-          {/* Botones */}
           <div className="modal-acciones">
-            <button 
-              type="button" 
-              className="btn-cancelar" 
+            <button
+              type="button"
+              className="btn-cancelar"
               onClick={handleClose}
               disabled={loading}
             >
               Cancelar
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn-guardar"
               disabled={loading}
             >

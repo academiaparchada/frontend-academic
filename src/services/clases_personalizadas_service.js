@@ -1,29 +1,48 @@
 // src/services/clases_personalizadas_service.js
 const API_URL = 'https://academiaparchada.onrender.com/api/clases-personalizadas';
+const API_IMAGENES_URL = 'https://academiaparchada.onrender.com/api/imagenes/clases-personalizadas';
 
 class ClasesPersonalizadasService {
-  // Obtener el token del localStorage
   _getToken() {
     return localStorage.getItem('token');
   }
 
-  // Obtener headers con autenticación
-  _getHeaders() {
+  // Solo auth (para FormData NO se debe setear Content-Type)
+  _getAuthHeaders() {
+    return {
+      'Authorization': `Bearer ${this._getToken()}`
+    };
+  }
+
+  // JSON headers (solo para endpoints JSON)
+  _getJsonHeaders() {
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${this._getToken()}`
     };
   }
 
-  // Crear una nueva clase personalizada
+  // Crear una nueva clase personalizada (AHORA con imagen opcional)
   async crearClase(claseData) {
     try {
       console.log('Creando clase personalizada:', claseData);
-      
+
+      const fd = new FormData();
+      fd.append('asignatura_id', String(claseData.asignatura_id));
+      fd.append('precio', String(claseData.precio));
+      fd.append('duracion_horas', String(claseData.duracion_horas));
+      fd.append('tipo_pago_profesor', String(claseData.tipo_pago_profesor));
+      fd.append('valor_pago_profesor', String(claseData.valor_pago_profesor));
+
+      // clave: "image"
+      if (claseData.image instanceof File) {
+        fd.append('image', claseData.image);
+      }
+
       const response = await fetch(API_URL, {
         method: 'POST',
-        headers: this._getHeaders(),
-        body: JSON.stringify(claseData)
+        headers: this._getAuthHeaders(),
+        body: fd
       });
 
       const data = await response.json();
@@ -51,21 +70,21 @@ class ClasesPersonalizadasService {
   async listarClases(page = 1, limit = 10, asignaturaId = null) {
     try {
       let url = `${API_URL}?page=${page}&limit=${limit}`;
-      
+
       if (asignaturaId) {
         url += `&asignatura_id=${asignaturaId}`;
       }
 
       console.log('Listando clases:', url);
-      
+
       const response = await fetch(url);
       const data = await response.json();
-      
+
       console.log('Respuesta listar clases:', data);
 
       if (response.ok) {
-        return { 
-          success: true, 
+        return {
+          success: true,
           data: {
             clases: data.data?.clases_personalizadas || [],
             pagination: data.data?.pagination || {}
@@ -90,7 +109,7 @@ class ClasesPersonalizadasService {
   async obtenerClase(claseId) {
     try {
       console.log(`Obteniendo clase ${claseId}`);
-      
+
       const response = await fetch(`${API_URL}/${claseId}`);
       const data = await response.json();
 
@@ -111,15 +130,18 @@ class ClasesPersonalizadasService {
     }
   }
 
-  // Actualizar una clase personalizada
+  // Actualizar una clase personalizada (JSON, SIN imagen)
   async actualizarClase(claseId, cambios) {
     try {
       console.log(`Actualizando clase ${claseId}:`, cambios);
-      
+
+      // Nunca mandar image en JSON
+      const { image, ...cambiosSinImage } = cambios || {};
+
       const response = await fetch(`${API_URL}/${claseId}`, {
         method: 'PUT',
-        headers: this._getHeaders(),
-        body: JSON.stringify(cambios)
+        headers: this._getJsonHeaders(),
+        body: JSON.stringify(cambiosSinImage)
       });
 
       const data = await response.json();
@@ -143,14 +165,50 @@ class ClasesPersonalizadasService {
     }
   }
 
+  // Actualizar SOLO imagen de clase personalizada (endpoint dedicado)
+  async actualizarImagenClasePersonalizada(claseId, imageFile) {
+    try {
+      if (!(imageFile instanceof File)) {
+        return { success: false, message: 'Archivo de imagen inválido' };
+      }
+
+      const fd = new FormData();
+      fd.append('image', imageFile);
+
+      const response = await fetch(`${API_IMAGENES_URL}/${claseId}`, {
+        method: 'PUT',
+        headers: this._getAuthHeaders(),
+        body: fd
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error actualizando imagen',
+          errors: data.errors || []
+        };
+      }
+    } catch (error) {
+      console.error('Error al actualizar imagen de clase:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
+
   // Eliminar una clase personalizada
   async eliminarClase(claseId) {
     try {
       console.log(`Eliminando clase ${claseId}`);
-      
+
       const response = await fetch(`${API_URL}/${claseId}`, {
         method: 'DELETE',
-        headers: this._getHeaders()
+        headers: this._getJsonHeaders()
       });
 
       const data = await response.json();
@@ -173,7 +231,6 @@ class ClasesPersonalizadasService {
     }
   }
 
-  // Calcular el pago al profesor
   calcularPagoProfesor(clase) {
     if (clase.tipo_pago_profesor === 'porcentaje') {
       return clase.precio * (clase.valor_pago_profesor / 100);
@@ -181,7 +238,6 @@ class ClasesPersonalizadasService {
     return clase.valor_pago_profesor;
   }
 
-  // Formatear precio en COP
   formatearPrecio(precio) {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -190,7 +246,6 @@ class ClasesPersonalizadasService {
     }).format(precio);
   }
 
-  // Validar datos de clase
   validarClase(claseData) {
     const errores = {};
 
