@@ -1,9 +1,12 @@
 // src/services/compras_service.js
+
 import mercadoPagoService from './mercadopago_service';
 
-const API_URL = import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
+// ✅ CORREGIDO: URL correcta
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.parcheacademico.com/api';
 
 class ComprasService {
+
   _getToken() {
     return localStorage.getItem('token');
   }
@@ -232,6 +235,37 @@ class ComprasService {
    */
   async verificarEstadoPago(compraId) {
     return await mercadoPagoService.consultarEstadoCompra(compraId);
+  }
+
+  /**
+   * ✅ NUEVO: Consultar estado de compra usando endpoint unificado (MP + Wompi)
+   * @param {string} compraId - UUID de la compra
+   * @returns {Promise<Object>}
+   */
+  async consultarEstadoCompra(compraId) {
+    try {
+      const res = await fetch(`${API_URL}/pagos/compras/${compraId}/estado`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const json = await res.json();
+
+      if (!res.ok || !json.success) {
+        return {
+          success: false,
+          message: json?.message || 'Error consultando estado de compra'
+        };
+      }
+
+      return { success: true, data: json.data };
+    } catch (error) {
+      console.error('❌ Error consultarEstadoCompra:', error);
+      return {
+        success: false,
+        message: 'Error de conexión al consultar estado'
+      };
+    }
   }
 
   /**

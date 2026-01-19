@@ -1,8 +1,9 @@
-// src/pages/CheckoutCurso.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {PasswordInput} from '../components/PasswordInput';
+import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
+import wompiService from '../services/wompi_service';
+import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/Checkout.css';
 
@@ -13,15 +14,15 @@ const CheckoutCurso = () => {
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
+  const [procesandoWompi, setProcesandoWompi] = useState(false);
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
   const [tokenValido, setTokenValido] = useState(false);
   const [verificandoToken, setVerificandoToken] = useState(true);
 
-  // NUEVO: estados para bloquear compra según reglas backend
   const [bloquearCompra, setBloquearCompra] = useState(false);
-  const [motivoBloqueo, setMotivoBloqueo] = useState(''); // 'inscrito' | 'cupo' | ''
+  const [motivoBloqueo, setMotivoBloqueo] = useState('');
 
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
@@ -30,18 +31,16 @@ const CheckoutCurso = () => {
     telefono: '',
     timezone: getBrowserTimeZone(),
     password: '',
-    confirmarPassword: '',
+    confirmarPassword: ''
   });
 
   const [errores, setErrores] = useState({});
 
-  // AJUSTA ESTA RUTA SI TU DASHBOARD ES OTRO PATH
   const DASHBOARD_ESTUDIANTE_PATH = '/estudiante/dashboard';
 
   useEffect(() => {
     verificarAutenticacion();
     cargarCurso();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cursoId]);
 
   const verificarAutenticacion = async () => {
@@ -86,14 +85,9 @@ const CheckoutCurso = () => {
       const response = await fetch(`https://academiaparchada.onrender.com/api/cursos/${cursoId}`);
       const data = await response.json();
 
-      console.log('RESPUESTA COMPLETA DE LA API:', JSON.stringify(data, null, 2));
-
       if (response.ok && data.success && data.data && data.data.curso) {
-        console.log('Curso cargado exitosamente');
-        console.log('Precio:', data.data.curso.precio);
         setCurso(data.data.curso);
       } else {
-        console.error('Error en respuesta:', data.message);
         setError(data.message || 'No se pudo cargar el curso');
       }
     } catch (err) {
@@ -106,7 +100,6 @@ const CheckoutCurso = () => {
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
-
     setDatosUsuario(prev => ({
       ...prev,
       [name]: value
@@ -124,12 +117,25 @@ const CheckoutCurso = () => {
     const nuevosErrores = {};
 
     if (!tokenValido) {
-      if (!datosUsuario.email || !datosUsuario.email.includes('@')) nuevosErrores.email = 'Email inválido';
-      if (!datosUsuario.nombre || !datosUsuario.nombre.trim()) nuevosErrores.nombre = 'El nombre es obligatorio';
-      if (!datosUsuario.apellido || !datosUsuario.apellido.trim()) nuevosErrores.apellido = 'El apellido es obligatorio';
-      if (!datosUsuario.telefono || !datosUsuario.telefono.trim()) nuevosErrores.telefono = 'El teléfono es obligatorio';
+      if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
+        nuevosErrores.email = 'Email inválido';
+      }
 
-      if (!datosUsuario.timezone) nuevosErrores.timezone = 'La zona horaria es obligatoria';
+      if (!datosUsuario.nombre || !datosUsuario.nombre.trim()) {
+        nuevosErrores.nombre = 'El nombre es obligatorio';
+      }
+
+      if (!datosUsuario.apellido || !datosUsuario.apellido.trim()) {
+        nuevosErrores.apellido = 'El apellido es obligatorio';
+      }
+
+      if (!datosUsuario.telefono || !datosUsuario.telefono.trim()) {
+        nuevosErrores.telefono = 'El teléfono es obligatorio';
+      }
+
+      if (!datosUsuario.timezone) {
+        nuevosErrores.timezone = 'La zona horaria es obligatoria';
+      }
 
       if (!datosUsuario.password || datosUsuario.password.length < 6) {
         nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
@@ -147,9 +153,6 @@ const CheckoutCurso = () => {
   const inferirMotivoBloqueo = (msg = '') => {
     const m = String(msg).toLowerCase();
 
-    // Reglas doc backend:
-    // - ya inscrito
-    // - cupo lleno
     if (m.includes('ya estás inscrito') || m.includes('ya estas inscrito') || m.includes('inscrit')) {
       return 'inscrito';
     }
@@ -165,10 +168,29 @@ const CheckoutCurso = () => {
     navigate(DASHBOARD_ESTUDIANTE_PATH);
   };
 
-  const handleComprar = async (e) => {
+  const buildDatosCompra = () => {
+    const datosCompra = {
+      tipo_compra: 'curso',
+      curso_id: cursoId
+    };
+
+    if (!tokenValido) {
+      datosCompra.estudiante = {
+        email: datosUsuario.email.trim(),
+        password: datosUsuario.password,
+        nombre: datosUsuario.nombre.trim(),
+        apellido: datosUsuario.apellido.trim(),
+        telefono: datosUsuario.telefono.trim(),
+        timezone: datosUsuario.timezone
+      };
+    }
+
+    return datosCompra;
+  };
+
+  const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
 
-    // Si ya se detectó bloqueo por regla backend, no continuar
     if (bloquearCompra) {
       if (motivoBloqueo === 'inscrito') {
         setMensaje({ tipo: 'error', texto: 'Ya estás inscrito en este curso. Ve al dashboard del estudiante.' });
@@ -189,24 +211,8 @@ const CheckoutCurso = () => {
     setMensaje({ tipo: '', texto: '' });
 
     try {
-      const datosCompra = {
-        tipo_compra: 'curso',
-        curso_id: cursoId,
-      };
+      const datosCompra = buildDatosCompra();
 
-      if (!tokenValido) {
-        datosCompra.estudiante = {
-          email: datosUsuario.email.trim(),
-          password: datosUsuario.password,
-          nombre: datosUsuario.nombre.trim(),
-          apellido: datosUsuario.apellido.trim(),
-          telefono: datosUsuario.telefono.trim(),
-          timezone: datosUsuario.timezone,
-        };
-      }
-
-      // comprasService delega al mercadoPagoService; si backend responde 400,
-      // normalmente vuelve success:false con message del backend.
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
       if (resultado.success) {
@@ -221,6 +227,7 @@ const CheckoutCurso = () => {
             setProcesando(false);
           }
         }, 1500);
+
       } else {
         const motivo = inferirMotivoBloqueo(resultado.message);
 
@@ -242,6 +249,61 @@ const CheckoutCurso = () => {
     }
   };
 
+  const handleComprarWompi = async (e) => {
+    e.preventDefault();
+
+    if (bloquearCompra) {
+      if (motivoBloqueo === 'inscrito') {
+        setMensaje({ tipo: 'error', texto: 'Ya estás inscrito en este curso. Ve al dashboard del estudiante.' });
+      } else if (motivoBloqueo === 'cupo') {
+        setMensaje({ tipo: 'error', texto: 'Cupo agotado. Este curso ya alcanzó su capacidad máxima.' });
+      } else {
+        setMensaje({ tipo: 'error', texto: 'No se puede iniciar la compra en este momento.' });
+      }
+      return;
+    }
+
+    if (!validarFormulario()) {
+      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
+      return;
+    }
+
+    setProcesandoWompi(true);
+    setMensaje({ tipo: '', texto: '' });
+
+    try {
+      const datosCompra = buildDatosCompra();
+
+      const resultado = await wompiService.crearCheckout(datosCompra);
+
+      if (!resultado.success) {
+        const motivo = inferirMotivoBloqueo(resultado.message);
+
+        if (motivo === 'inscrito') {
+          setBloquearCompra(true);
+          setMotivoBloqueo('inscrito');
+        } else if (motivo === 'cupo') {
+          setBloquearCompra(true);
+          setMotivoBloqueo('cupo');
+        }
+
+        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
+        setProcesandoWompi(false);
+        return;
+      }
+
+      setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
+
+      await openWompiWidget(resultado.data);
+
+      setProcesandoWompi(false);
+    } catch (error) {
+      console.error('❌ Error Wompi:', error);
+      setMensaje({ tipo: 'error', texto: 'Error al abrir el widget de Wompi' });
+      setProcesandoWompi(false);
+    }
+  };
+
   const handleCambiarALogin = () => {
     navigate(`/login?redirect=/checkout/curso/${cursoId}`);
   };
@@ -249,18 +311,17 @@ const CheckoutCurso = () => {
   const obtenerPrecio = () => {
     if (!curso) return null;
     const precio = curso.precio ?? curso.price ?? curso.valor ?? 0;
-    console.log('Obteniendo precio:', precio);
     return precio;
   };
 
   const formatearPrecioSeguro = () => {
     const precio = obtenerPrecio();
+
     if (precio === null || precio === undefined) {
-      console.warn('Precio no disponible');
       return 'Precio no disponible';
     }
+
     if (precio === 0) {
-      console.warn('Precio es 0');
       return 'Gratis';
     }
 
@@ -287,9 +348,45 @@ const CheckoutCurso = () => {
     return (
       <div className="checkout-container">
         <div className="error-mensaje">
-          <h3>Error</h3>
+          <h3>❌ Error</h3>
           <p>{error || 'Curso no encontrado'}</p>
-          <button onClick={() => navigate('/cursos')}>Volver a Cursos</button>
+          <button onClick={() => navigate('/cursos')}>
+            Volver a Cursos
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (bloquearCompra) {
+    return (
+      <div className="checkout-container">
+        <div className="error-mensaje">
+          <h3>⚠️ No Disponible</h3>
+          {motivoBloqueo === 'inscrito' && (
+            <>
+              <p>Ya estás inscrito en este curso.</p>
+              <button onClick={handleIrAlDashboard} className="btn-primary">
+                Ir al Dashboard
+              </button>
+            </>
+          )}
+          {motivoBloqueo === 'cupo' && (
+            <>
+              <p>Este curso alcanzó su capacidad máxima.</p>
+              <button onClick={() => navigate('/cursos')} className="btn-secondary">
+                Ver Otros Cursos
+              </button>
+            </>
+          )}
+          {!motivoBloqueo && (
+            <>
+              <p>No se puede procesar la compra en este momento.</p>
+              <button onClick={() => navigate('/cursos')} className="btn-secondary">
+                Volver a Cursos
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -298,213 +395,237 @@ const CheckoutCurso = () => {
   return (
     <div className="checkout-container">
       <div className="checkout-header">
-        <button className="btn-volver" onClick={() => navigate('/cursos')}>
-          Volver
+        <button className="btn-volver" onClick={() => navigate(-1)}>
+          ← Volver
         </button>
-        <h1>Finalizar Compra</h1>
+        <h1>Comprar Curso</h1>
       </div>
 
       <div className="checkout-content">
         <div className="checkout-resumen">
-          <h2>Resumen del Curso</h2>
+          <h2>📚 Resumen de Compra</h2>
 
           <div className="curso-info-checkout">
-            <h3>{curso.nombre || curso.title || 'Curso'}</h3>
+            <h3>{curso.titulo}</h3>
 
-            {curso.descripcion && <p className="curso-descripcion">{curso.descripcion}</p>}
+            {curso.descripcion && (
+              <p className="descripcion-curso">{curso.descripcion}</p>
+            )}
 
             <div className="detalles-grid">
-              {curso.duracion_horas && (
+              {curso.duracion_semanas && (
                 <div className="detalle-item">
-                  <span className="detalle-label">Duración</span>
-                  <span className="detalle-valor">{curso.duracion_horas} horas</span>
+                  <span className="detalle-label">⏱️ Duración:</span>
+                  <span className="detalle-valor">{curso.duracion_semanas} semanas</span>
                 </div>
               )}
 
-              {curso.profesor && (
+              {curso.capacidad_maxima && (
                 <div className="detalle-item">
-                  <span className="detalle-label">Profesor</span>
-                  <span className="detalle-valor">
-                    {curso.profesor.nombre} {curso.profesor.apellido}
-                  </span>
+                  <span className="detalle-label">👥 Capacidad:</span>
+                  <span className="detalle-valor">{curso.capacidad_maxima} estudiantes</span>
+                </div>
+              )}
+
+              {curso.modalidad && (
+                <div className="detalle-item">
+                  <span className="detalle-label">🎯 Modalidad:</span>
+                  <span className="detalle-valor">{curso.modalidad}</span>
                 </div>
               )}
             </div>
 
             <div className="precio-total">
-              <span>Total a pagar</span>
+              <span>Total a Pagar:</span>
               <strong>{formatearPrecioSeguro()}</strong>
             </div>
 
             <div className="info-box">
-              <p><strong>Métodos de pago disponibles</strong></p>
-              <p className="info-small">
-                Tarjetas de crédito/débito, PSE, efectivo y más opciones con Mercado Pago
-              </p>
+              <h4>✅ Incluye:</h4>
+              <ul>
+                <li>📹 Acceso completo al material del curso</li>
+                <li>👨‍🏫 Soporte directo del profesor</li>
+                <li>📝 Certificado de finalización</li>
+                <li>♾️ Acceso de por vida</li>
+              </ul>
             </div>
           </div>
         </div>
 
         <div className="checkout-formulario">
-          <h2>{tokenValido ? 'Confirmar Compra' : 'Completa tu Registro'}</h2>
-
-          <p className="form-ayuda">
-            {tokenValido
-              ? 'Serás redirigido a Mercado Pago para completar el pago de forma segura.'
-              : 'Crea tu cuenta para continuar con la compra.'}
-          </p>
-
-          <form onSubmit={handleComprar}>
+          <form onSubmit={(e) => e.preventDefault()}>
             {mensaje.texto && (
               <div className={`mensaje ${mensaje.tipo}`}>
                 {mensaje.texto}
               </div>
             )}
 
-            {/* NUEVO: cuando ya está inscrito */}
-            {bloquearCompra && motivoBloqueo === 'inscrito' && (
-              <div className="mensaje-info" style={{ marginBottom: 12 }}>
-                <p style={{ margin: 0 }}>
-                  Ya estás inscrito en este curso. No puedes comprarlo nuevamente.
-                </p>
-
-                <button
-                  type="button"
-                  className="btn-comprar-final"
-                  onClick={handleIrAlDashboard}
-                  disabled={procesando}
-                  style={{ marginTop: 10 }}
-                >
-                  Ir al dashboard
-                </button>
-              </div>
-            )}
-
-            {/* NUEVO: cuando cupo agotado */}
-            {bloquearCompra && motivoBloqueo === 'cupo' && (
-              <div className="mensaje-info" style={{ marginBottom: 12 }}>
-                <p style={{ margin: 0 }}>
-                  Cupo agotado. Este curso ya alcanzó su capacidad máxima.
-                </p>
-              </div>
-            )}
-
             {!tokenValido && (
               <>
+                <h2>👤 Tus Datos</h2>
+                <p className="form-ayuda">
+                  Crea tu cuenta para acceder al curso
+                </p>
+
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>Email *</label>
                   <input
                     type="email"
                     name="email"
                     value={datosUsuario.email}
                     onChange={handleChangeUsuario}
-                    disabled={procesando}
-                    className={errores.email ? 'input-error' : ''}
                     placeholder="tu@email.com"
+                    disabled={procesando || procesandoWompi}
+                    className={errores.email ? 'input-error' : ''}
                   />
-                  {errores.email && <span className="error">{errores.email}</span>}
+                  {errores.email && (
+                    <span className="error">{errores.email}</span>
+                  )}
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Nombre</label>
+                    <label>Nombre *</label>
                     <input
                       type="text"
                       name="nombre"
                       value={datosUsuario.nombre}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
-                      className={errores.nombre ? 'input-error' : ''}
                       placeholder="Juan"
+                      disabled={procesando || procesandoWompi}
+                      className={errores.nombre ? 'input-error' : ''}
                     />
-                    {errores.nombre && <span className="error">{errores.nombre}</span>}
+                    {errores.nombre && (
+                      <span className="error">{errores.nombre}</span>
+                    )}
                   </div>
 
                   <div className="form-group">
-                    <label>Apellido</label>
+                    <label>Apellido *</label>
                     <input
                       type="text"
                       name="apellido"
                       value={datosUsuario.apellido}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
-                      className={errores.apellido ? 'input-error' : ''}
                       placeholder="Pérez"
+                      disabled={procesando || procesandoWompi}
+                      className={errores.apellido ? 'input-error' : ''}
                     />
-                    {errores.apellido && <span className="error">{errores.apellido}</span>}
+                    {errores.apellido && (
+                      <span className="error">{errores.apellido}</span>
+                    )}
                   </div>
                 </div>
 
                 <div className="form-group">
-                  <label>Teléfono</label>
+                  <label>Teléfono *</label>
                   <input
                     type="tel"
                     name="telefono"
                     value={datosUsuario.telefono}
                     onChange={handleChangeUsuario}
-                    disabled={procesando}
-                    className={errores.telefono ? 'input-error' : ''}
                     placeholder="3001234567"
+                    disabled={procesando || procesandoWompi}
+                    className={errores.telefono ? 'input-error' : ''}
                   />
-                  {errores.telefono && <span className="error">{errores.telefono}</span>}
+                  {errores.telefono && (
+                    <span className="error">{errores.telefono}</span>
+                  )}
                 </div>
 
                 <div className="form-group">
-                  <label>Zona Horaria</label>
+                  <label>Zona Horaria *</label>
                   <select
                     name="timezone"
                     value={datosUsuario.timezone}
                     onChange={handleChangeUsuario}
-                    disabled={procesando}
+                    disabled={procesando || procesandoWompi}
                     className={errores.timezone ? 'input-error' : ''}
                   >
-                    {TIMEZONES_LATAM.map(tz => (
+                    {TIMEZONES_LATAM.map((tz) => (
                       <option key={tz.value} value={tz.value}>
                         {tz.label}
                       </option>
                     ))}
                   </select>
-                  {errores.timezone && <span className="error">{errores.timezone}</span>}
-                  <span className="help-text">Se detectó automáticamente tu zona horaria actual</span>
+                  {errores.timezone && (
+                    <span className="error">{errores.timezone}</span>
+                  )}
+                  <span className="help-text">
+                    Se detectó automáticamente tu zona horaria actual
+                  </span>
                 </div>
 
                 <div className="form-row">
                   <div className="form-group">
-                    <label>Contraseña</label>
+                    <label>Contraseña *</label>
                     <PasswordInput
                       name="password"
                       value={datosUsuario.password}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.password ? 'input-error' : ''}
                       placeholder="Mínimo 6 caracteres"
                       required={true}
                       minLength={6}
                     />
-                    {errores.password && <span className="error">{errores.password}</span>}
+                    {errores.password && (
+                      <span className="error">{errores.password}</span>
+                    )}
                   </div>
 
                   <div className="form-group">
-                    <label>Confirmar Contraseña</label>
+                    <label>Confirmar Contraseña *</label>
                     <PasswordInput
                       name="confirmarPassword"
                       value={datosUsuario.confirmarPassword}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.confirmarPassword ? 'input-error' : ''}
                       placeholder="Repite la contraseña"
                       required={true}
                     />
-                    {errores.confirmarPassword && <span className="error">{errores.confirmarPassword}</span>}
+                    {errores.confirmarPassword && (
+                      <span className="error">{errores.confirmarPassword}</span>
+                    )}
                   </div>
+                </div>
+
+                <div className="ya-tienes-cuenta">
+                  <p>
+                    ¿Ya tienes cuenta? 
+                    <button 
+                      type="button" 
+                      onClick={handleCambiarALogin}
+                      className="btn-link"
+                      disabled={procesando || procesandoWompi}
+                    >
+                      Inicia sesión
+                    </button>
+                  </p>
                 </div>
               </>
             )}
 
-            <button
-              type="submit"
+            {tokenValido && (
+              <>
+                <h2>✅ Estás Listo</h2>
+                <p className="form-ayuda">
+                  Serás redirigido al proveedor de pago para completar la compra de forma segura.
+                </p>
+              </>
+            )}
+
+            <div className="info-pago">
+              <h4>💳 Métodos de pago disponibles</h4>
+              <p>Tarjetas de crédito/débito, PSE, efectivo y más opciones</p>
+            </div>
+
+            <button 
+              type="button"
+              onClick={handleComprarMercadoPago}
               className="btn-comprar-final"
-              disabled={procesando || (bloquearCompra && (motivoBloqueo === 'cupo' || motivoBloqueo === 'inscrito'))}
+              disabled={procesando || procesandoWompi}
             >
               {procesando ? (
                 <>
@@ -512,27 +633,30 @@ const CheckoutCurso = () => {
                   Procesando...
                 </>
               ) : (
-                'Pagar con Mercado Pago'
+                <>💳 Pagar con Mercado Pago</>
               )}
             </button>
 
-            <p className="aviso-pago">Pago seguro procesado por Mercado Pago</p>
+            <button 
+              type="button"
+              onClick={handleComprarWompi}
+              className="btn-comprar-final"
+              disabled={procesando || procesandoWompi}
+              style={{ marginTop: 10, background: '#4CAF50' }}
+            >
+              {procesandoWompi ? (
+                <>
+                  <div className="spinner-small"></div>
+                  Abriendo Wompi...
+                </>
+              ) : (
+                <>💰 Pagar con Wompi</>
+              )}
+            </button>
 
-            {!tokenValido && (
-              <div className="ya-tienes-cuenta">
-                <p>
-                  ¿Ya tienes cuenta?{' '}
-                  <button
-                    type="button"
-                    className="btn-link"
-                    onClick={handleCambiarALogin}
-                    disabled={procesando}
-                  >
-                    Inicia sesión aquí
-                  </button>
-                </p>
-              </div>
-            )}
+            <p className="aviso-pago">
+              🔒 Pago seguro y protegido. Acceso inmediato después del pago.
+            </p>
           </form>
         </div>
       </div>

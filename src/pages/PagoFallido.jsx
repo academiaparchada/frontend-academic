@@ -1,13 +1,12 @@
-// src/pages/PagoFallido.jsx
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import mercadoPagoService from '../services/mercadopago_service';
+import comprasService from '../services/compras_service';
 import '../styles/ResultadoPago.css';
 
 const PagoFallido = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const compraId = searchParams.get('compra_id');
+  const compraId = searchParams.get('compraId');
 
   const [compra, setCompra] = useState(null);
   const [mensaje, setMensaje] = useState('');
@@ -26,14 +25,20 @@ const PagoFallido = () => {
   const consultarEstado = async () => {
     try {
       setLoading(true);
-      const resultado = await mercadoPagoService.consultarEstadoCompra(compraId);
+      const resultado = await comprasService.consultarEstadoCompra(compraId);
 
       if (resultado.success && resultado.data) {
         setCompra(resultado.data);
-        
-        const { mp_status, mp_status_detail } = resultado.data;
-        const mensajeEstado = mercadoPagoService.obtenerMensajeEstado(mp_status, mp_status_detail);
-        setMensaje(mensajeEstado);
+
+        const { estado_pago } = resultado.data;
+
+        if (estado_pago === 'fallido') {
+          setMensaje('Tu pago no pudo ser procesado');
+        } else if (estado_pago === 'completado') {
+          setMensaje('¡Tu pago fue exitoso!');
+        } else {
+          setMensaje('Verificando estado del pago...');
+        }
       } else {
         setMensaje('No se pudo verificar el estado del pago');
       }
@@ -50,7 +55,6 @@ const PagoFallido = () => {
   };
 
   const handleIntentarNuevamente = () => {
-    // Redirigir según el tipo de compra
     if (compra?.tipo_compra === 'curso') {
       navigate('/cursos');
     } else if (compra?.tipo_compra === 'clase_personalizada') {
@@ -87,68 +91,77 @@ const PagoFallido = () => {
             <h3>Detalles del intento</h3>
             <div className="detalle-item">
               <span>Tipo:</span>
-              <strong>{compra.tipo_compra}</strong>
+              <strong>
+                {compra.tipo_compra === 'curso' && '🎓 Curso'}
+                {compra.tipo_compra === 'clase_personalizada' && '📝 Clase Personalizada'}
+                {compra.tipo_compra === 'paquete_horas' && '📦 Paquete de Horas'}
+              </strong>
             </div>
             <div className="detalle-item">
               <span>Monto:</span>
-              <strong>{mercadoPagoService.formatearPrecio(compra.monto_total)}</strong>
+              <strong>{comprasService.formatearPrecio(compra.monto_total)}</strong>
+            </div>
+            <div className="detalle-item">
+              <span>Proveedor:</span>
+              <strong>
+                {compra.proveedor_pago === 'wompi' ? 'Wompi' : 'Mercado Pago'}
+              </strong>
             </div>
             <div className="detalle-item">
               <span>ID de Compra:</span>
               <strong>{compra.id}</strong>
             </div>
+            {compra.wompi_status && (
+              <div className="detalle-item">
+                <span>Estado Wompi:</span>
+                <strong>{compra.wompi_status}</strong>
+              </div>
+            )}
             {compra.mp_status_detail && (
               <div className="detalle-item">
-                <span>Motivo:</span>
+                <span>Motivo MP:</span>
                 <strong>{compra.mp_status_detail}</strong>
               </div>
             )}
           </div>
         )}
 
-        <div className="info-box error">
-          <h4>❓ ¿Qué pudo haber pasado?</h4>
-          <ul>
-            <li><strong>Fondos insuficientes:</strong> Verifica el saldo disponible en tu tarjeta o cuenta</li>
-            <li><strong>Datos incorrectos:</strong> Revisa que los datos de tu tarjeta sean correctos</li>
-            <li><strong>Límite de compra:</strong> Tu banco puede tener límites de compra online</li>
-            <li><strong>Restricciones del banco:</strong> Algunos bancos bloquean compras por seguridad</li>
-            <li><strong>Tarjeta vencida:</strong> Verifica la fecha de vencimiento</li>
-          </ul>
-
-          <h4 style={{ marginTop: '1.5rem' }}>💡 ¿Qué puedes hacer?</h4>
-          <ul>
-            <li>Verifica los datos de tu método de pago</li>
-            <li>Contacta a tu banco para autorizar la compra</li>
-            <li>Intenta con otro método de pago</li>
-            <li>Verifica que tengas fondos suficientes</li>
-          </ul>
-        </div>
-
-        <div className="contacto-soporte">
-          <h4>🆘 ¿Necesitas ayuda?</h4>
+        <div className="info-box">
+          <h4>❓ ¿Por qué falló el pago?</h4>
           <p>
-            Si el problema persiste, contáctanos a través de:
+            Los pagos pueden fallar por varios motivos: fondos insuficientes, 
+            errores en los datos de la tarjeta, límites de compra, o problemas 
+            de verificación del banco.
           </p>
-          <div className="contacto-items">
-            <div className="contacto-item">
-              <span>📧</span>
-              <span>soporte@academiaparchada.com</span>
-            </div>
-            <div className="contacto-item">
-              <span>📱</span>
-              <span>WhatsApp: +57 300 123 4567</span>
-            </div>
-          </div>
+
+          <h4 style={{ marginTop: '1rem' }}>💡 ¿Qué puedes hacer?</h4>
+          <ul>
+            <li>Verifica que los datos de tu tarjeta sean correctos</li>
+            <li>Confirma que tienes fondos suficientes</li>
+            <li>Intenta con otro método de pago</li>
+            <li>Contacta a tu banco si el problema persiste</li>
+          </ul>
         </div>
 
         <div className="acciones">
           <button className="btn-primary" onClick={handleIntentarNuevamente}>
             🔄 Intentar Nuevamente
           </button>
+
           <button className="btn-secondary" onClick={handleVolverDashboard}>
             🏠 Volver al Dashboard
           </button>
+        </div>
+
+        <div className="info-box" style={{ marginTop: '1.5rem', background: '#e3f2fd' }}>
+          <h4>📞 ¿Necesitas ayuda?</h4>
+          <p>
+            Si el problema persiste, contáctanos a través de:
+          </p>
+          <ul>
+            <li>📧 Email: soporte@parcheacademico.com</li>
+            <li>💬 WhatsApp: +57 300 123 4567</li>
+          </ul>
         </div>
       </div>
     </div>

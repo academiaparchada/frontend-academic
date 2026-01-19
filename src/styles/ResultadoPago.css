@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
 }
 
 .resultado-card {
@@ -43,46 +43,50 @@
 }
 
 .resultado-card h1 {
-  color: #2c3e50;
+  color: #1a202c;
   font-size: 2.5rem;
   text-align: center;
   margin: 0 0 1rem 0;
+  font-weight: 700;
 }
 
 .mensaje-principal {
-  color: #718096;
+  color: #2d3748;
   font-size: 1.2rem;
   text-align: center;
   margin: 0 0 2rem 0;
   line-height: 1.6;
+  font-weight: 500;
 }
 
 /* Estados específicos */
 .resultado-card.exitoso .icono-resultado {
-  color: #27ae60;
+  color: #22863a;
 }
 
 .resultado-card.pendiente .icono-resultado {
-  color: #f39c12;
+  color: #b7791f;
 }
 
 .resultado-card.fallido .icono-resultado {
-  color: #e74c3c;
+  color: #d73a49;
 }
 
 /* Detalle de compra */
 .detalle-compra {
-  background: #f8f9fa;
+  background: #f7fafc;
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
+  border: 1px solid #e2e8f0;
 }
 
 .detalle-compra h3 {
-  color: #2c3e50;
+  color: #1a202c;
   font-size: 1.2rem;
   margin: 0 0 1rem 0;
   text-align: center;
+  font-weight: 600;
 }
 
 .detalle-item {
@@ -90,7 +94,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .detalle-item:last-child {
@@ -98,70 +102,78 @@
 }
 
 .detalle-item span {
-  color: #718096;
+  color: #2d3748;
   font-size: 0.95rem;
+  font-weight: 500;
 }
 
 .detalle-item strong {
-  color: #2c3e50;
+  color: #1a202c;
   font-size: 1rem;
+  font-weight: 600;
 }
 
 /* Info box */
 .info-box {
-  background: #e8f4f8;
-  border-left: 4px solid #3498db;
+  background: #e6fffa;
+  border-left: 4px solid #0987a0;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
 }
 
 .info-box.error {
-  background: #ffe8e8;
-  border-left-color: #e74c3c;
+  background: #fff5f5;
+  border-left-color: #c53030;
 }
 
 .info-box h4 {
-  color: #2c3e50;
+  color: #1a202c;
   font-size: 1.1rem;
   margin: 0 0 0.75rem 0;
+  font-weight: 600;
 }
 
 .info-box p {
-  color: #4a5568;
+  color: #2d3748;
   line-height: 1.6;
   margin: 0 0 0.5rem 0;
+  font-weight: 500;
 }
 
 .info-box ul {
   margin: 0.5rem 0 0 1.5rem;
   padding: 0;
-  color: #4a5568;
+  color: #2d3748;
 }
 
 .info-box li {
   margin-bottom: 0.5rem;
   line-height: 1.5;
+  font-weight: 500;
 }
 
 /* Contacto soporte */
 .contacto-soporte {
-  background: #f0f8ff;
+  background: #ebf8ff;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
   text-align: center;
+  border: 1px solid #bee3f8;
 }
 
 .contacto-soporte h4 {
-  color: #2c3e50;
+  color: #1a202c;
   font-size: 1.1rem;
   margin: 0 0 0.75rem 0;
+  font-weight: 600;
 }
 
 .contacto-soporte p {
-  color: #718096;
+  color: #2d3748;
   margin: 0 0 1rem 0;
+  font-weight: 500;
 }
 
 .contacto-items {
@@ -179,7 +191,9 @@
   background: white;
   border-radius: 6px;
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: #1a202c;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
 }
 
 .contacto-item span:first-child {
@@ -210,34 +224,37 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(90, 103, 216, 0.4);
+  background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
 }
 
 .btn-secondary {
-  background: #3498db;
+  background: #0987a0;
   color: white;
 }
 
 .btn-secondary:hover {
-  background: #2980b9;
+  background: #086f83;
   transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(9, 135, 160, 0.3);
 }
 
 .btn-tertiary {
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #5a67d8;
+  border: 2px solid #5a67d8;
 }
 
 .btn-tertiary:hover {
-  background: #f7fafc;
+  background: #edf2f7;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(90, 103, 216, 0.2);
 }
 
 .btn-primary:disabled,
@@ -250,8 +267,8 @@
 /* Spinners */
 .spinner-grande,
 .spinner-small {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #5a67d8;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto;
@@ -277,9 +294,10 @@
 /* Progreso de intentos */
 .progreso-intentos {
   text-align: center;
-  color: #718096;
+  color: #2d3748;
   font-size: 0.9rem;
   margin-top: 1rem;
+  font-weight: 500;
 }
 
 /* Responsive */

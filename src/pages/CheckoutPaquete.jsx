@@ -1,8 +1,9 @@
-// src/pages/CheckoutPaquete.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
+import wompiService from '../services/wompi_service';
+import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/Checkout.css';
 
@@ -13,6 +14,7 @@ const CheckoutPaquete = () => {
   const [clase, setClase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
+  const [procesandoWompi, setProcesandoWompi] = useState(false);
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   
@@ -26,7 +28,7 @@ const CheckoutPaquete = () => {
     nombre: '',
     apellido: '',
     telefono: '',
-    timezone: getBrowserTimeZone(), // NUEVO
+    timezone: getBrowserTimeZone(),
     password: '',
     confirmarPassword: ''
   });
@@ -43,27 +45,15 @@ const CheckoutPaquete = () => {
       const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
       const data = await response.json();
       
-      console.log('📚 RESPUESTA COMPLETA:', JSON.stringify(data, null, 2));
-      
       if (response.ok && data.success) {
         let claseData = null;
-        
-        if (data.data?.clase) {
-          claseData = data.data.clase;
-        } else if (data.data?.clase_personalizada) {
-          claseData = data.data.clase_personalizada;
-        } else if (data.data) {
-          claseData = data.data;
-        }
-        
-        console.log('✅ Clase extraída:', claseData);
-        console.log('💰 Precio encontrado:', claseData?.precio);
-        
-        if (claseData) {
-          setClase(claseData);
-        } else {
-          setError('No se pudo cargar la información de la clase');
-        }
+
+        if (data.data?.clase) claseData = data.data.clase;
+        else if (data.data?.clase_personalizada) claseData = data.data.clase_personalizada;
+        else if (data.data) claseData = data.data;
+
+        if (claseData) setClase(claseData);
+        else setError('No se pudo cargar la información de la clase');
       } else {
         setError(data.message || 'Error al cargar la clase');
       }
@@ -77,16 +67,10 @@ const CheckoutPaquete = () => {
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
-    setDatosUsuario(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setDatosUsuario(prev => ({ ...prev, [name]: value }));
 
     if (errores[name]) {
-      setErrores(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrores(prev => ({ ...prev, [name]: '' }));
     }
   };
 
@@ -103,41 +87,42 @@ const CheckoutPaquete = () => {
     }
 
     if (esNuevoUsuario) {
-      if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
-        nuevosErrores.email = 'Email inválido';
-      }
+      if (!datosUsuario.email || !datosUsuario.email.includes('@')) nuevosErrores.email = 'Email inválido';
+      if (!datosUsuario.nombre.trim()) nuevosErrores.nombre = 'El nombre es obligatorio';
+      if (!datosUsuario.apellido.trim()) nuevosErrores.apellido = 'El apellido es obligatorio';
+      if (!datosUsuario.telefono.trim()) nuevosErrores.telefono = 'El teléfono es obligatorio';
+      if (!datosUsuario.timezone) nuevosErrores.timezone = 'La zona horaria es obligatoria';
 
-      if (!datosUsuario.nombre.trim()) {
-        nuevosErrores.nombre = 'El nombre es obligatorio';
-      }
-
-      if (!datosUsuario.apellido.trim()) {
-        nuevosErrores.apellido = 'El apellido es obligatorio';
-      }
-
-      if (!datosUsuario.telefono.trim()) {
-        nuevosErrores.telefono = 'El teléfono es obligatorio';
-      }
-
-      // NUEVO: Validar timezone
-      if (!datosUsuario.timezone) {
-        nuevosErrores.timezone = 'La zona horaria es obligatoria';
-      }
-
-      if (datosUsuario.password.length < 6) {
-        nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
-      }
-
-      if (datosUsuario.password !== datosUsuario.confirmarPassword) {
-        nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
-      }
+      if (datosUsuario.password.length < 6) nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
+      if (datosUsuario.password !== datosUsuario.confirmarPassword) nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
     }
 
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  const handleComprar = async (e) => {
+  const buildDatosCompra = () => {
+    const datosCompra = {
+      tipo_compra: 'paquete_horas',
+      clase_personalizada_id: claseId,
+      cantidad_horas: cantidadHoras
+    };
+
+    if (esNuevoUsuario) {
+      datosCompra.estudiante = {
+        email: datosUsuario.email,
+        password: datosUsuario.password,
+        nombre: datosUsuario.nombre,
+        apellido: datosUsuario.apellido,
+        telefono: datosUsuario.telefono,
+        timezone: datosUsuario.timezone
+      };
+    }
+
+    return datosCompra;
+  };
+
+  const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
 
     if (!validarFormulario()) {
@@ -145,65 +130,63 @@ const CheckoutPaquete = () => {
       return;
     }
 
-    if (cantidadHoras < 1) {
-      setMensaje({ tipo: 'error', texto: 'Debes seleccionar al menos 1 hora' });
-      return;
-    }
-
     setProcesando(true);
     setMensaje({ tipo: '', texto: '' });
 
     try {
-      const datosCompra = {
-        tipo_compra: 'paquete_horas',
-        clase_personalizada_id: claseId,
-        cantidad_horas: cantidadHoras
-      };
-
-      if (esNuevoUsuario) {
-        datosCompra.estudiante = {
-          email: datosUsuario.email,
-          password: datosUsuario.password,
-          nombre: datosUsuario.nombre,
-          apellido: datosUsuario.apellido,
-          telefono: datosUsuario.telefono,
-          timezone: datosUsuario.timezone // NUEVO
-        };
-      }
-
-      console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
+      const datosCompra = buildDatosCompra();
 
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
       if (resultado.success) {
-        console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
-        
-        setMensaje({ 
-          tipo: 'exito', 
-          texto: '✅ Redirigiendo a Mercado Pago...' 
-        });
-
+        setMensaje({ tipo: 'exito', texto: '✅ Redirigiendo a Mercado Pago...' });
         setTimeout(() => {
           const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
           comprasService.redirigirACheckout(initPoint);
         }, 1000);
-
       } else {
-        console.error('❌ Error al crear preferencia:', resultado.message);
-        setMensaje({ 
-          tipo: 'error', 
-          texto: resultado.message || 'Error al procesar el pago' 
-        });
+        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al procesar el pago' });
         setProcesando(false);
       }
-
     } catch (error) {
       console.error('❌ Error en el proceso de compra:', error);
-      setMensaje({ 
-        tipo: 'error', 
-        texto: 'Error al procesar el pago. Intenta de nuevo.' 
-      });
+      setMensaje({ tipo: 'error', texto: 'Error al procesar el pago. Intenta de nuevo.' });
       setProcesando(false);
+    }
+  };
+
+  const handleComprarWompi = async (e) => {
+    e.preventDefault();
+
+    if (!validarFormulario()) {
+      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
+      return;
+    }
+
+    setProcesandoWompi(true);
+    setMensaje({ tipo: '', texto: '' });
+
+    try {
+      const datosCompra = buildDatosCompra();
+
+      const resultado = await wompiService.crearCheckout(datosCompra);
+
+      if (!resultado.success) {
+        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
+        setProcesandoWompi(false);
+        return;
+      }
+
+      setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
+
+      // Abre modal y redirige según status
+      await openWompiWidget(resultado.data);
+
+      setProcesandoWompi(false);
+    } catch (error) {
+      console.error('❌ Error Wompi:', error);
+      setMensaje({ tipo: 'error', texto: 'Error al abrir el widget de Wompi' });
+      setProcesandoWompi(false);
     }
   };
 
@@ -263,7 +246,7 @@ const CheckoutPaquete = () => {
                 <button 
                   type="button"
                   onClick={() => setCantidadHoras(Math.max(1, cantidadHoras - 1))}
-                  disabled={cantidadHoras <= 1 || procesando}
+                  disabled={cantidadHoras <= 1 || procesando || procesandoWompi}
                 >
                  -
                 </button>
@@ -273,12 +256,12 @@ const CheckoutPaquete = () => {
                   onChange={(e) => setCantidadHoras(parseInt(e.target.value) || 1)}
                   min="1"
                   max="20"
-                  disabled={procesando}
+                  disabled={procesando || procesandoWompi}
                 />
                 <button 
                   type="button"
                   onClick={() => setCantidadHoras(Math.min(20, cantidadHoras + 1))}
-                  disabled={cantidadHoras >= 20 || procesando}
+                  disabled={cantidadHoras >= 20 || procesando || procesandoWompi}
                 >
                   +
                 </button>
@@ -325,7 +308,7 @@ const CheckoutPaquete = () => {
         </div>
 
         <div className="checkout-formulario">
-          <form onSubmit={handleComprar}>
+          <form onSubmit={(e) => e.preventDefault()}>
             {mensaje.texto && (
               <div className={`mensaje ${mensaje.tipo}`}>
                 {mensaje.texto}
@@ -347,7 +330,7 @@ const CheckoutPaquete = () => {
                     value={datosUsuario.email}
                     onChange={handleChangeUsuario}
                     placeholder="Ingresa tu correo electronico"
-                    disabled={procesando}
+                    disabled={procesando || procesandoWompi}
                     className={errores.email ? 'input-error' : ''}
                   />
                   {errores.email && (
@@ -364,7 +347,7 @@ const CheckoutPaquete = () => {
                       value={datosUsuario.nombre}
                       onChange={handleChangeUsuario}
                       placeholder="Ingresa tu nombre"
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.nombre ? 'input-error' : ''}
                     />
                     {errores.nombre && (
@@ -380,7 +363,7 @@ const CheckoutPaquete = () => {
                       value={datosUsuario.apellido}
                       onChange={handleChangeUsuario}
                       placeholder="Ingresa tu apellido"
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.apellido ? 'input-error' : ''}
                     />
                     {errores.apellido && (
@@ -397,7 +380,7 @@ const CheckoutPaquete = () => {
                     value={datosUsuario.telefono}
                     onChange={handleChangeUsuario}
                     placeholder="Ingresa tu numero telefonico"
-                    disabled={procesando}
+                    disabled={procesando || procesandoWompi}
                     className={errores.telefono ? 'input-error' : ''}
                   />
                   {errores.telefono && (
@@ -405,16 +388,14 @@ const CheckoutPaquete = () => {
                   )}
                 </div>
 
-                {/* NUEVO CAMPO: Zona Horaria */}
                 <div className="form-group">
                   <label>Zona Horaria *</label>
                   <select
                     name="timezone"
                     value={datosUsuario.timezone}
                     onChange={handleChangeUsuario}
-                    disabled={procesando}
+                    disabled={procesando || procesandoWompi}
                     className={errores.timezone ? 'input-error' : ''}
-                    
                   >
                     {TIMEZONES_LATAM.map((tz) => (
                       <option key={tz.value} value={tz.value}>
@@ -435,7 +416,7 @@ const CheckoutPaquete = () => {
                       name="password"
                       value={datosUsuario.password}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.password ? 'input-error' : ''}
                       placeholder="Ingresa tu contraseña"
                       required={true}
@@ -452,7 +433,7 @@ const CheckoutPaquete = () => {
                       name="confirmarPassword"
                       value={datosUsuario.confirmarPassword}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.confirmarPassword ? 'input-error' : ''}
                       placeholder="Repite la contraseña"
                       required={true}
@@ -470,6 +451,7 @@ const CheckoutPaquete = () => {
                       type="button" 
                       onClick={() => navigate('/login')}
                       className="btn-link"
+                      disabled={procesando || procesandoWompi}
                     >
                       Inicia sesión
                     </button>
@@ -486,9 +468,10 @@ const CheckoutPaquete = () => {
             )}
 
             <button 
-              type="submit" 
+              type="button"
+              onClick={handleComprarMercadoPago}
               className="btn-comprar-final"
-              disabled={procesando}
+              disabled={procesando || procesandoWompi}
             >
               {procesando ? (
                 <>
@@ -497,6 +480,23 @@ const CheckoutPaquete = () => {
                 </>
               ) : (
                 <>💳 Pagar con Mercado Pago</>
+              )}
+            </button>
+
+            <button 
+              type="button"
+              onClick={handleComprarWompi}
+              className="btn-comprar-final"
+              disabled={procesando || procesandoWompi}
+              style={{ marginTop: 10, background: '#4CAF50' }}
+            >
+              {procesandoWompi ? (
+                <>
+                  <div className="spinner-small"></div>
+                  Abriendo Wompi...
+                </>
+              ) : (
+                <>💰 Pagar con Wompi</>
               )}
             </button>
 

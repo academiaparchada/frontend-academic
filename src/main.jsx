@@ -27,7 +27,7 @@ import ClasesPersonalizadasPublico from './pages/ClasesPersonalizadasPublico.jsx
 import PagoExitoso from './pages/PagoExitoso.jsx'
 import PagoPendiente from './pages/PagoPendiente.jsx'
 import PagoFallido from './pages/PagoFallido.jsx'
-import MisClases from './pages/profesor/MisClases.jsx'
+import  MisClases  from './pages/profesor/MisClases.jsx'
 import { MisCursos } from './pages/profesor/MisCursos.jsx'
 import { MiPerfil } from './pages/profesor/MiPerfil.jsx'
 import { GoogleCallback } from './pages/GoogleCallback.jsx'
@@ -35,18 +35,23 @@ import ContabilidadAdmin from './pages/admin/ContabilidadAdmin.jsx'
 import ComprasAdmin from './pages/admin/compras.jsx'
 import SesionesPendientes from './pages/admin/sesiones_pendientes.jsx'
 
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<App />} />
+          {/* ✅ RUTAS DE RESULTADO DE PAGO (SIN LAYOUT) */}
+          <Route path="/pago-exitoso" element={<PagoExitoso />} />
+          <Route path="/pago-pendiente" element={<PagoPendiente />} />
+          <Route path="/pago-fallido" element={<PagoFallido />} />
+
+          {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms-and-policies" element={<TermsAndPolicies />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
 
           {/* Dashboards */}
           <Route path="/estudiante/dashboard" element={<EstudianteDashboard />} />
@@ -54,20 +59,19 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
           {/* Admin */}
+          <Route path="/admin/profesores" element={<GestionProfesoresAdmin />} />
           <Route path="/admin/asignaturas" element={<AsignaturasPage />} />
-          <Route path="/admin/gestion-profesores" element={<GestionProfesoresAdmin />} />
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
           <Route path="/admin/cursos" element={<CursosAdmin />} />
           <Route path="/admin/contabilidad" element={<ContabilidadAdmin />} />
           <Route path="/admin/compras" element={<ComprasAdmin />} />
           <Route path="/admin/sesiones-pendientes" element={<SesionesPendientes />} />
 
-
           {/* Profesor */}
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />
-          <Route path="/profesor/mis-clases" element={<MisClases />} />
-          <Route path="/profesor/mis-cursos" element={<MisCursos />} />
-          <Route path="/profesor/mi-perfil" element={<MiPerfil />} />
+          <Route path="/profesor/clases" element={<MisClases />} />
+          <Route path="/profesor/cursos" element={<MisCursos />} />
+          <Route path="/profesor/perfil" element={<MiPerfil />} />
 
           {/* Público */}
           <Route path="/cursos" element={<CursosPublico />} />
@@ -82,15 +86,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/estudiante/mis-compras" element={<MisCompras />} />
           <Route path="/estudiante/paquete/:compraId" element={<DetallePaquete />} />
 
-          {/* Rutas de resultado de pago */}
-          <Route path="/pago/exitoso" element={<PagoExitoso />} />
-          <Route path="/pago/pendiente" element={<PagoPendiente />} />
-          <Route path="/pago/fallido" element={<PagoFallido />} />
-
-          {/* Callback de Google OAuth */}
-          <Route path="/auth/callback" element={<GoogleCallback />} />
+          {/* Página principal (App) */}
+          <Route path="/" element={<App />} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
-  </StrictMode>,
+      </BrowserRouter>
+    </AuthProvider>
+  </StrictMode>
 )

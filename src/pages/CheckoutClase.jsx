@@ -1,8 +1,9 @@
-// src/pages/CheckoutClase.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
+import wompiService from '../services/wompi_service';
+import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/Checkout.css';
 
@@ -13,17 +14,16 @@ const CheckoutClase = () => {
   const [clase, setClase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
+  const [procesandoWompi, setProcesandoWompi] = useState(false);
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
-  // NUEVO: Estado para archivo
   const [archivoAdjunto, setArchivoAdjunto] = useState(null);
   const [errorArchivo, setErrorArchivo] = useState('');
 
-  // Formulario
   const [datosClase, setDatosClase] = useState({
     fecha_hora: '',
     descripcion_estudiante: ''
@@ -51,8 +51,6 @@ const CheckoutClase = () => {
       const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
       const data = await response.json();
       
-      console.log('📚 RESPUESTA COMPLETA:', JSON.stringify(data, null, 2));
-      
       if (response.ok && data.success) {
         let claseData = null;
         
@@ -63,9 +61,6 @@ const CheckoutClase = () => {
         } else if (data.data) {
           claseData = data.data;
         }
-        
-        console.log('✅ Clase extraída:', claseData);
-        console.log('💰 Precio encontrado:', claseData?.precio);
         
         if (claseData) {
           setClase(claseData);
@@ -113,7 +108,6 @@ const CheckoutClase = () => {
     }
   };
 
-  // NUEVO: Manejar selección de archivo
   const handleArchivoChange = (e) => {
     const archivo = e.target.files[0];
     setErrorArchivo('');
@@ -123,24 +117,20 @@ const CheckoutClase = () => {
       return;
     }
 
-    // Validar archivo
     const validacion = comprasService.validarArchivo(archivo);
     if (!validacion.valido) {
       setErrorArchivo(validacion.mensaje);
       setArchivoAdjunto(null);
-      e.target.value = ''; // Limpiar input
+      e.target.value = '';
       return;
     }
 
     setArchivoAdjunto(archivo);
-    console.log('📎 Archivo seleccionado:', archivo.name, comprasService.formatearTamanoArchivo(archivo.size));
   };
 
-  // NUEVO: Eliminar archivo adjunto
   const handleEliminarArchivo = () => {
     setArchivoAdjunto(null);
     setErrorArchivo('');
-    // Limpiar el input file
     const fileInput = document.getElementById('documento-input');
     if (fileInput) {
       fileInput.value = '';
@@ -150,7 +140,6 @@ const CheckoutClase = () => {
   const validarFormulario = () => {
     const nuevosErrores = {};
 
-    // Validar fecha y hora
     if (!datosClase.fecha_hora) {
       nuevosErrores.fecha_hora = 'La fecha y hora son obligatorias';
     } else {
@@ -162,12 +151,10 @@ const CheckoutClase = () => {
       }
     }
 
-    // Validar descripción
     if (!datosClase.descripcion_estudiante || datosClase.descripcion_estudiante.trim().length < 10) {
       nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
     }
 
-    // Si es nuevo usuario, validar datos
     if (esNuevoUsuario) {
       if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
         nuevosErrores.email = 'Email inválido';
@@ -202,7 +189,30 @@ const CheckoutClase = () => {
     return Object.keys(nuevosErrores).length === 0;
   };
 
-  const handleComprar = async (e) => {
+  const buildDatosCompra = () => {
+    const datosCompra = {
+      tipo_compra: 'clase_personalizada',
+      clase_personalizada_id: claseId,
+      fecha_hora: comprasService.convertirFechaAISO(datosClase.fecha_hora),
+      descripcion_estudiante: datosClase.descripcion_estudiante,
+      estudiante_timezone: datosUsuario.timezone || 'America/Bogota'
+    };
+
+    if (esNuevoUsuario) {
+      datosCompra.estudiante = {
+        email: datosUsuario.email,
+        password: datosUsuario.password,
+        nombre: datosUsuario.nombre,
+        apellido: datosUsuario.apellido,
+        telefono: datosUsuario.telefono,
+        timezone: datosUsuario.timezone
+      };
+    }
+
+    return datosCompra;
+  };
+
+  const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
 
     if (!validarFormulario()) {
@@ -214,45 +224,18 @@ const CheckoutClase = () => {
     setMensaje({ tipo: '', texto: '' });
 
     try {
-      const datosCompra = {
-        tipo_compra: 'clase_personalizada',
-        clase_personalizada_id: claseId,
-        fecha_hora: comprasService.convertirFechaAISO(datosClase.fecha_hora),
-        descripcion_estudiante: datosClase.descripcion_estudiante,
-        estudiante_timezone: datosUsuario.timezone || 'America/Bogota'
-      };
-
-      if (esNuevoUsuario) {
-        datosCompra.estudiante = {
-          email: datosUsuario.email,
-          password: datosUsuario.password,
-          nombre: datosUsuario.nombre,
-          apellido: datosUsuario.apellido,
-          telefono: datosUsuario.telefono,
-          timezone: datosUsuario.timezone
-        };
-      }
-
-      console.log('📤 Iniciando pago con Mercado Pago:', datosCompra);
-      console.log('📎 Archivo adjunto:', archivoAdjunto ? archivoAdjunto.name : 'ninguno');
+      const datosCompra = buildDatosCompra();
 
       let resultado;
 
-      // Si hay archivo adjunto, usar FormData
       if (archivoAdjunto) {
         resultado = await comprasService.iniciarPagoMercadoPagoConArchivo(datosCompra, archivoAdjunto);
       } else {
-        // Si no hay archivo, usar JSON normal
         resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
       }
 
       if (resultado.success) {
-        console.log('✅ Preferencia creada, redirigiendo a Mercado Pago...');
-        
-        setMensaje({ 
-          tipo: 'exito', 
-          texto: '✅ Redirigiendo a Mercado Pago...' 
-        });
+        setMensaje({ tipo: 'exito', texto: '✅ Redirigiendo a Mercado Pago...' });
 
         setTimeout(() => {
           const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
@@ -260,21 +243,54 @@ const CheckoutClase = () => {
         }, 1000);
 
       } else {
-        console.error('❌ Error al crear preferencia:', resultado.message);
-        setMensaje({ 
-          tipo: 'error', 
-          texto: resultado.message || 'Error al procesar el pago' 
-        });
+        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al procesar el pago' });
         setProcesando(false);
       }
 
     } catch (error) {
       console.error('❌ Error en el proceso de compra:', error);
-      setMensaje({ 
-        tipo: 'error', 
-        texto: 'Error al procesar el pago. Intenta de nuevo.' 
-      });
+      setMensaje({ tipo: 'error', texto: 'Error al procesar el pago. Intenta de nuevo.' });
       setProcesando(false);
+    }
+  };
+
+  const handleComprarWompi = async (e) => {
+    e.preventDefault();
+
+    if (!validarFormulario()) {
+      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
+      return;
+    }
+
+    setProcesandoWompi(true);
+    setMensaje({ tipo: '', texto: '' });
+
+    try {
+      const datosCompra = buildDatosCompra();
+
+      let resultado;
+
+      if (archivoAdjunto) {
+        resultado = await wompiService.crearCheckoutConArchivo(datosCompra, archivoAdjunto);
+      } else {
+        resultado = await wompiService.crearCheckout(datosCompra);
+      }
+
+      if (!resultado.success) {
+        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
+        setProcesandoWompi(false);
+        return;
+      }
+
+      setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
+
+      await openWompiWidget(resultado.data);
+
+      setProcesandoWompi(false);
+    } catch (error) {
+      console.error('❌ Error Wompi:', error);
+      setMensaje({ tipo: 'error', texto: 'Error al abrir el widget de Wompi' });
+      setProcesandoWompi(false);
     }
   };
 
@@ -353,7 +369,7 @@ const CheckoutClase = () => {
         </div>
 
         <div className="checkout-formulario">
-          <form onSubmit={handleComprar}>
+          <form onSubmit={(e) => e.preventDefault()}>
             {mensaje.texto && (
               <div className={`mensaje ${mensaje.tipo}`}>
                 {mensaje.texto}
@@ -369,7 +385,7 @@ const CheckoutClase = () => {
                 name="fecha_hora"
                 value={datosClase.fecha_hora}
                 onChange={handleChangeClase}
-                disabled={procesando}
+                disabled={procesando || procesandoWompi}
                 className={errores.fecha_hora ? 'input-error' : ''}
                 min={new Date().toISOString().slice(0, 16)}
               />
@@ -389,7 +405,7 @@ const CheckoutClase = () => {
                 onChange={handleChangeClase}
                 placeholder="Ej: Necesito ayuda con derivadas parciales y aplicaciones..."
                 rows="4"
-                disabled={procesando}
+                disabled={procesando || procesandoWompi}
                 className={errores.descripcion_estudiante ? 'input-error' : ''}
               ></textarea>
               {errores.descripcion_estudiante && (
@@ -400,7 +416,6 @@ const CheckoutClase = () => {
               </span>
             </div>
 
-            {/* NUEVO: Campo para adjuntar documento */}
             <div className="form-group">
               <label>📎 Adjuntar Documento (Opcional)</label>
               <div className="file-upload-container">
@@ -410,7 +425,7 @@ const CheckoutClase = () => {
                       type="file"
                       id="documento-input"
                       onChange={handleArchivoChange}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.zip,.rar,.7z"
                       className="file-input-hidden"
                     />
@@ -437,7 +452,7 @@ const CheckoutClase = () => {
                       type="button"
                       onClick={handleEliminarArchivo}
                       className="btn-eliminar-archivo"
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                     >
                       ✖
                     </button>
@@ -466,8 +481,8 @@ const CheckoutClase = () => {
                     name="email"
                     value={datosUsuario.email}
                     onChange={handleChangeUsuario}
-                    placeholder="Ingresa tu correo electronico"
-                    disabled={procesando}
+                    placeholder="tu@email.com"
+                    disabled={procesando || procesandoWompi}
                     className={errores.email ? 'input-error' : ''}
                   />
                   {errores.email && (
@@ -483,8 +498,8 @@ const CheckoutClase = () => {
                       name="nombre"
                       value={datosUsuario.nombre}
                       onChange={handleChangeUsuario}
-                      placeholder="Ingresa tu nombre"
-                      disabled={procesando}
+                      placeholder="Juan"
+                      disabled={procesando || procesandoWompi}
                       className={errores.nombre ? 'input-error' : ''}
                     />
                     {errores.nombre && (
@@ -499,8 +514,8 @@ const CheckoutClase = () => {
                       name="apellido"
                       value={datosUsuario.apellido}
                       onChange={handleChangeUsuario}
-                      placeholder="Ingresa tu apellido"
-                      disabled={procesando}
+                      placeholder="Pérez"
+                      disabled={procesando || procesandoWompi}
                       className={errores.apellido ? 'input-error' : ''}
                     />
                     {errores.apellido && (
@@ -516,8 +531,8 @@ const CheckoutClase = () => {
                     name="telefono"
                     value={datosUsuario.telefono}
                     onChange={handleChangeUsuario}
-                    placeholder="Ingresa tu numero telefonico"
-                    disabled={procesando}
+                    placeholder="3001234567"
+                    disabled={procesando || procesandoWompi}
                     className={errores.telefono ? 'input-error' : ''}
                   />
                   {errores.telefono && (
@@ -531,7 +546,7 @@ const CheckoutClase = () => {
                     name="timezone"
                     value={datosUsuario.timezone}
                     onChange={handleChangeUsuario}
-                    disabled={procesando}
+                    disabled={procesando || procesandoWompi}
                     className={errores.timezone ? 'input-error' : ''}
                   >
                     {TIMEZONES_LATAM.map((tz) => (
@@ -555,9 +570,9 @@ const CheckoutClase = () => {
                       name="password"
                       value={datosUsuario.password}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.password ? 'input-error' : ''}
-                      placeholder="Ingresa tu contraseña"
+                      placeholder="Mínimo 6 caracteres"
                       required={true}
                       minLength={6}
                     />
@@ -572,7 +587,7 @@ const CheckoutClase = () => {
                       name="confirmarPassword"
                       value={datosUsuario.confirmarPassword}
                       onChange={handleChangeUsuario}
-                      disabled={procesando}
+                      disabled={procesando || procesandoWompi}
                       className={errores.confirmarPassword ? 'input-error' : ''}
                       placeholder="Repite la contraseña"
                       required={true}
@@ -590,6 +605,7 @@ const CheckoutClase = () => {
                       type="button" 
                       onClick={() => navigate('/login')}
                       className="btn-link"
+                      disabled={procesando || procesandoWompi}
                     >
                       Inicia sesión
                     </button>
@@ -599,9 +615,10 @@ const CheckoutClase = () => {
             )}
 
             <button 
-              type="submit" 
+              type="button"
+              onClick={handleComprarMercadoPago}
               className="btn-comprar-final"
-              disabled={procesando}
+              disabled={procesando || procesandoWompi}
             >
               {procesando ? (
                 <>
@@ -610,6 +627,23 @@ const CheckoutClase = () => {
                 </>
               ) : (
                 <>💳 Pagar con Mercado Pago</>
+              )}
+            </button>
+
+            <button 
+              type="button"
+              onClick={handleComprarWompi}
+              className="btn-comprar-final"
+              disabled={procesando || procesandoWompi}
+              style={{ marginTop: 10, background: '#4CAF50' }}
+            >
+              {procesandoWompi ? (
+                <>
+                  <div className="spinner-small"></div>
+                  Abriendo Wompi...
+                </>
+              ) : (
+                <>💰 Pagar con Wompi</>
               )}
             </button>
 
