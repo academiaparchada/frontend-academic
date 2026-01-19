@@ -43,6 +43,188 @@ class ProfesorService {
     }
   }
 
+  // ==================== GESTIÓN DE LINKS DE MEET ====================
+
+/**
+ * Lista las clases pendientes de asignar link de Meet
+ * Endpoint: GET /sesiones/pendientes
+ * @returns {Promise<Object>} Resultado con las clases pendientes
+ */
+async listarPendientesMeet() {
+  try {
+    const response = await fetch(
+      `${API_URL}/sesiones/pendientes`,
+      { headers: this._getHeaders() }
+    );
+    const data = await response.json();
+    
+    if (!response.ok || !data.success) {
+      return { 
+        success: false, 
+        message: data.message || 'Error listando pendientes' 
+      };
+    }
+    
+    return { 
+      success: true, 
+      data: data.data?.sesiones || [] 
+    };
+  } catch (error) {
+    console.error('Error obteniendo clases pendientes de Meet:', error);
+    return { success: false, message: 'Error de conexión' };
+  }
+}
+
+/**
+ * Valida que un link sea una URL válida de Google Meet
+ * @param {string} link - El link a validar
+ * @returns {boolean} true si es válido, false si no
+ */
+validarLinkMeet(link) {
+  if (!link || link.trim() === '') {
+    return false;
+  }
+
+  const linkLimpio = link.trim();
+
+  // Según documentación: debe empezar con http
+  if (!linkLimpio.startsWith('http://') && !linkLimpio.startsWith('https://')) {
+    return false;
+  }
+
+  try {
+    const url = new URL(linkLimpio);
+    
+    // Verificar que el dominio sea meet.google.com
+    if (!url.hostname.includes('meet.google.com')) {
+      return false;
+    }
+
+    // Verificar que tenga un código de reunión (pathname no vacío)
+    if (url.pathname.length <= 1) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
+ * Valida y retorna un mensaje descriptivo sobre el link de Meet
+ * @param {string} link - El link a validar
+ * @returns {Object} Objeto con {valido: boolean, mensaje: string}
+ */
+validarLinkMeetDetallado(link) {
+  if (!link || link.trim() === '') {
+    return { 
+      valido: false, 
+      mensaje: 'El link no puede estar vacío' 
+    };
+  }
+
+  const linkLimpio = link.trim();
+
+  // Validar que comience con http:// o https://
+  if (!linkLimpio.startsWith('http://') && !linkLimpio.startsWith('https://')) {
+    return { 
+      valido: false, 
+      mensaje: 'El link debe comenzar con http:// o https://' 
+    };
+  }
+
+  try {
+    const url = new URL(linkLimpio);
+    
+    // Verificar que el dominio sea meet.google.com
+    if (!url.hostname.includes('meet.google.com')) {
+      return { 
+        valido: false, 
+        mensaje: 'El link debe ser de Google Meet (meet.google.com)' 
+      };
+    }
+
+    // Verificar que tenga un código de reunión
+    if (url.pathname.length <= 1) {
+      return { 
+        valido: false, 
+        mensaje: 'El link debe incluir el código de la reunión' 
+      };
+    }
+
+    return { 
+      valido: true, 
+      mensaje: 'Link válido' 
+    };
+  } catch (error) {
+    return { 
+      valido: false, 
+      mensaje: 'El formato del link no es válido. Ejemplo: https://meet.google.com/abc-defg-hij' 
+    };
+  }
+}
+
+/**
+ * Asigna un link de Google Meet a una sesión de clase
+ * Endpoint: PUT /sesiones/:sesionId/meet
+ * @param {number} sesionId - ID de la sesión
+ * @param {string} linkMeet - Link de Google Meet
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+async asignarMeetSesion(sesionId, linkMeet) {
+  // Validar el link antes de enviar
+  const validacion = this.validarLinkMeetDetallado(linkMeet);
+  
+  if (!validacion.valido) {
+    return { 
+      success: false, 
+      message: validacion.mensaje 
+    };
+  }
+
+  try {
+    const response = await fetch(
+      `${API_URL}/sesiones/${sesionId}/meet`,
+      {
+        method: 'PUT',
+        headers: this._getHeaders(),
+        body: JSON.stringify({ link_meet: linkMeet.trim() })
+      }
+    );
+    
+    const data = await response.json();
+    
+    if (!response.ok || !data.success) {
+      return { 
+        success: false, 
+        message: data.message || 'Error asignando link de Meet' 
+      };
+    }
+    
+    return { 
+      success: true, 
+      data: data.data?.sesion, 
+      message: data.message || 'Link de Meet asignado correctamente. El estudiante recibirá un correo.' 
+    };
+  } catch (error) {
+    console.error('Error asignando link de Meet:', error);
+    return { success: false, message: 'Error de conexión' };
+  }
+}
+
+/**
+ * Actualiza el link de Meet de una sesión existente
+ * Endpoint: PUT /sesiones/:sesionId/meet
+ * @param {number} sesionId - ID de la sesión
+ * @param {string} linkMeet - Nuevo link de Google Meet
+ * @returns {Promise<Object>} Resultado de la operación
+ */
+async actualizarMeetSesion(sesionId, linkMeet) {
+  // Reutiliza la misma función ya que el endpoint es el mismo
+  return this.asignarMeetSesion(sesionId, linkMeet);
+}
+
   // ==================== CU-041 y CU-042: MIS CURSOS ====================
   
   async obtenerMisCursos(page = 1, limit = 10) {

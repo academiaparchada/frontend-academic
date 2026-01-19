@@ -27,7 +27,7 @@ import ClasesPersonalizadasPublico from './pages/ClasesPersonalizadasPublico.jsx
 import PagoExitoso from './pages/PagoExitoso.jsx'
 import PagoPendiente from './pages/PagoPendiente.jsx'
 import PagoFallido from './pages/PagoFallido.jsx'
-import { MisClases } from './pages/profesor/MisClases.jsx'
+import MisClases from './pages/profesor/MisClases.jsx'
 import { MisCursos } from './pages/profesor/MisCursos.jsx'
 import { MiPerfil } from './pages/profesor/MiPerfil.jsx'
 import { GoogleCallback } from './pages/GoogleCallback.jsx'
