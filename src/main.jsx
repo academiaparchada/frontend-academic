@@ -69,9 +69,9 @@ createRoot(document.getElementById('root')).render(
 
           {/* Profesor */}
           <Route path="/profesor/franjas-horarias" element={<FranjasHorariasProfesor />} />
-          <Route path="/profesor/clases" element={<MisClases />} />
-          <Route path="/profesor/cursos" element={<MisCursos />} />
-          <Route path="/profesor/perfil" element={<MiPerfil />} />
+          <Route path="/profesor/mis-clases" element={<MisClases />} />
+          <Route path="/profesor/mis-cursos" element={<MisCursos />} />
+          <Route path="/profesor/mi-perfil" element={<MiPerfil />} />
 
           {/* Público */}
           <Route path="/cursos" element={<CursosPublico />} />

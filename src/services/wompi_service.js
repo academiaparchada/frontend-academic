@@ -1,7 +1,11 @@
 // src/services/wompi_service.js
-const API_URL = import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
+
+import comprasService from './compras_service';
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.parcheacademico.com/api';
 
 class WompiService {
+
   _getToken() {
     return localStorage.getItem('token');
   }
@@ -14,11 +18,11 @@ class WompiService {
     };
   }
 
-  _getHeadersMultipart() {
-    const token = this._getToken();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  }
-
+  /**
+   * Crear checkout Wompi (sin archivo adjunto)
+   * @param {Object} datosCompra - Datos de la compra
+   * @returns {Promise}
+   */
   async crearCheckout(datosCompra) {
     try {
       const token = this._getToken();
@@ -41,52 +45,61 @@ class WompiService {
 
       localStorage.setItem('ultima_compra_id', json.data.compraId);
       return { success: true, data: json.data };
+
     } catch (error) {
       console.error('Wompi crearCheckout error:', error);
       return { success: false, message: 'Error de conexión creando checkout Wompi' };
     }
   }
 
+  /**
+   * ✅ ACTUALIZADO: Crear checkout Wompi CON archivo (flujo de 2 pasos)
+   * PASO 1: Subir documento → obtener documento_url
+   * PASO 2: Crear checkout con documento_url en el body JSON
+   * @param {Object} datosCompra - Datos de la compra
+   * @param {File} archivoDocumento - Archivo adjunto
+   * @returns {Promise}
+   */
   async crearCheckoutConArchivo(datosCompra, archivoDocumento = null) {
     try {
-      const token = this._getToken();
-      const esUsuarioAutenticado = !!token;
+      console.log('📄 Wompi: Flujo de 2 pasos con archivo');
 
-      const formData = new FormData();
+      let documento_url = null;
 
-      // Comunes
-      formData.append('tipo_compra', datosCompra.tipo_compra);
-
-      // Por tipo (en este front solo lo usaremos con clase_personalizada + archivo)
-      if (datosCompra.tipo_compra === 'clase_personalizada') {
-        formData.append('clase_personalizada_id', datosCompra.clase_personalizada_id);
-        formData.append('fecha_hora', datosCompra.fecha_hora);
-        if (datosCompra.estudiante_timezone) formData.append('estudiante_timezone', datosCompra.estudiante_timezone);
-        if (datosCompra.descripcion_estudiante) formData.append('descripcion_estudiante', datosCompra.descripcion_estudiante);
-      } else if (datosCompra.tipo_compra === 'curso') {
-        formData.append('curso_id', datosCompra.curso_id);
-      } else if (datosCompra.tipo_compra === 'paquete_horas') {
-        formData.append('clase_personalizada_id', datosCompra.clase_personalizada_id);
-        formData.append('cantidad_horas', String(datosCompra.cantidad_horas));
-      }
-
-      if (!esUsuarioAutenticado && datosCompra.estudiante) {
-        formData.append('estudiante[email]', datosCompra.estudiante.email);
-        formData.append('estudiante[password]', datosCompra.estudiante.password);
-        formData.append('estudiante[nombre]', datosCompra.estudiante.nombre);
-        formData.append('estudiante[apellido]', datosCompra.estudiante.apellido);
-        formData.append('estudiante[telefono]', datosCompra.estudiante.telefono);
-        if (datosCompra.estudiante.timezone) formData.append('estudiante[timezone]', datosCompra.estudiante.timezone);
-      }
-
+      // PASO 1: Subir documento si existe
       if (archivoDocumento) {
-        formData.append('documento', archivoDocumento);
+        console.log('📤 PASO 1: Subiendo documento...');
+        const resultadoSubida = await comprasService.subirDocumentoClasePersonalizada(archivoDocumento);
+
+        if (!resultadoSubida.success) {
+          return {
+            success: false,
+            message: resultadoSubida.message || 'Error al subir el documento'
+          };
+        }
+
+        documento_url = resultadoSubida.data.documento_url;
+        console.log('✅ Documento subido:', documento_url);
+      }
+
+      // PASO 2: Crear checkout con documento_url (JSON, no FormData)
+      console.log('🛒 PASO 2: Creando checkout Wompi...');
+
+      const token = this._getToken();
+      const datosEnvio = { ...datosCompra };
+
+      // Si hay JWT, backend ignora estudiante
+      if (token && datosEnvio.estudiante) delete datosEnvio.estudiante;
+
+      // Agregar documento_url si se subió archivo
+      if (documento_url) {
+        datosEnvio.documento_url = documento_url;
       }
 
       const res = await fetch(`${API_URL}/pagos/wompi/checkout`, {
         method: 'POST',
-        headers: this._getHeadersMultipart(),
-        body: formData
+        headers: this._getHeadersJson(),
+        body: JSON.stringify(datosEnvio)
       });
 
       const json = await res.json();
@@ -96,9 +109,12 @@ class WompiService {
       }
 
       localStorage.setItem('ultima_compra_id', json.data.compraId);
+      console.log('✅ Checkout Wompi creado exitosamente');
+
       return { success: true, data: json.data };
+
     } catch (error) {
-      console.error('Wompi crearCheckoutConArchivo error:', error);
+      console.error('❌ Wompi crearCheckoutConArchivo error:', error);
       return { success: false, message: 'Error de conexión creando checkout Wompi' };
     }
   }
