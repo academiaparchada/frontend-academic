@@ -475,35 +475,96 @@ class ComprasService {
 
   // ==================== MÉTODOS DE GESTIÓN ====================
 
-  // Agendar sesión de paquete
-  async agendarSesionPaquete(compraId, datosSesion) {
+  /**
+   * ✅ ACTUALIZADO: Agendar sesión usando paquete de horas CON SOPORTE PARA DOCUMENTOS
+   * Flujo de 2 pasos:
+   * 1. Si hay archivo, subirlo primero → obtener documento_url
+   * 2. Agendar sesión con documento_url (opcional)
+   * 
+   * @param {string} compraId - ID de la compra del paquete
+   * @param {Object} datosSesion - Datos de la sesión
+   * @param {string} datosSesion.fecha_hora - Fecha y hora en formato ISO 8601
+   * @param {number} datosSesion.duracion_horas - Duración en horas (1-8)
+   * @param {string} [datosSesion.descripcion_estudiante] - Descripción opcional
+   * @param {File} [archivo] - Archivo opcional a adjuntar
+   * @returns {Promise}
+   */
+  async agendarSesionPaquete(compraId, datosSesion, archivo = null) {
     try {
-      console.log('Agendando sesión:', compraId, datosSesion);
+      console.log('═══════════════════════════════════════════════');
+      console.log('🚀 INICIANDO AGENDAMIENTO DE SESIÓN CON PAQUETE');
+      console.log('═══════════════════════════════════════════════');
+      console.log('📦 Compra ID:', compraId);
+      console.log('📋 Datos sesión:', datosSesion);
+      console.log('📎 Archivo adjunto:', archivo ? archivo.name : 'ninguno');
+
+      let documento_url = null;
+
+      // ✅ PASO 1: Si hay archivo, subirlo primero
+      if (archivo) {
+        console.log('📤 PASO 1: Subiendo documento...');
+        
+        const resultadoSubida = await this.subirDocumentoClasePersonalizada(archivo);
+        
+        if (!resultadoSubida.success) {
+          console.error('❌ Error subiendo documento:', resultadoSubida.message);
+          return {
+            success: false,
+            message: resultadoSubida.message || 'Error al subir el documento'
+          };
+        }
+
+        documento_url = resultadoSubida.data.documento_url;
+        console.log('✅ Documento subido:', documento_url);
+      } else {
+        console.log('ℹ️ Sin archivo adjunto');
+      }
+
+      // ✅ PASO 2: Agendar sesión (con o sin documento_url)
+      console.log('📅 PASO 2: Agendando sesión...');
+      
+      const payload = {
+        fecha_hora: datosSesion.fecha_hora,
+        duracion_horas: datosSesion.duracion_horas,
+        descripcion_estudiante: datosSesion.descripcion_estudiante || '',
+        ...(documento_url && { documento_url }) // Solo incluir si existe
+      };
+
+      console.log('📤 Payload final:', JSON.stringify(payload, null, 2));
 
       const response = await fetch(`${API_URL}/paquetes-horas/${compraId}/agendar`, {
         method: 'POST',
         headers: this._getHeaders(),
-        body: JSON.stringify(datosSesion)
+        body: JSON.stringify(payload)
       });
 
       const data = await response.json();
-      console.log('Respuesta agendar sesión:', data);
+      console.log('📥 Respuesta del servidor:', JSON.stringify(data, null, 2));
 
-      if (response.ok) {
-        return { success: true, data: data.data };
-      } else {
+      if (!response.ok || !data.success) {
+        console.error('❌ Error agendando sesión:', data.message);
         return {
           success: false,
-          message: data.message || 'Error al agendar sesión',
+          message: data.message || 'Error al agendar la sesión',
           errors: data.errors || []
         };
       }
 
+      console.log('✅ SESIÓN AGENDADA EXITOSAMENTE');
+      console.log('═══════════════════════════════════════════════');
+
+      return {
+        success: true,
+        data: data.data,
+        message: data.message || 'Sesión agendada exitosamente'
+      };
+
     } catch (error) {
-      console.error('Error al agendar sesión:', error);
+      console.error('❌ EXCEPCIÓN al agendar sesión:', error);
+      console.log('═══════════════════════════════════════════════');
       return {
         success: false,
-        message: 'Error de conexión. Intenta de nuevo más tarde.'
+        message: 'Error de conexión al agendar la sesión'
       };
     }
   }
@@ -568,29 +629,41 @@ class ComprasService {
     }
   }
 
-  // Obtener detalle de paquete de horas
+  /**
+   * ✅ ACTUALIZADO: Obtener detalle de paquete de horas con sesiones
+   * @param {string} compraId - ID de la compra del paquete
+   * @returns {Promise}
+   */
   async obtenerDetallePaquete(compraId) {
     try {
+      console.log('🔄 Obteniendo detalle del paquete:', compraId);
+
       const response = await fetch(`${API_URL}/paquetes-horas/${compraId}`, {
+        method: 'GET',
         headers: this._getHeaders()
       });
 
       const data = await response.json();
 
-      if (response.ok) {
-        return { success: true, data: data.data, sesiones: data.sesiones };
-      } else {
+      if (!response.ok || !data.success) {
         return {
           success: false,
-          message: data.message || 'Error al obtener paquete'
+          message: data.message || 'Error al obtener el paquete'
         };
       }
 
+      console.log('✅ Paquete obtenido:', data.data);
+
+      return {
+        success: true,
+        data: data.data // { compra, sesiones, total_sesiones }
+      };
+
     } catch (error) {
-      console.error('Error al obtener paquete:', error);
+      console.error('❌ Error obteniendo paquete:', error);
       return {
         success: false,
-        message: 'Error de conexión.'
+        message: 'Error de conexión al obtener el paquete'
       };
     }
   }

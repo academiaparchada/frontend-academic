@@ -18,11 +18,13 @@ const DetallePaquete = () => {
   // Modal de agendar
   const [modalAbierto, setModalAbierto] = useState(false);
   const [procesando, setProcesando] = useState(false);
+  const [subiendoArchivo, setSubiendoArchivo] = useState(false);
   
   const [nuevaSesion, setNuevaSesion] = useState({
     fecha_hora: '',
     duracion_horas: 1,
-    descripcion_estudiante: ''
+    descripcion_estudiante: '',
+    archivo: null
   });
 
   const [errores, setErrores] = useState({});
@@ -32,34 +34,33 @@ const DetallePaquete = () => {
   }, [compraId]);
 
   const cargarDatos = async () => {
-  try {
-    setLoading(true);
-    setError('');
+    try {
+      setLoading(true);
+      setError('');
 
-    console.log('🔄 Cargando paquete con ID:', compraId);
+      console.log('🔄 Cargando paquete con ID:', compraId);
 
-    const resultado = await comprasService.obtenerDetallePaquete(compraId);
+      const resultado = await comprasService.obtenerDetallePaquete(compraId);
 
-    if (resultado.success) {
-      console.log('✅ Datos del paquete recibidos:', resultado.data);
-      
-      // ✅ CORREGIDO: El backend devuelve { data: { compra, sesiones, total_sesiones } }
-      setPaquete(resultado.data);
-      setSesiones(resultado.data.sesiones || []); // ← Cambio aquí
-      
-      console.log('📊 Sesiones cargadas:', resultado.data.sesiones?.length || 0);
-      console.log('📦 Paquete:', resultado.data.compra);
-    } else {
-      setError(resultado.message || 'Error al cargar el paquete');
+      if (resultado.success) {
+        console.log('✅ Datos del paquete recibidos:', resultado.data);
+        
+        // ✅ CORREGIDO: El backend devuelve { data: { compra, sesiones, total_sesiones } }
+        setPaquete(resultado.data);
+        setSesiones(resultado.data.sesiones || []); // ← FIX: Leer desde resultado.data.sesiones
+        
+        console.log('📊 Sesiones cargadas:', resultado.data.sesiones?.length || 0);
+        console.log('📦 Paquete:', resultado.data.compra);
+      } else {
+        setError(resultado.message || 'Error al cargar el paquete');
+      }
+    } catch (err) {
+      console.error('❌ Error al cargar paquete:', err);
+      setError(err.message || 'Error al cargar el paquete');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error('❌ Error al cargar paquete:', err);
-    setError(err.message || 'Error al cargar el paquete');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const handleChangeSesion = (e) => {
     const { name, value } = e.target;
@@ -74,6 +75,41 @@ const DetallePaquete = () => {
         [name]: ''
       }));
     }
+  };
+
+  // ✅ NUEVO: Manejar selección de archivo
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    
+    if (!file) {
+      setNuevaSesion(prev => ({ ...prev, archivo: null }));
+      setErrores(prev => ({ ...prev, archivo: '' }));
+      return;
+    }
+
+    // Validar archivo
+    const validacion = comprasService.validarArchivo(file);
+    if (!validacion.valido) {
+      setErrores(prev => ({
+        ...prev,
+        archivo: validacion.mensaje
+      }));
+      setNuevaSesion(prev => ({ ...prev, archivo: null }));
+      return;
+    }
+
+    setNuevaSesion(prev => ({ ...prev, archivo: file }));
+    setErrores(prev => ({ ...prev, archivo: '' }));
+    console.log('📎 Archivo seleccionado:', file.name, comprasService.formatearTamanoArchivo(file.size));
+  };
+
+  // ✅ NUEVO: Eliminar archivo seleccionado
+  const handleRemoveFile = () => {
+    setNuevaSesion(prev => ({ ...prev, archivo: null }));
+    setErrores(prev => ({ ...prev, archivo: '' }));
+    // Limpiar el input file
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) fileInput.value = '';
   };
 
   const validarFormulario = () => {
@@ -108,6 +144,14 @@ const DetallePaquete = () => {
       nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
     }
 
+    // Validar archivo si existe
+    if (nuevaSesion.archivo) {
+      const validacion = comprasService.validarArchivo(nuevaSesion.archivo);
+      if (!validacion.valido) {
+        nuevosErrores.archivo = validacion.mensaje;
+      }
+    }
+
     console.log('✅ Validación:', Object.keys(nuevosErrores).length === 0 ? 'PASÓ' : 'FALLÓ', nuevosErrores);
 
     setErrores(nuevosErrores);
@@ -130,6 +174,15 @@ const DetallePaquete = () => {
     setMensaje({ tipo: '', texto: '' });
 
     try {
+      // Mostrar mensaje de progreso si hay archivo
+      if (nuevaSesion.archivo) {
+        setSubiendoArchivo(true);
+        setMensaje({ 
+          tipo: 'info', 
+          texto: '📤 Subiendo documento...' 
+        });
+      }
+
       // Convertir fecha a ISO 8601 con zona horaria
       const fechaISO = comprasService.convertirFechaAISO(nuevaSesion.fecha_hora);
       
@@ -139,6 +192,7 @@ const DetallePaquete = () => {
       console.log('  → Fecha ISO 8601:', fechaISO);
       console.log('  → Duración:', nuevaSesion.duracion_horas, 'hora(s)');
       console.log('  → Descripción:', nuevaSesion.descripcion_estudiante);
+      console.log('  → Archivo:', nuevaSesion.archivo ? nuevaSesion.archivo.name : 'ninguno');
 
       const datosSesion = {
         fecha_hora: fechaISO,
@@ -146,9 +200,14 @@ const DetallePaquete = () => {
         descripcion_estudiante: nuevaSesion.descripcion_estudiante.trim()
       };
 
-      console.log('📤 PAYLOAD:', JSON.stringify(datosSesion, null, 2));
+      // ✅ Llamar al servicio con archivo (nuevo parámetro)
+      const resultado = await comprasService.agendarSesionPaquete(
+        compraId, 
+        datosSesion,
+        nuevaSesion.archivo // ← Pasar archivo opcional
+      );
 
-      const resultado = await comprasService.agendarSesionPaquete(compraId, datosSesion);
+      setSubiendoArchivo(false);
 
       console.log('📥 RESPUESTA COMPLETA:', JSON.stringify(resultado, null, 2));
 
@@ -157,23 +216,30 @@ const DetallePaquete = () => {
         
         setMensaje({ 
           tipo: 'exito', 
-          texto: '¡Sesión agendada exitosamente! 🎉' 
+          texto: nuevaSesion.archivo 
+            ? '¡Sesión agendada con documento adjunto! 🎉' 
+            : '¡Sesión agendada exitosamente! 🎉'
         });
 
         // Limpiar formulario
         setNuevaSesion({
           fecha_hora: '',
           duracion_horas: 1,
-          descripcion_estudiante: ''
+          descripcion_estudiante: '',
+          archivo: null
         });
         setErrores({});
+
+        // Limpiar input file
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
 
         // Recargar datos
         setTimeout(() => {
           setModalAbierto(false);
           setMensaje({ tipo: '', texto: '' });
           cargarDatos();
-        }, 1500);
+        }, 2000);
       } else {
         console.error('❌ ERROR AL AGENDAR:');
         console.error('  → Mensaje:', resultado.message);
@@ -186,6 +252,7 @@ const DetallePaquete = () => {
       }
     } catch (err) {
       console.error('❌ EXCEPCIÓN:', err);
+      setSubiendoArchivo(false);
       setMensaje({ 
         tipo: 'error', 
         texto: 'Error al agendar la sesión. Intenta de nuevo.' 
@@ -235,15 +302,14 @@ const DetallePaquete = () => {
         <div className="error-mensaje">
           <h3>❌ Error</h3>
           <p>{error || 'Paquete no encontrado'}</p>
-          <button onClick={() => navigate('/estudiante/mis-compras')}>
-            Volver a Mis Compras
+          <button onClick={() => navigate('/estudiante/mis-paquetes')}>
+            Volver a Mis Paquetes
           </button>
         </div>
       </div>
     );
   }
 
-  // ✅ CORRECTO: Leer desde paquete.compra
   const horasDisponibles = paquete?.compra?.horas_disponibles
     ?? (paquete?.compra?.horas_totales - paquete?.compra?.horas_usadas) 
     ?? 0;
@@ -255,7 +321,7 @@ const DetallePaquete = () => {
   return (
     <div className="detalle-paquete-container">
       <div className="detalle-header">
-        <button className="btn-volver" onClick={() => navigate('/estudiante/mis-compras')}>
+        <button className="btn-volver" onClick={() => navigate('/estudiante/mis-paquetes')}>
           ← Volver
         </button>
         <h1>Detalle del Paquete</h1>
@@ -379,6 +445,21 @@ const DetallePaquete = () => {
                     </p>
                   )}
 
+                  {/* ✅ NUEVO: Mostrar documento si existe */}
+                  {sesion.documento_url && (
+                    <div className="sesion-documento">
+                      <span className="icon">📎</span>
+                      <a 
+                        href={sesion.documento_url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="documento-link"
+                      >
+                        Ver documento adjunto
+                      </a>
+                    </div>
+                  )}
+
                   {sesion.profesor && (
                     <div className="sesion-profesor">
                       <span className="icon">👨‍🏫</span>
@@ -401,7 +482,7 @@ const DetallePaquete = () => {
 
       {/* Modal para agendar */}
       {modalAbierto && (
-        <div className="modal-overlay" onClick={() => setModalAbierto(false)}>
+        <div className="modal-overlay" onClick={() => !procesando && setModalAbierto(false)}>
           <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>📅 Agendar Nueva Clase</h2>
@@ -446,7 +527,7 @@ const DetallePaquete = () => {
                   disabled={procesando}
                   className={errores.duracion_horas ? 'input-error' : ''}
                 >
-                  {Array.from({ length: Math.min(horasDisponibles, 5) }, (_, i) => i + 1).map(h => (
+                  {Array.from({ length: Math.min(horasDisponibles, 8) }, (_, i) => i + 1).map(h => (
                     <option key={h} value={h}>
                       {h} hora{h > 1 ? 's' : ''}
                     </option>
@@ -476,6 +557,55 @@ const DetallePaquete = () => {
                 )}
               </div>
 
+              {/* ✅ NUEVO: Campo para subir documento */}
+              <div className="form-group">
+                <label>
+                  📎 Documento (opcional) 
+                  <span className="label-info">Máx 25 MB - PDF, Word, Excel, imágenes, ZIP</span>
+                </label>
+                
+                {!nuevaSesion.archivo ? (
+                  <div className="file-input-wrapper">
+                    <input
+                      type="file"
+                      id="archivo"
+                      onChange={handleFileChange}
+                      disabled={procesando}
+                      accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.7z,.png,.jpg,.jpeg,.webp,.txt"
+                      className={errores.archivo ? 'input-error' : ''}
+                    />
+                    <label htmlFor="archivo" className="file-input-label">
+                      📁 Seleccionar archivo
+                    </label>
+                  </div>
+                ) : (
+                  <div className="file-selected">
+                    <div className="file-info">
+                      <span className="file-icon">📄</span>
+                      <div className="file-details">
+                        <span className="file-name">{nuevaSesion.archivo.name}</span>
+                        <span className="file-size">
+                          {comprasService.formatearTamanoArchivo(nuevaSesion.archivo.size)}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveFile}
+                      disabled={procesando}
+                      className="btn-remove-file"
+                      title="Eliminar archivo"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {errores.archivo && (
+                  <span className="error">{errores.archivo}</span>
+                )}
+              </div>
+
               <div className="modal-acciones">
                 <button 
                   type="button"
@@ -493,7 +623,7 @@ const DetallePaquete = () => {
                   {procesando ? (
                     <>
                       <div className="spinner-small"></div>
-                      Agendando...
+                      {subiendoArchivo ? 'Subiendo...' : 'Agendando...'}
                     </>
                   ) : (
                     '✅ Agendar Clase'
