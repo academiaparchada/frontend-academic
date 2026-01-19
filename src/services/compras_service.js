@@ -337,11 +337,296 @@ class ComprasService {
 
   // ==================== MÉTODOS ORIGINALES (DEPRECATED - Usar Mercado Pago) ====================
 
-  // ... (resto de métodos deprecated sin cambios)
+  // Comprar curso (DEPRECATED - Usar iniciarPagoMercadoPago)
+  async comprarCurso(cursoId, datosEstudiante = null) {
+    try {
+      console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
+      console.log('Comprando curso:', cursoId);
+
+      const body = datosEstudiante
+        ? { curso_id: cursoId, estudiante: datosEstudiante }
+        : { curso_id: cursoId };
+
+      const headers = datosEstudiante
+        ? { 'Content-Type': 'application/json' }
+        : this._getHeaders();
+
+      const response = await fetch(`${API_URL}/compras/curso`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      console.log('Respuesta comprar curso:', data);
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al realizar la compra',
+          errors: data.errors || []
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al comprar curso:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
+
+  // Comprar clase personalizada (DEPRECATED - Usar iniciarPagoMercadoPago)
+  async comprarClasePersonalizada(claseId, datosCompra) {
+    try {
+      console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
+      console.log('Comprando clase personalizada:', claseId, datosCompra);
+
+      const body = {
+        clase_personalizada_id: claseId,
+        fecha_hora: datosCompra.fecha_hora,
+        descripcion_estudiante: datosCompra.descripcion_estudiante,
+        estudiante: datosCompra.estudiante
+      };
+
+      const headers = datosCompra.estudiante
+        ? { 'Content-Type': 'application/json' }
+        : this._getHeaders();
+
+      const response = await fetch(`${API_URL}/compras/clase-personalizada`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      console.log('Respuesta comprar clase:', data);
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al realizar la compra',
+          errors: data.errors || []
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al comprar clase:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
+
+  // Comprar paquete de horas (DEPRECATED - Usar iniciarPagoMercadoPago)
+  async comprarPaqueteHoras(claseId, cantidadHoras, datosEstudiante = null) {
+    try {
+      console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
+      console.log('Comprando paquete de horas:', claseId, cantidadHoras);
+
+      const body = datosEstudiante
+        ? {
+            clase_personalizada_id: claseId,
+            cantidad_horas: cantidadHoras,
+            estudiante: datosEstudiante
+          }
+        : {
+            clase_personalizada_id: claseId,
+            cantidad_horas: cantidadHoras
+          };
+
+      const headers = datosEstudiante
+        ? { 'Content-Type': 'application/json' }
+        : this._getHeaders();
+
+      const response = await fetch(`${API_URL}/paquetes-horas`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+      console.log('Respuesta comprar paquete:', data);
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al comprar paquete',
+          errors: data.errors || []
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al comprar paquete:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
 
   // ==================== MÉTODOS DE GESTIÓN ====================
 
-  // ... (sin cambios)
+  // Agendar sesión de paquete
+  async agendarSesionPaquete(compraId, datosSesion) {
+    try {
+      console.log('Agendando sesión:', compraId, datosSesion);
+
+      const response = await fetch(`${API_URL}/paquetes-horas/${compraId}/agendar`, {
+        method: 'POST',
+        headers: this._getHeaders(),
+        body: JSON.stringify(datosSesion)
+      });
+
+      const data = await response.json();
+      console.log('Respuesta agendar sesión:', data);
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al agendar sesión',
+          errors: data.errors || []
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al agendar sesión:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
+
+  // Listar compras del estudiante
+  async listarMisCompras() {
+    try {
+      const response = await fetch(`${API_URL}/compras/estudiante`, {
+        headers: this._getHeaders()
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return {
+          success: true,
+          data: {
+            compras: data.data?.compras || [],
+            total: data.data?.total || 0
+          }
+        };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al obtener compras'
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al listar compras:', error);
+      return {
+        success: false,
+        message: 'Error de conexión.'
+      };
+    }
+  }
+
+  // Obtener detalle de una compra
+  async obtenerDetalleCompra(compraId) {
+    try {
+      const response = await fetch(`${API_URL}/compras/${compraId}`, {
+        headers: this._getHeaders()
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return { success: true, data: data.data };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al obtener detalle'
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al obtener detalle:', error);
+      return {
+        success: false,
+        message: 'Error de conexión.'
+      };
+    }
+  }
+
+  // Obtener detalle de paquete de horas
+  async obtenerDetallePaquete(compraId) {
+    try {
+      const response = await fetch(`${API_URL}/paquetes-horas/${compraId}`, {
+        headers: this._getHeaders()
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return { success: true, data: data.data, sesiones: data.sesiones };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al obtener paquete'
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al obtener paquete:', error);
+      return {
+        success: false,
+        message: 'Error de conexión.'
+      };
+    }
+  }
+
+  // Listar sesiones de un paquete
+  async listarSesionesPaquete(compraId) {
+    try {
+      const response = await fetch(`${API_URL}/paquetes-horas/${compraId}/sesiones`, {
+        headers: this._getHeaders()
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        return {
+          success: true,
+          data: {
+            sesiones: data.data?.sesiones || [],
+            total: data.data?.total || 0
+          }
+        };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Error al obtener sesiones'
+        };
+      }
+
+    } catch (error) {
+      console.error('Error al listar sesiones:', error);
+      return {
+        success: false,
+        message: 'Error de conexión.'
+      };
+    }
+  }
 
   // ==================== UTILIDADES ====================
 
