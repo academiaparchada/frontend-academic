@@ -1,0 +1,573 @@
+/* src/styles/MisPaquetes.css */
+
+.mis-paquetes-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* ===== HEADER ===== */
+.mis-paquetes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.mis-paquetes-header h1 {
+  color: #2d3748;
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+.mis-paquetes-header p {
+  color: #718096;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-comprar-paquete {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-comprar-paquete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-volver {
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-volver:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* ===== ESTADÍSTICAS ===== */
+.estadisticas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-numero {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.stat-card.total .stat-numero { color: #667eea; }
+.stat-card.activos .stat-numero { color: #48bb78; }
+.stat-card.disponibles .stat-numero { color: #ed8936; }
+.stat-card.usadas .stat-numero { color: #e53e3e; }
+
+/* ===== FILTROS ===== */
+.filtros-container {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.btn-filtro {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #4a5568;
+}
+
+.btn-filtro:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.btn-filtro.activo {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
+/* ===== GRID DE PAQUETES ===== */
+.paquetes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.paquete-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.paquete-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.paquete-card.agotado {
+  opacity: 0.7;
+}
+
+/* Header del Card */
+.paquete-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge-pagado {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.badge-pendiente {
+  background: #feebc8;
+  color: #7c2d12;
+}
+
+.badge-fallido {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.badge-agotado {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.fecha-compra {
+  color: #718096;
+  font-size: 0.85rem;
+}
+
+/* Body del Card */
+.paquete-card-body {
+  padding: 2rem 1.5rem;
+  flex: 1;
+}
+
+.paquete-titulo {
+  color: #2d3748;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.4rem;
+  text-align: center;
+}
+
+/* Progreso Circular */
+.paquete-progreso {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  align-items: center;
+}
+
+.progreso-circulo {
+  width: 120px;
+  height: 120px;
+}
+
+.circular-chart {
+  display: block;
+  margin: 10px auto;
+  max-width: 100%;
+  max-height: 120px;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: #edf2f7;
+  stroke-width: 3.8;
+}
+
+.circle {
+  fill: none;
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  stroke: url(#gradient);
+  animation: progress 1s ease-out forwards;
+}
+
+@keyframes progress {
+  0% {
+    stroke-dasharray: 0 100;
+  }
+}
+
+.percentage {
+  fill: #667eea;
+  font-family: sans-serif;
+  font-size: 0.5em;
+  font-weight: bold;
+  text-anchor: middle;
+}
+
+.progreso-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.progreso-detalle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.progreso-detalle:last-child {
+  border-bottom: none;
+}
+
+.progreso-detalle .label {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.progreso-detalle .valor {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #2d3748;
+}
+
+.progreso-detalle .valor.usadas {
+  color: #e53e3e;
+}
+
+.progreso-detalle .valor.disponibles {
+  color: #48bb78;
+}
+
+.progreso-detalle .valor.agotadas {
+  color: #a0aec0;
+}
+
+/* Barra de Progreso */
+.barra-progreso {
+  width: 100%;
+  height: 12px;
+  background: #edf2f7;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.barra-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s ease;
+}
+
+/* Precio */
+.paquete-precio {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 1rem;
+  border-top: 2px dashed #e2e8f0;
+}
+
+.precio-label {
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.precio-valor {
+  color: #667eea;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Footer del Card */
+.paquete-card-footer {
+  padding: 1.5rem;
+  background: #f7fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-agendar-clase {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-agendar-clase:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-ver-historial {
+  width: 100%;
+  padding: 1rem;
+  background: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ver-historial:hover {
+  background: #cbd5e0;
+}
+
+.btn-ver-detalle-secundario {
+  width: 100%;
+  padding: 0.75rem;
+  background: white;
+  color: #667eea;
+  border: 2px solid #667eea;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-ver-detalle-secundario:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* ===== SIN PAQUETES ===== */
+.sin-paquetes {
+  background: white;
+  padding: 4rem 2rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.sin-paquetes-icon {
+  font-size: 5rem;
+  margin-bottom: 1rem;
+}
+
+.sin-paquetes h3 {
+  color: #2d3748;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.sin-paquetes p {
+  color: #718096;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+.btn-comprar-primer-paquete {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-comprar-primer-paquete:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== INFO BOX ===== */
+.info-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.info-box h3 {
+  color: #2d3748;
+  margin-bottom: 1rem;
+}
+
+.info-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.info-box li {
+  color: #4a5568;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.info-box li:last-child {
+  border-bottom: none;
+}
+
+/* ===== LOADING & ERROR ===== */
+.loading-spinner,
+.mensaje-error {
+  background: white;
+  padding: 3rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.spinner {
+  border: 4px solid #f3f4f6;
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mensaje-error {
+  color: #e53e3e;
+  font-weight: 600;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .mis-paquetes-container {
+    padding: 1rem;
+  }
+
+  .mis-paquetes-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .header-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-buttons button {
+    width: 100%;
+  }
+
+  .estadisticas-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filtros-container {
+    flex-direction: column;
+  }
+
+  .paquetes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .paquete-progreso {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .progreso-circulo {
+    margin: 0 auto;
+  }
+}

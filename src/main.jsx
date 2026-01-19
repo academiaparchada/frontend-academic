@@ -34,6 +34,8 @@ import { GoogleCallback } from './pages/GoogleCallback.jsx'
 import ContabilidadAdmin from './pages/admin/ContabilidadAdmin.jsx'
 import ComprasAdmin from './pages/admin/compras.jsx'
 import SesionesPendientes from './pages/admin/sesiones_pendientes.jsx'
+import MisPaquetes from './pages/estudiante/MisPaquetes';
+
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -85,6 +87,7 @@ createRoot(document.getElementById('root')).render(
           {/* Rutas de estudiante */}
           <Route path="/estudiante/mis-compras" element={<MisCompras />} />
           <Route path="/estudiante/paquete/:compraId" element={<DetallePaquete />} />
+          <Route path="/estudiante/mis-paquetes" element={<MisPaquetes />} />
 
           {/* Página principal (App) */}
           <Route path="/" element={<App />} />

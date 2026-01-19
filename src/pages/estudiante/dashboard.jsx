@@ -161,7 +161,7 @@ export const EstudianteDashboard = () => {
           </button>
         </div>
 
-        {/* Paquetes de Horas */}
+       {/* Paquetes de Horas */}
         <div className="dashboard_card">
           <div className="card_icon">⏱️</div>
           <h2 className="card_title">Paquetes de Horas</h2>
@@ -169,11 +169,12 @@ export const EstudianteDashboard = () => {
           <p className="card_description">Horas Disponibles</p>
           <button 
             className="btn_card" 
-            onClick={() => navigate('/estudiante/mis-compras')}
+            onClick={() => navigate('/estudiante/mis-paquetes')}
           >
             Gestionar Paquetes
           </button>
         </div>
+
 
         {/* Mis Cursos Activos */}
         <div className="dashboard_card">

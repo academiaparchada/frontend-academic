@@ -32,30 +32,34 @@ const DetallePaquete = () => {
   }, [compraId]);
 
   const cargarDatos = async () => {
-    try {
-      setLoading(true);
-      setError('');
+  try {
+    setLoading(true);
+    setError('');
 
-      console.log('🔄 Cargando paquete con ID:', compraId);
+    console.log('🔄 Cargando paquete con ID:', compraId);
 
-      const resultado = await comprasService.obtenerDetallePaquete(compraId);
+    const resultado = await comprasService.obtenerDetallePaquete(compraId);
 
-      if (resultado.success) {
-        console.log('✅ Datos del paquete recibidos:', resultado.data);
-        
-        // El backend devuelve: { data: { compra, sesiones, total_sesiones } }
-        setPaquete(resultado.data);
-        setSesiones(resultado.sesiones || []);
-      } else {
-        setError(resultado.message || 'Error al cargar el paquete');
-      }
-    } catch (err) {
-      console.error('❌ Error al cargar paquete:', err);
-      setError(err.message || 'Error al cargar el paquete');
-    } finally {
-      setLoading(false);
+    if (resultado.success) {
+      console.log('✅ Datos del paquete recibidos:', resultado.data);
+      
+      // ✅ CORREGIDO: El backend devuelve { data: { compra, sesiones, total_sesiones } }
+      setPaquete(resultado.data);
+      setSesiones(resultado.data.sesiones || []); // ← Cambio aquí
+      
+      console.log('📊 Sesiones cargadas:', resultado.data.sesiones?.length || 0);
+      console.log('📦 Paquete:', resultado.data.compra);
+    } else {
+      setError(resultado.message || 'Error al cargar el paquete');
     }
-  };
+  } catch (err) {
+    console.error('❌ Error al cargar paquete:', err);
+    setError(err.message || 'Error al cargar el paquete');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleChangeSesion = (e) => {
     const { name, value } = e.target;
