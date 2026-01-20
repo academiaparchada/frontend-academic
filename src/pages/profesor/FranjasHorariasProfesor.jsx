@@ -4,7 +4,7 @@ import CalendarioSemanal from '../../components/CalendarioSemanal';
 import ModalFranja from '../../components/ModalFranja';
 import franjasService from '../../services/franjas_service';
 import authService from '../../services/auth_service';
-import '../../styles/FranjasHorarias.css';
+import '../../styles/profesor-css/FranjasHorarias.css';
 
 const FranjasHorariasProfesor = () => {
   const [franjasPorDia, setFranjasPorDia] = useState({});

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import profesorService from '../../services/profesor_service';
-import '../../styles/profesor_clases.css';
+import '../../styles/profesor-css/profesor_clases.css';
 
 const MisClases = () => {
   const [tabActiva, setTabActiva] = useState('asignadas');

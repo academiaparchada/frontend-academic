@@ -1,6 +1,6 @@
 // src/components/CalendarioSemanal.jsx
 import React from 'react';
-import '../styles/CalendarioSemanal.css';
+import '../styles/components-css/CalendarioSemanal.css';
 
 const DIAS_SEMANA = [
   'lunes',

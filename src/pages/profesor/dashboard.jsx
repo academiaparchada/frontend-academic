@@ -5,7 +5,7 @@ import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import { useAuth } from '../../context/auth_context';
 import profesorService from '../../services/profesor_service';
-import '../../styles/profesor_dashboard.css';
+import '../../styles/profesor-css/profesor_dashboard.css';
 
 export const ProfesorDashboard = () => {
   const navigate = useNavigate();

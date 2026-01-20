@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import '../styles/header.css';  // ← IMPORT CORRECTO CONFIRMADO
+import '../styles/components-css/header.css';  // ← IMPORT CORRECTO CONFIRMADO
 
 export function Header() {
   const navigate = useNavigate();

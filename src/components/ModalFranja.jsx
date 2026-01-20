@@ -1,6 +1,6 @@
 // src/components/ModalFranja.jsx
 import React, { useState, useEffect } from 'react';
-import '../styles/ModalFranja.css';
+import '../styles/components-css/ModalFranja.css';
 import franjasService from '../services/franjas_service';
 
 const DIAS_SEMANA = [

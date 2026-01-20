@@ -6,7 +6,7 @@ import { Footer } from '../../components/footer';
 import { useAuth } from '../../context/auth_context';
 import admin_service from '../../services/admin_service';
 import { formatCOP, toYMD } from '../../utils/format';
-import '../../styles/admin_compras.css';
+import '../../styles/admin-css/admin_compras.css';
 
 const ComprasAdmin = () => {
   const navigate = useNavigate();

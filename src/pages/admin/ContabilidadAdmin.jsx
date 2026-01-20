@@ -16,7 +16,7 @@ import {
   Legend,
 } from 'chart.js';
 
-import '../../styles/ContabilidadAdmin.css';
+import '../../styles/admin-css/ContabilidadAdmin.css';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 

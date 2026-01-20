@@ -6,7 +6,7 @@ import { Footer } from '../../components/footer';
 import { useAuth } from '../../context/auth_context';
 import admin_service from '../../services/admin_service';
 import cursosService from '../../services/cursos_service';
-import '../../styles/sesiones_pendientes.css';
+import '../../styles/components-css/sesiones_pendientes.css';
 
 const SesionesPendientes = () => {
   const navigate = useNavigate();

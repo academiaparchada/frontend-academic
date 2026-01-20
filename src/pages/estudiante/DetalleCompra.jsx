@@ -5,7 +5,7 @@ import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import { ModalMaterialEstudio } from '../../components/ModalMaterialEstudio';
 import comprasService from '../../services/compras_service';
-import '../../styles/DetalleCompra.css';
+import '../../styles/estudiante-css/DetalleCompra.css';
 
 const DetalleCompra = () => {
   const navigate = useNavigate();

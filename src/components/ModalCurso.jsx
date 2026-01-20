@@ -1,7 +1,7 @@
 // src/components/ModalCurso.jsx
 import React, { useState, useEffect } from 'react';
 import cursosService from '../services/cursos_service';
-import '../styles/ModalCurso.css';
+import '../styles/components-css/ModalCurso.css';
 
 const DAYS = [
   { key: 'MON', label: 'Lun' },

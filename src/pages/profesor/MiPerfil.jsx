@@ -4,7 +4,7 @@ import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import { useAuth } from '../../context/auth_context';
 import profesorService from '../../services/profesor_service';
-import '../../styles/profesor_perfil.css';
+import '../../styles/profesor-css/profesor_perfil.css';
 
 export const MiPerfil = () => {
   const { user, updateUser } = useAuth();

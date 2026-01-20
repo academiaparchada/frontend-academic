@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
-import '../../styles/MisPaquetes.css';
+import '../../styles/estudiante-css/MisPaquetes.css';
 
 const MisPaquetes = () => {
   const navigate = useNavigate();

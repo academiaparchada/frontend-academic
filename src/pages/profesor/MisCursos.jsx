@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import profesorService from '../../services/profesor_service';
-import '../../styles/profesor_cursos.css';
+import '../../styles/profesor-css/profesor_cursos.css';
 
 export const MisCursos = () => {
   const [cursos, setCursos] = useState([]);

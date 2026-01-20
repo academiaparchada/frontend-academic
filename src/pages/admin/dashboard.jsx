@@ -6,7 +6,7 @@ import { Footer } from '../../components/footer';
 import { useAuth } from '../../context/auth_context';
 import adminMetricasService from '../../services/admin_metricas_service';
 import contabilidadAdminService from '../../services/contabilidad_admin_service';
-import '../../styles/admin_dashboard.css';
+import '../../styles/admin-css/admin_dashboard.css';
 
 export const AdminDashboard = () => {
   const navigate = useNavigate();

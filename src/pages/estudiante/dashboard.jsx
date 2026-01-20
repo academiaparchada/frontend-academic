@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth_context';
-import '../../styles/estudiante_dashboard.css';
+import '../../styles/estudiante-css/estudiante_dashboard.css';
 
 export const EstudianteDashboard = () => {
   const navigate = useNavigate();

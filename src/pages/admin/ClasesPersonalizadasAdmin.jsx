@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import ModalClasePersonalizada from '../../components/ModalClasePersonalizada';
 import clasesService from '../../services/clases_personalizadas_service';
-import '../../styles/ClasesPersonalizadasAdmin.css';
+import '../../styles/admin-css/ClasesPersonalizadasAdmin.css';
 
 const ClasesPersonalizadasAdmin = () => {
   const [clases, setClases] = useState([]);

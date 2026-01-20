@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
 import { getBrowserTimeZone } from '../../utils/timezone';
-import '../../styles/DetallePaquete.css';
+import '../../styles/estudiante-css/DetallePaquete.css';
 
 const API_URL =
   import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';

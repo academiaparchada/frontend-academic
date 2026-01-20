@@ -1,6 +1,6 @@
 // src/components/ModalClasePersonalizada.jsx
 import React, { useState, useEffect } from 'react';
-import '../styles/ModalClasePersonalizada.css';
+import '../styles/components-css/ModalClasePersonalizada.css';
 import clasesService from '../services/clases_personalizadas_service';
 
 const ModalClasePersonalizada = ({

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
 import { ModalMaterialEstudio } from '../../components/ModalMaterialEstudio';
-import '../../styles/MisCompras.css';
+import '../../styles/estudiante-css/MisCompras.css';
 
 const MisCompras = () => {
   const navigate = useNavigate();

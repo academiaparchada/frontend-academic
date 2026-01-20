@@ -7,9 +7,9 @@ import ModalFranja from '../../components/ModalFranja';
 import franjasService from '../../services/franjas_service';
 
 // Dejamos los CSS como están (según tu mensaje)
-import '../../styles/gestion_profesores_admin.css';
+import '../../styles/admin-css/gestion_profesores_admin.css';
 import '../../styles/profesores.css';
-import '../../styles/FranjasHorarias.css';
+import '../../styles/profesor-css/FranjasHorarias.css';
 
 const API_PROFESORES = 'https://academiaparchada.onrender.com/api/profesores';
 const API_ASIGNATURAS = 'https://academiaparchada.onrender.com/api/asignaturas';

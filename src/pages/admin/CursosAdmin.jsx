@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import ModalCurso from '../../components/ModalCurso';
 import cursosService from '../../services/cursos_service';
-import '../../styles/CursosAdmin.css';
+import '../../styles/admin-css/CursosAdmin.css';
 
 const CursosAdmin = () => {
   const [cursos, setCursos] = useState([]);
