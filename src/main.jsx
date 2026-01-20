@@ -63,7 +63,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
           {/* Admin */}
-          <Route path="/admin/profesores" element={<GestionProfesoresAdmin />} />
+          <Route path="/admin/gestion-profesores" element={<GestionProfesoresAdmin />} />
           <Route path="/admin/asignaturas" element={<AsignaturasPage />} />
           <Route path="/admin/clases-personalizadas" element={<ClasesPersonalizadasAdmin />} />
           <Route path="/admin/cursos" element={<CursosAdmin />} />
