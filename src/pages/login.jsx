@@ -11,7 +11,6 @@ import '../styles/login.css';
 export const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
-  
   const [email, set_email] = useState('');
   const [password, set_password] = useState('');
   const [error, set_error] = useState('');
@@ -23,18 +22,16 @@ export const Login = () => {
     set_loading(true);
 
     const result = await login(email, password);
-    
     set_loading(false);
 
     if (result.success) {
       console.log('Login exitoso - Datos completos:', result);
       console.log('Usuario:', result.data?.user);
       console.log('Rol del usuario:', result.data?.user?.rol);
-      
+
       let user_role = result.data?.user?.rol || result.data?.rol || result.user?.rol;
-      
       console.log('Rol detectado:', user_role);
-      
+
       if (user_role === 'admin' || user_role === 'administrador') {
         console.log('Redirigiendo a dashboard de admin');
         navigate('/admin/dashboard');
@@ -55,10 +52,10 @@ export const Login = () => {
     try {
       set_error('');
       set_loading(true);
-      
       console.log('🔐 Iniciando login con Google...');
+
       const result = await googleAuthService.signInWithGoogle();
-      
+
       if (!result.success) {
         set_error(result.message || 'Error al iniciar sesión con Google');
         set_loading(false);
@@ -80,41 +77,36 @@ export const Login = () => {
     <div className="page">
       <Header />
 
-      <main className="main">
-        <div className="login_container">
-          <div className="login_card">
-            <h1 className="login_title">AQUÍ INICIA ALGO GRANDE.</h1>
-            <p className="login_subtitle">
+      {/* ÚNICO CAMBIO: main -> login-page */}
+      <main className="login-page">
+        <div className="login-container">
+          <div className="login-card">
+            <h1 className="login-title">AQUÍ INICIA ALGO GRANDE.</h1>
+
+            <p className="login-subtitle">
               Estás dando el primer paso para transformar tu forma de aprender.
+              {error && (
+                <div className="error-message">
+                  {error}
+                </div>
+              )}
             </p>
 
-            {error && (
-              <div className="error_message">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handle_submit} className="login_form">
-              <div className="form_group">
-                <label htmlFor="email" className="form_label">
-                  Correo Electrónico:
-                </label>
+            <form onSubmit={handle_submit} className="login-form">
+              <div className="form-group">
+                <label className="form-label">Correo Electronico:</label>
                 <input
                   type="email"
-                  id="email"
-                  className="form_input"
+                  className="form-input"
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
-                  placeholder="Ingresa tu correo electrónico "
                   required
                   disabled={loading}
                 />
               </div>
 
-              <div className="form_group">
-                <label htmlFor="password" className="form_label">
-                  Contraseña:
-                </label>
+              <div className="form-group">
+                <label className="form-label">Contraseña:</label>
                 <PasswordInput
                   name="password"
                   value={password}
@@ -125,36 +117,32 @@ export const Login = () => {
                 />
               </div>
 
-              <button type="submit" className="btn_login" disabled={loading}>
+              <button type="submit" className="btn-login" disabled={loading}>
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
-
-              <div className="forgot_pass">
-                ¿Olvidaste tu contraseña?{' '}
-                <a href="#" onClick={handle_forgot_password} className="link_recovery">
-                  Recupérala aquí.
-                </a>
-              </div>
             </form>
 
-            <div className="divider">
-              <span className="divider_line"></span>
-              <span className="divider_text">O Inicia Con</span>
-              <span className="divider_line"></span>
+            <div className="forgot-password">
+              ¿Olvidaste tu contraseña?{' '}
+              <a href="#" onClick={handle_forgot_password} className="link-recovery">
+                Recupérala aquí.
+              </a>
             </div>
 
-            <div className="social_login">
+            <div className="divider">
+              <span className="divider-line"></span>
+              <span className="divider-text">O Inicia Con</span>
+              <span className="divider-line"></span>
+            </div>
+
+            <div className="social-login">
               <button
-                className="btn_social"
+                className="btn-social"
                 onClick={handle_google_login}
                 aria-label="Iniciar sesión con Google"
                 disabled={loading}
               >
-                <img 
-                  src="/images/google.png" 
-                  alt="Google" 
-                  className="social_icon"
-                />
+                <img src="/images/google.png" alt="Google" className="social-icon" />
               </button>
             </div>
           </div>

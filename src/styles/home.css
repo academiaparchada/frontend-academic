@@ -1200,3 +1200,15 @@
     font-size: 2rem;
   }
 }
+/* FIX HEADER EN HOME - AL FINAL DEL ARCHIVO */
+.header,
+.header * {
+  background-color: var(--teal) !important;
+  color: var(--beige) !important;
+  border-color: var(--teal) !important;
+}
+
+.header_btn--outline {
+  border-color: var(--beige) !important;
+  color: var(--beige) !important;
+}
