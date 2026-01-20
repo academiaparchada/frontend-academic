@@ -24,8 +24,13 @@ const CheckoutClase = () => {
   const [archivoAdjunto, setArchivoAdjunto] = useState(null);
   const [errorArchivo, setErrorArchivo] = useState('');
 
+  // Estados para disponibilidad
+  const [fechaSeleccionada, setFechaSeleccionada] = useState('');
+  const [disponibilidad, setDisponibilidad] = useState(null);
+  const [loadingDisponibilidad, setLoadingDisponibilidad] = useState(false);
+  const [franjaSeleccionada, setFranjaSeleccionada] = useState(null);
+
   const [datosClase, setDatosClase] = useState({
-    fecha_hora: '',
     descripcion_estudiante: ''
   });
 
@@ -44,6 +49,13 @@ const CheckoutClase = () => {
   useEffect(() => {
     cargarClase();
   }, [claseId]);
+
+  // Auto-consultar disponibilidad cuando cambia la fecha
+  useEffect(() => {
+    if (fechaSeleccionada && clase) {
+      consultarDisponibilidad();
+    }
+  }, [fechaSeleccionada]);
 
   const cargarClase = async () => {
     try {
@@ -75,6 +87,49 @@ const CheckoutClase = () => {
       setError('Error al cargar la clase');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const consultarDisponibilidad = async () => {
+    setLoadingDisponibilidad(true);
+    setDisponibilidad(null);
+    setFranjaSeleccionada(null);
+    setMensaje({ tipo: '', texto: '' });
+
+    try {
+      const response = await fetch(
+        `https://academiaparchada.onrender.com/api/disponibilidad/franjas?` +
+        `fecha=${fechaSeleccionada}&` +
+        `asignatura_id=${clase.asignatura_id}&` +
+        `duracion_horas=${clase.duracion_horas}&` +
+        `timezone=${datosUsuario.timezone || 'America/Bogota'}`
+      );
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setDisponibilidad(data.data);
+
+        if (data.data.total === 0) {
+          setMensaje({ 
+            tipo: 'error', 
+            texto: '😕 No hay horarios disponibles para esta fecha. Intenta con otra fecha.' 
+          });
+        }
+      } else {
+        setMensaje({ 
+          tipo: 'error', 
+          texto: data.message || 'Error al consultar disponibilidad' 
+        });
+      }
+    } catch (err) {
+      console.error('❌ Error al consultar disponibilidad:', err);
+      setMensaje({ 
+        tipo: 'error', 
+        texto: 'Error al consultar disponibilidad. Intenta de nuevo.' 
+      });
+    } finally {
+      setLoadingDisponibilidad(false);
     }
   };
 
@@ -140,21 +195,22 @@ const CheckoutClase = () => {
   const validarFormulario = () => {
     const nuevosErrores = {};
 
-    if (!datosClase.fecha_hora) {
-      nuevosErrores.fecha_hora = 'La fecha y hora son obligatorias';
-    } else {
-      const fechaSeleccionada = new Date(datosClase.fecha_hora);
-      const ahora = new Date();
-      
-      if (fechaSeleccionada <= ahora) {
-        nuevosErrores.fecha_hora = 'La fecha debe ser futura';
-      }
+    // Validar fecha seleccionada
+    if (!fechaSeleccionada) {
+      nuevosErrores.fecha = 'Debes seleccionar una fecha';
     }
 
+    // Validar franja seleccionada
+    if (!franjaSeleccionada) {
+      nuevosErrores.franja = 'Debes seleccionar un horario disponible';
+    }
+
+    // Validar descripción
     if (!datosClase.descripcion_estudiante || datosClase.descripcion_estudiante.trim().length < 10) {
       nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
     }
 
+    // Validar datos de usuario nuevo
     if (esNuevoUsuario) {
       if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
         nuevosErrores.email = 'Email inválido';
@@ -193,7 +249,7 @@ const CheckoutClase = () => {
     const datosCompra = {
       tipo_compra: 'clase_personalizada',
       clase_personalizada_id: claseId,
-      fecha_hora: comprasService.convertirFechaAISO(datosClase.fecha_hora),
+      fecha_hora: franjaSeleccionada.fecha_hora_inicio_iso, // ← USAR ISO DEL ENDPOINT
       descripcion_estudiante: datosClase.descripcion_estudiante,
       estudiante_timezone: datosUsuario.timezone || 'America/Bogota'
     };
@@ -352,12 +408,26 @@ const CheckoutClase = () => {
               </div>
             </div>
 
+            {franjaSeleccionada && (
+              <div className="info-box" style={{ background: '#d4edda', borderLeftColor: '#28a745' }}>
+                <p>
+                  ✅ <strong>Horario seleccionado</strong>
+                </p>
+                <p className="info-small">
+                  📅 {fechaSeleccionada} de {franjaSeleccionada.hora_inicio.substring(0, 5)} a {franjaSeleccionada.hora_fin.substring(0, 5)}
+                </p>
+                <p className="info-small">
+                  👨‍🏫 Profesor: {franjaSeleccionada.profesor.nombre} {franjaSeleccionada.profesor.apellido}
+                </p>
+              </div>
+            )}
+
             <div className="info-box">
               <p>
-                ✨ <strong>Profesor asignado automáticamente</strong>
+                ✨ <strong>Profesor asignado según tu horario</strong>
               </p>
               <p className="info-small">
-                El sistema asignará el mejor profesor disponible según tu horario
+                Selecciona un horario disponible y confirmaremos al profesor
               </p>
             </div>
 
@@ -376,26 +446,78 @@ const CheckoutClase = () => {
               </div>
             )}
 
-            <h2>📅 Detalles de la Clase</h2>
+            <h2>📅 Selecciona Fecha y Horario</h2>
 
+            {/* PASO 1: Seleccionar fecha */}
             <div className="form-group">
-              <label>Fecha y Hora *</label>
+              <label>Fecha de la clase *</label>
               <input
-                type="datetime-local"
-                name="fecha_hora"
-                value={datosClase.fecha_hora}
-                onChange={handleChangeClase}
+                type="date"
+                value={fechaSeleccionada}
+                onChange={(e) => setFechaSeleccionada(e.target.value)}
                 disabled={procesando || procesandoWompi}
-                className={errores.fecha_hora ? 'input-error' : ''}
-                min={new Date().toISOString().slice(0, 16)}
+                className={errores.fecha ? 'input-error' : ''}
+                min={new Date().toISOString().split('T')[0]}
               />
-              {errores.fecha_hora && (
-                <span className="error">{errores.fecha_hora}</span>
+              {errores.fecha && (
+                <span className="error">{errores.fecha}</span>
               )}
               <span className="help-text">
-                Selecciona cuándo quieres tomar la clase
+                Selecciona la fecha para ver horarios disponibles
               </span>
             </div>
+
+            {/* Loading de disponibilidad */}
+            {loadingDisponibilidad && (
+              <div className="disponibilidad-loading">
+                <div className="spinner-small"></div>
+                <span>Consultando disponibilidad...</span>
+              </div>
+            )}
+
+            {/* PASO 2: Mostrar franjas disponibles */}
+            {disponibilidad && disponibilidad.total > 0 && (
+              <div className="form-group">
+                <label>Horarios disponibles ({disponibilidad.total} opciones) *</label>
+                <div className="franjas-lista">
+                  {disponibilidad.franjas_disponibles.map((franja) => (
+                    <label
+                      key={franja.fecha_hora_inicio_iso}
+                      className={`franja-item ${
+                        franjaSeleccionada?.fecha_hora_inicio_iso === franja.fecha_hora_inicio_iso
+                          ? 'franja-seleccionada'
+                          : ''
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="horario"
+                        value={franja.fecha_hora_inicio_iso}
+                        checked={franjaSeleccionada?.fecha_hora_inicio_iso === franja.fecha_hora_inicio_iso}
+                        onChange={() => setFranjaSeleccionada(franja)}
+                        disabled={procesando || procesandoWompi}
+                      />
+                      <div className="franja-info">
+                        <div className="franja-hora">
+                          {franja.hora_inicio.substring(0, 5)} - {franja.hora_fin.substring(0, 5)}
+                        </div>
+                        <div className="franja-profesor">
+                          👨‍🏫 {franja.profesor.nombre} {franja.profesor.apellido}
+                        </div>
+                        <div className="franja-duracion">
+                          ⏱️ {franja.duracion_horas} hora{franja.duracion_horas > 1 ? 's' : ''}
+                        </div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+                {errores.franja && (
+                  <span className="error">{errores.franja}</span>
+                )}
+              </div>
+            )}
+
+            <h2>📝 Detalles de la Clase</h2>
 
             <div className="form-group">
               <label>¿Qué necesitas aprender? *</label>

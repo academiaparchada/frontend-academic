@@ -1017,3 +1017,108 @@
     font-size: 0.9rem;
   }
 }
+/* ===== Fecha + franjas en modal ===== */
+
+.fecha-disponibilidad {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.fecha-disponibilidad input[type="date"] {
+  flex: 1;
+}
+
+.btn-secundario-fecha {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #edf2f7;
+  color: #2d3748;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-secundario-fecha:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #1a202c;
+}
+
+.btn-secundario-fecha:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Lista de franjas */
+
+.franjas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.franja-item {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #e2e8f0;
+  background: #f7fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.franja-item:hover {
+  border-color: #667eea;
+  background: #edf2ff;
+}
+
+.franja-item.seleccionada {
+  border-color: #667eea;
+  background: #ebf4ff;
+  box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+}
+
+.franja-item input[type="radio"] {
+  margin-top: 0.3rem;
+}
+
+.franja-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.franja-hora {
+  font-weight: 700;
+  color: #2d3748;
+  font-size: 0.95rem;
+}
+
+.franja-profesor {
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.franja-detalle {
+  font-size: 0.8rem;
+  color: #718096;
+}
+
+/* Responsive franjas */
+
+@media (max-width: 768px) {
+  .fecha-disponibilidad {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-secundario-fecha {
+    width: 100%;
+    text-align: center;
+  }
+}
