@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import ModalCurso from '../../components/ModalCurso';
 import cursosService from '../../services/cursos_service';
+import { ModalMaterialEstudio } from '../../components/ModalMaterialEstudio';
 import '../../styles/admin-css/CursosAdmin.css';
 
 const CursosAdmin = () => {
@@ -13,6 +14,9 @@ const CursosAdmin = () => {
   const [error, setError] = useState('');
   const [pagination, setPagination] = useState({});
   const [page, setPage] = useState(1);
+  const [modalMaterial, setModalMaterial] = useState(false);
+  const [cursoMaterial, setCursoMaterial] = useState(null);
+
 
   const [filtros, setFiltros] = useState({
     estado: '',
@@ -160,6 +164,17 @@ const CursosAdmin = () => {
   const handleCursoSaved = () => {
     cargarCursos();
   };
+
+  const gestionarMaterial = (curso) => {
+    setCursoMaterial(curso);
+    setModalMaterial(true);
+  };
+
+  const cerrarModalMaterial = () => {
+    setModalMaterial(false);
+    setCursoMaterial(null);
+  };
+
 
   const handleFiltroChange = (campo, valor) => {
     setFiltros(prev => ({
@@ -390,6 +405,13 @@ const CursosAdmin = () => {
 
                 <div className="curso-acciones">
                   <button
+                    className="btn-gestionar-material"
+                    onClick={() => gestionarMaterial(curso)}
+                    title="Gestionar material del curso"
+                  >
+                    📚 Material
+                  </button>
+                  <button
                     className="btn-editar"
                     onClick={() => handleEditarCurso(curso)}
                     title="Editar curso"
@@ -464,6 +486,11 @@ const CursosAdmin = () => {
         profesores={profesores}
         franjasHorarias={franjasHorarias}
         onCursoSaved={handleCursoSaved}
+      />
+      <ModalMaterialEstudio
+        isOpen={modalMaterial}
+        onClose={cerrarModalMaterial}
+        curso={cursoMaterial}
       />
     </div>
   );

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
+import { ModalMaterialEstudio } from '../../components/ModalMaterialEstudio';
 import profesorService from '../../services/profesor_service';
 import '../../styles/profesor-css/profesor_cursos.css';
 
@@ -17,6 +18,10 @@ export const MisCursos = () => {
   const [inscritosActuales, setInscritosActuales] = useState([]);
   const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
   const [loadingInscritos, setLoadingInscritos] = useState(false);
+
+  // Modal de material
+  const [modalMaterial, setModalMaterial] = useState(false);
+  const [cursoMaterial, setCursoMaterial] = useState(null);
 
   useEffect(() => {
     cargarCursos();
@@ -63,10 +68,20 @@ export const MisCursos = () => {
     }
   };
 
+  const gestionarMaterial = (curso) => {
+    setCursoMaterial(curso);
+    setModalMaterial(true);
+  };
+
   const cerrarModal = () => {
     setModalInscritos(false);
     setCursoSeleccionado(null);
     setInscritosActuales([]);
+  };
+
+  const cerrarModalMaterial = () => {
+    setModalMaterial(false);
+    setCursoMaterial(null);
   };
 
   const obtenerBadgeTipo = (tipo) => {
@@ -144,12 +159,20 @@ export const MisCursos = () => {
                         )}
                       </div>
 
-                      <button 
-                        className="btn-ver-inscritos" 
-                        onClick={() => verInscritos(curso)}
-                      >
-                        👥 Ver Inscritos
-                      </button>
+                      <div className="curso-acciones">
+                        <button 
+                          className="btn-ver-inscritos" 
+                          onClick={() => verInscritos(curso)}
+                        >
+                          👥 Ver Inscritos
+                        </button>
+                        <button 
+                          className="btn-gestionar-material" 
+                          onClick={() => gestionarMaterial(curso)}
+                        >
+                          📚 Material
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -214,6 +237,13 @@ export const MisCursos = () => {
               </div>
             </div>
           )}
+
+          {/* Modal de Material de Estudio */}
+          <ModalMaterialEstudio
+            isOpen={modalMaterial}
+            onClose={cerrarModalMaterial}
+            curso={cursoMaterial}
+          />
         </div>
       </main>
       <Footer />

@@ -631,3 +631,40 @@
     height: 150px;
   }
 }
+
+/* Botón de gestionar material */
+.btn-gestionar-material {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 0.625rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-gestionar-material:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+}
+
+.curso-acciones {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .curso-acciones {
+    flex-direction: column;
+  }
+  
+  .btn-gestionar-material,
+  .btn-editar,
+  .btn-eliminar {
+    width: 100%;
+  }
+}

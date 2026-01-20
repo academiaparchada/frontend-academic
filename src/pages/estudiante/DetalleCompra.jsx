@@ -88,6 +88,17 @@ const DetalleCompra = () => {
   const esCurso = compra.tipo_compra === 'curso';
   const estaPagado = compra.estado_pago === 'pagado';
 
+  // Debug temporal
+  console.log('🔍 Debug DetalleCompra:', {
+    tipo_compra: compra.tipo_compra,
+    esCurso,
+    estado_pago: compra.estado_pago,
+    estaPagado,
+    mostrarBoton: esCurso && estaPagado,
+    tieneCurso: !!compra.curso,
+    cursoId: compra.curso?.id
+  });
+
   return (
     <div className="page">
       <Header />
@@ -112,12 +123,16 @@ const DetalleCompra = () => {
 
             <h2>{compra.curso?.nombre || compra.clase_personalizada?.asignatura?.nombre}</h2>
 
-            {/* Botón de Material (solo para cursos pagados) */}
-            {esCurso && estaPagado && (
+            {/* Botón de Material - Mostrar siempre para cursos */}
+            {compra.curso && (
               <div className="acciones-curso">
                 <button className="btn-material-grande" onClick={handleVerMaterial}>
                   📚 Ver Material de Estudio
                 </button>
+                {/* Debug: Mostrar estado */}
+                <small style={{ display: 'block', marginTop: '0.5rem', color: '#666', fontSize: '0.875rem' }}>
+                  Estado: {compra.estado_pago} | Tipo: {compra.tipo_compra}
+                </small>
               </div>
             )}
 
@@ -193,7 +208,7 @@ const DetalleCompra = () => {
       <Footer />
 
       {/* Modal de Material de Estudio */}
-      {esCurso && (
+      {compra.curso && (
         <ModalMaterialEstudio
           isOpen={modalMaterialOpen}
           onClose={cerrarModalMaterial}
