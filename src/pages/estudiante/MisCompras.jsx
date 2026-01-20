@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
+import { ModalMaterialEstudio } from '../../components/ModalMaterialEstudio';
 import '../../styles/MisCompras.css';
 
 const MisCompras = () => {
@@ -9,6 +10,10 @@ const MisCompras = () => {
   const [compras, setCompras] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  // Estados para el modal de material
+  const [modalMaterialOpen, setModalMaterialOpen] = useState(false);
+  const [cursoSeleccionado, setCursoSeleccionado] = useState(null);
 
   useEffect(() => {
     cargarCompras();
@@ -38,6 +43,16 @@ const MisCompras = () => {
     } else {
       navigate(`/estudiante/compra/${compra.id}`);
     }
+  };
+
+  const handleVerMaterial = (compra) => {
+    setCursoSeleccionado(compra.curso);
+    setModalMaterialOpen(true);
+  };
+
+  const cerrarModalMaterial = () => {
+    setModalMaterialOpen(false);
+    setCursoSeleccionado(null);
   };
 
   const filtrarPorTipo = (tipo) => {
@@ -99,6 +114,7 @@ const MisCompras = () => {
           <div className="compras-grid">
             {cursos.map(compra => {
               const badgeEstado = comprasService.obtenerBadgeEstadoPago(compra.estado_pago);
+              const pagado = compra.estado_pago === 'pagado';
               
               return (
                 <div key={compra.id} className="compra-card">
@@ -130,12 +146,23 @@ const MisCompras = () => {
                     <span className="precio">
                       {comprasService.formatearPrecio(compra.monto_total)}
                     </span>
-                    <button 
-                      className="btn-ver-detalle"
-                      onClick={() => handleVerDetalle(compra)}
-                    >
-                      Ver Detalle
-                    </button>
+                    <div className="compra-acciones">
+                      {pagado && (
+                        <button 
+                          className="btn-material"
+                          onClick={() => handleVerMaterial(compra)}
+                          title="Ver material de estudio"
+                        >
+                          📚 Material
+                        </button>
+                      )}
+                      <button 
+                        className="btn-ver-detalle"
+                        onClick={() => handleVerDetalle(compra)}
+                      >
+                        Ver Detalle
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -265,6 +292,13 @@ const MisCompras = () => {
           </div>
         </div>
       )}
+
+      {/* Modal de Material de Estudio */}
+      <ModalMaterialEstudio
+        isOpen={modalMaterialOpen}
+        onClose={cerrarModalMaterial}
+        curso={cursoSeleccionado}
+      />
     </div>
   );
 };

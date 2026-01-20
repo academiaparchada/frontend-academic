@@ -24,6 +24,7 @@ import CheckoutClase from './pages/CheckoutClase.jsx'
 import CheckoutPaquete from './pages/CheckoutPaquete.jsx'
 import MisCompras from './pages/estudiante/MisCompras.jsx'
 import DetallePaquete from './pages/estudiante/DetallePaquete.jsx'
+import DetalleCompra from './pages/estudiante/DetalleCompra.jsx'
 import ClasesPersonalizadasPublico from './pages/ClasesPersonalizadasPublico.jsx'
 import PagoExitoso from './pages/PagoExitoso.jsx'
 import PagoPendiente from './pages/PagoPendiente.jsx'
@@ -88,6 +89,7 @@ createRoot(document.getElementById('root')).render(
           {/* Rutas de estudiante */}
           <Route path="/estudiante/mis-compras" element={<MisCompras />} />
           <Route path="/estudiante/paquete/:compraId" element={<DetallePaquete />} />
+          <Route path="/estudiante/compra/:compraId" element={<DetalleCompra />} />
           <Route path="/estudiante/mis-paquetes" element={<MisPaquetes />} />
 
           {/* Página principal (App) */}

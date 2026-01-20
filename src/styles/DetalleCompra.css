@@ -1,0 +1,252 @@
+/* src/styles/DetalleCompra.css */
+
+.detalle-compra-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.detalle-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.detalle-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #1f2937;
+}
+
+.btn-volver {
+  background-color: #f3f4f6;
+  color: #374151;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-volver:hover {
+  background-color: #e5e7eb;
+  transform: translateX(-2px);
+}
+
+.detalle-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.detalle-estado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.badge {
+  padding: 0.375rem 0.875rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.badge.pagado {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.badge.pendiente {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.badge.fallido {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+.fecha {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.detalle-card h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  color: #111827;
+}
+
+.acciones-curso {
+  margin-bottom: 2rem;
+}
+
+.btn-material-grande {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+  width: 100%;
+}
+
+.btn-material-grande:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.btn-material-grande:active {
+  transform: translateY(0);
+}
+
+.detalle-info {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-item {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item.descripcion {
+  grid-template-columns: 1fr;
+}
+
+.info-item .label {
+  font-weight: 700;
+  color: #374151;
+}
+
+.info-item .valor {
+  color: #1f2937;
+}
+
+.info-item .valor.mono {
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  background-color: #f3f4f6;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+}
+
+.info-item.descripcion .valor {
+  margin-top: 0.5rem;
+  line-height: 1.6;
+}
+
+.detalle-pago {
+  background-color: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.detalle-pago h3 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+  color: #78350f;
+}
+
+.error-container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.error-container h2 {
+  color: #dc2626;
+  margin-bottom: 1.5rem;
+}
+
+.btn-back {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-back:hover {
+  background-color: #2563eb;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #6b7280;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .detalle-compra-container {
+    padding: 1rem;
+  }
+
+  .detalle-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .detalle-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .detalle-card {
+    padding: 1.5rem;
+  }
+
+  .info-item {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
+
+  .btn-material-grande {
+    font-size: 1rem;
+    padding: 0.875rem 1.5rem;
+  }
+}
