@@ -409,9 +409,10 @@
 }
 
 .clase-thumb-fallback{
-  color: #667085;
+  color: var(--muted);
   font-weight: 700;
 }
+
 
 /* Responsive */
 @media (max-width: 1200px){
@@ -480,4 +481,17 @@
   .btn-page{
     width: 100%;
   }
+}
+/* FIX: evitar que estilos globales de .title pinten el h1 morado */
+.clases-header .title{
+  color: var(--teal-800);
+}
+/* Override fuerte: quitar gradiente morado del título */
+.clases-admin-container .clases-header h1,
+.clases-admin-container .clases-header h1.title {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+  color: var(--teal-800) !important;
 }

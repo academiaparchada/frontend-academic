@@ -8,10 +8,10 @@
 }
 
 .dia-columna {
-  background: #f8f9fa;
+  background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  border: 2px solid #e9ecef;
+  border: 2px solid #e0e0e0;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -21,8 +21,9 @@
 }
 
 .dia-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  /* ANTES: morado/azul */
+  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
+  color: #ffffff;
   padding: 1rem;
   text-align: center;
 }
@@ -34,38 +35,40 @@
 }
 
 .btn-agregar-franja {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
   padding: 0.4rem 0.8rem;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
   width: 100%;
 }
 
 .btn-agregar-franja:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
 }
 
 .franjas-lista {
   padding: 0.75rem;
   min-height: 150px;
+  background: #f5f0e8;
 }
 
 .franja-item {
-  background: white;
-  border-left: 4px solid #3498db;
+  background: #ffffff;
+  border-left: 4px solid #5b9999; /* ANTES: azul */
   padding: 0.75rem;
   margin-bottom: 0.5rem;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
   transition: all 0.2s;
 }
 
 .franja-item:hover {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   transform: translateX(2px);
 }
 
@@ -76,17 +79,17 @@
   gap: 0.3rem;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #2d5555; /* ANTES: #2c3e50 */
   font-size: 0.9rem;
 }
 
 .hora-inicio,
 .hora-fin {
-  color: #3498db;
+  color: #4a8080; /* ANTES: azul */
 }
 
 .separador {
-  color: #95a5a6;
+  color: #666;
 }
 
 .franja-acciones {
@@ -102,21 +105,21 @@
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0.3rem 0.5rem;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: background 0.2s;
 }
 
 .btn-editar:hover {
-  background: #e8f4f8;
+  background: rgba(91, 153, 153, 0.12);
 }
 
 .btn-eliminar:hover {
-  background: #ffe8e8;
+  background: rgba(220, 53, 69, 0.12);
 }
 
 .sin-franjas {
   text-align: center;
-  color: #95a5a6;
+  color: #666;
   padding: 2rem 1rem;
   font-style: italic;
   font-size: 0.9rem;

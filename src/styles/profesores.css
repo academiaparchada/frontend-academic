@@ -297,12 +297,21 @@
   left: 0;
   right: 0;
   bottom: 0;
+
   background-color: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
+
+  /* CAMBIO: antes estaba centrado; así se “atasca” cuando el contenido es alto */
+  align-items: flex-start;
   justify-content: center;
+
   z-index: 1000;
   padding: 1rem;
+
+  /* CAMBIO: permitir scroll si el contenido excede el viewport */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
   animation: fadeIn 0.3s ease;
 }
 
@@ -316,8 +325,14 @@
   border-radius: 1rem;
   width: 100%;
   max-width: 700px;
-  max-height: 90vh;
-  overflow-y: auto;
+
+  /* CAMBIO: estructura para controlar scroll interno */
+  display: flex;
+  flex-direction: column;
+
+  max-height: calc(100vh - 2rem);
+  overflow: hidden;
+
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideUp 0.3s ease;
 }
@@ -339,6 +354,9 @@
   align-items: center;
   padding: 2rem;
   border-bottom: 1px solid #e0e0e0;
+
+  /* CAMBIO */
+  flex: 0 0 auto;
 }
 
 .modal-header h2 {
@@ -368,6 +386,11 @@
 }
 
 .modal-form {
+  /* CAMBIO: el scroll real vive aquí */
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
   padding: 2rem;
 }
 
@@ -479,7 +502,12 @@
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
-  margin-top: 2rem;
+
+  /* CAMBIO: evitar que los botones queden “fuera” */
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+
+  flex: 0 0 auto;
 }
 
 .btn-cancel {
