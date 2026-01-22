@@ -1,5 +1,5 @@
 // src/pages/admin/GestionProfesoresAdmin.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 
 import CalendarioSemanal from '../../components/CalendarioSemanal';
@@ -11,11 +11,15 @@ import '../../styles/admin-css/gestion_profesores_admin.css';
 import '../../styles/profesores.css';
 import '../../styles/profesor-css/FranjasHorarias.css';
 
+import { getAllTimeZoneOptions } from '../../utils/timezone';
+
 const API_PROFESORES = 'https://academiaparchada.onrender.com/api/profesores';
 const API_ASIGNATURAS = 'https://academiaparchada.onrender.com/api/asignaturas';
 
 const GestionProfesoresAdmin = () => {
   const token = localStorage.getItem('token');
+
+  const timeZoneOptions = useMemo(() => getAllTimeZoneOptions(), []);
 
   // =========================
   // SECCIÓN: PROFESORES (copiada de ProfesoresPage.jsx)
@@ -26,16 +30,20 @@ const GestionProfesoresAdmin = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+
   const [showModalProfesor, setShowModalProfesor] = useState(false);
   const [showCredentials, setShowCredentials] = useState(false);
   const [credencialesTemporales, setCredencialesTemporales] = useState(null);
+
   const [formData, setFormData] = useState({
     email: '',
     nombre: '',
     apellido: '',
     telefono: '',
-    asignaturas: []
+    asignaturas: [],
+    timezone: '' // NUEVO
   });
+
   const [editingId, setEditingId] = useState(null);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,18 +72,6 @@ const GestionProfesoresAdmin = () => {
     loadAsignaturas();
   }, []);
 
-  // Mantener comportamiento original: cargar lista de profesores también para franjas
-  // (pero sin sobreescribir el state de profesores ya usado por la tabla)
-  // En la práctica usamos la misma lista `profesores` para selector de franjas.
-  // El componente original de franjas también se alimentaba de /api/profesores.
-  useEffect(() => {
-    // Nada adicional; `profesores` ya se está cargando arriba.
-    // Si quisieras que el selector de franjas traiga TODOS (sin paginación),
-    // ahí sí habría que hacer una segunda petición. Por ahora queda igual al original:
-    // en el original llamaba /api/profesores sin page/limit (tendía a traer todo).
-  }, []);
-
-  // Cargar franjas cuando se selecciona un profesor
   useEffect(() => {
     if (profesorSeleccionado) {
       cargarFranjasProfesor(profesorSeleccionado.id);
@@ -95,6 +91,7 @@ const GestionProfesoresAdmin = () => {
           'Content-Type': 'application/json'
         }
       });
+
       const data = await response.json();
 
       if (data.success) {
@@ -102,8 +99,6 @@ const GestionProfesoresAdmin = () => {
         setTotalPages(data.data.pagination.totalPages);
         setTotal(data.data.pagination.total);
 
-        // Si no hay seleccionado aún, selecciona el primero para franjas (mejora de UX)
-        // No altera el funcionamiento de profesores
         if (!profesorSeleccionado && Array.isArray(data.data.profesores) && data.data.profesores.length > 0) {
           setProfesorSeleccionado(data.data.profesores[0]);
         }
@@ -122,7 +117,6 @@ const GestionProfesoresAdmin = () => {
     try {
       const response = await fetch(`${API_ASIGNATURAS}?page=1&limit=100`);
       const data = await response.json();
-
       if (data.success) {
         setAsignaturasDisponibles(data.data.asignaturas);
       }
@@ -192,6 +186,11 @@ const GestionProfesoresAdmin = () => {
 
       if (!editingId) {
         payload.email = formData.email.trim();
+      }
+
+      // NUEVO: enviar timezone solo si el usuario seleccionó una opción
+      if (formData.timezone && String(formData.timezone).trim()) {
+        payload.timezone = String(formData.timezone).trim();
       }
 
       const response = await fetch(url, {
@@ -271,6 +270,7 @@ const GestionProfesoresAdmin = () => {
 
       if (response.ok) {
         toast.success(data.message || 'Profesor eliminado exitosamente');
+
         if (profesores.length === 1 && page > 1) {
           setPage(page - 1);
         } else {
@@ -282,7 +282,7 @@ const GestionProfesoresAdmin = () => {
         } else if (response.status === 403) {
           toast.error('No tienes permisos de administrador');
         } else {
-          toast.error(data.message || 'Error al eliminar');
+          toast.error(data.message || 'Error al eliminar... ');
         }
       }
     } catch (error) {
@@ -292,13 +292,18 @@ const GestionProfesoresAdmin = () => {
   };
 
   const handleEditProfesor = async (profesor) => {
+    // timezone puede venir como profesor.timezone o profesor.usuario.timezone
+    const tz = profesor?.timezone || profesor?.usuario?.timezone || '';
+
     setFormData({
       email: profesor.email,
       nombre: profesor.nombre,
       apellido: profesor.apellido,
       telefono: profesor.telefono || '',
-      asignaturas: profesor.asignaturas.map(a => a.id)
+      asignaturas: profesor.asignaturas.map(a => a.id),
+      timezone: tz
     });
+
     setEditingId(profesor.id);
     setErrors({});
     setShowModalProfesor(true);
@@ -310,8 +315,10 @@ const GestionProfesoresAdmin = () => {
       nombre: '',
       apellido: '',
       telefono: '',
-      asignaturas: []
+      asignaturas: [],
+      timezone: ''
     });
+
     setEditingId(null);
     setErrors({});
     setShowModalProfesor(true);
@@ -321,13 +328,16 @@ const GestionProfesoresAdmin = () => {
     setShowModalProfesor(false);
     setShowCredentials(false);
     setCredencialesTemporales(null);
+
     setFormData({
       email: '',
       nombre: '',
       apellido: '',
       telefono: '',
-      asignaturas: []
+      asignaturas: [],
+      timezone: ''
     });
+
     setEditingId(null);
     setErrors({});
   };
@@ -339,6 +349,7 @@ const GestionProfesoresAdmin = () => {
         : [...prev.asignaturas, asignaturaId];
       return { ...prev, asignaturas };
     });
+
     if (errors.asignaturas) {
       setErrors({ ...errors, asignaturas: '' });
     }
@@ -346,11 +357,7 @@ const GestionProfesoresAdmin = () => {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
   // =========================
@@ -397,7 +404,6 @@ const GestionProfesoresAdmin = () => {
     const confirmacion = window.confirm(
       `¿Estás seguro de eliminar la franja del ${franja.dia_semana} (${franja.hora_inicio} - ${franja.hora_fin})?`
     );
-
     if (!confirmacion) return;
 
     try {
@@ -426,9 +432,7 @@ const GestionProfesoresAdmin = () => {
 
   return (
     <div className="gestion-profesores-admin">
-      {/* =========================
-          SECCIÓN 1: PROFESORES
-         ========================= */}
+      {/* SECCIÓN 1: PROFESORES */}
       <div className="profesores-page">
         <div className="profesores-container">
           <div className="profesores-header">
@@ -436,12 +440,14 @@ const GestionProfesoresAdmin = () => {
               <div className="header-text">
                 <h1>Gestión de Profesores</h1>
                 <p className="subtitle">
-                  {loadingProfesores ? 'Cargando...' : `${total} profesor${total !== 1 ? 'es' : ''} registrado${total !== 1 ? 's' : ''}`}
+                  {loadingProfesores
+                    ? 'Cargando...'
+                    : `${total} profesor${total !== 1 ? 'es' : ''} registrado${total !== 1 ? 's' : ''}`}
                 </p>
               </div>
+
               <button onClick={handleCreateProfesor} className="btn-create">
-                <span className="icon">+</span>
-                Nuevo Profesor
+                <span className="icon">+</span> Nuevo Profesor
               </button>
             </div>
           </div>
@@ -461,60 +467,54 @@ const GestionProfesoresAdmin = () => {
               </button>
             </div>
           ) : (
-            <>
-              <div className="table-container">
-                <table className="profesores-table">
-                  <thead>
-                    <tr>
-                      <th>Nombre Completo</th>
-                      <th>Email</th>
-                      <th>Teléfono</th>
-                      <th>Asignaturas</th>
-                      <th>Fecha de Registro</th>
-                      <th>Acciones</th>
+            <div className="table-container">
+              <table className="profesores-table">
+                <thead>
+                  <tr>
+                    <th>Nombre Completo</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Asignaturas</th>
+                    <th>Fecha de Registro</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {profesores.map((profesor) => (
+                    <tr key={profesor.id}>
+                      <td className="name-cell">
+                        <strong>{profesor.nombre} {profesor.apellido}</strong>
+                      </td>
+                      <td className="email-cell">{profesor.email}</td>
+                      <td className="phone-cell">
+                        {profesor.telefono || <em className="no-phone">Sin teléfono</em>}
+                      </td>
+                      <td className="asignaturas-cell">
+                        <div className="asignaturas-badges">
+                          {profesor.asignaturas.map((asig) => (
+                            <span key={asig.id} className="badge-asignatura">
+                              {asig.nombre}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="date-cell">{formatDate(profesor.created_at)}</td>
+                      <td className="actions-cell">
+                        <button onClick={() => handleEditProfesor(profesor)} className="btn-edit" title="Editar">
+                          ✏️
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProfesor(profesor.id, profesor.nombre, profesor.apellido)}
+                          className="btn-delete"
+                          title="Eliminar"
+                        >
+                          🗑️
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {profesores.map(profesor => (
-                      <tr key={profesor.id}>
-                        <td className="name-cell">
-                          <strong>{profesor.nombre} {profesor.apellido}</strong>
-                        </td>
-                        <td className="email-cell">{profesor.email}</td>
-                        <td className="phone-cell">
-                          {profesor.telefono || <em className="no-phone">Sin teléfono</em>}
-                        </td>
-                        <td className="asignaturas-cell">
-                          <div className="asignaturas-badges">
-                            {profesor.asignaturas.map(asig => (
-                              <span key={asig.id} className="badge-asignatura">
-                                {asig.nombre}
-                              </span>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="date-cell">{formatDate(profesor.created_at)}</td>
-                        <td className="actions-cell">
-                          <button
-                            onClick={() => handleEditProfesor(profesor)}
-                            className="btn-edit"
-                            title="Editar"
-                          >
-                            ✏️
-                          </button>
-                          <button
-                            onClick={() => handleDeleteProfesor(profesor.id, profesor.nombre, profesor.apellido)}
-                            className="btn-delete"
-                            title="Eliminar"
-                          >
-                            🗑️
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
 
               {totalPages > 1 && (
                 <div className="pagination">
@@ -523,7 +523,7 @@ const GestionProfesoresAdmin = () => {
                     disabled={page === 1}
                     className="pagination-btn"
                   >
-                    ← Anterior
+                    Anterior
                   </button>
                   <span className="pagination-info">Página {page} de {totalPages}</span>
                   <button
@@ -531,170 +531,188 @@ const GestionProfesoresAdmin = () => {
                     disabled={page === totalPages}
                     className="pagination-btn"
                   >
-                    Siguiente →
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {showModalProfesor && (
-          <div className="modal-overlay" onClick={closeModalProfesor}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-              <div className="modal-header">
-                <h2>{editingId ? 'Editar Profesor' : 'Nuevo Profesor'}</h2>
-                <button onClick={closeModalProfesor} className="btn-close">✕</button>
-              </div>
-
-              {!showCredentials ? (
-                <form onSubmit={handleSubmitProfesor} className="modal-form">
-                  {!editingId && (
-                    <div className="form-group">
-                      <label htmlFor="email">
-                        Email <span className="required">*</span>
-                      </label>
-                      <input
-                        id="email"
-                        type="email"
-                        placeholder="profesor@academia.com"
-                        value={formData.email}
-                        onChange={(e) => {
-                          setFormData({ ...formData, email: e.target.value });
-                          if (errors.email) setErrors({ ...errors, email: '' });
-                        }}
-                        className={errors.email ? 'input-error' : ''}
-                      />
-                      {errors.email && <span className="error-message">{errors.email}</span>}
-                    </div>
-                  )}
-
-                  <div className="form-group">
-                    <label htmlFor="nombre">
-                      Nombre <span className="required">*</span>
-                    </label>
-                    <input
-                      id="nombre"
-                      type="text"
-                      placeholder="Ej: Juan"
-                      value={formData.nombre}
-                      onChange={(e) => {
-                        setFormData({ ...formData, nombre: e.target.value });
-                        if (errors.nombre) setErrors({ ...errors, nombre: '' });
-                      }}
-                      className={errors.nombre ? 'input-error' : ''}
-                      maxLength={100}
-                    />
-                    {errors.nombre && <span className="error-message">{errors.nombre}</span>}
-                    <span className="char-count">{formData.nombre.length}/100</span>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="apellido">
-                      Apellido <span className="required">*</span>
-                    </label>
-                    <input
-                      id="apellido"
-                      type="text"
-                      placeholder="Ej: Pérez"
-                      value={formData.apellido}
-                      onChange={(e) => {
-                        setFormData({ ...formData, apellido: e.target.value });
-                        if (errors.apellido) setErrors({ ...errors, apellido: '' });
-                      }}
-                      className={errors.apellido ? 'input-error' : ''}
-                      maxLength={100}
-                    />
-                    {errors.apellido && <span className="error-message">{errors.apellido}</span>}
-                    <span className="char-count">{formData.apellido.length}/100</span>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="telefono">Teléfono (opcional)</label>
-                    <input
-                      id="telefono"
-                      type="tel"
-                      placeholder="3001234567"
-                      value={formData.telefono}
-                      onChange={(e) => {
-                        setFormData({ ...formData, telefono: e.target.value });
-                        if (errors.telefono) setErrors({ ...errors, telefono: '' });
-                      }}
-                      className={errors.telefono ? 'input-error' : ''}
-                      maxLength={20}
-                    />
-                    {errors.telefono && <span className="error-message">{errors.telefono}</span>}
-                  </div>
-
-                  <div className="form-group">
-                    <label>
-                      Asignaturas <span className="required">*</span>
-                    </label>
-                    <div className="asignaturas-selector">
-                      {asignaturasDisponibles.map(asig => (
-                        <label key={asig.id} className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.asignaturas.includes(asig.id)}
-                            onChange={() => toggleAsignatura(asig.id)}
-                          />
-                          <span>{asig.nombre}</span>
-                        </label>
-                      ))}
-                    </div>
-                    {errors.asignaturas && <span className="error-message">{errors.asignaturas}</span>}
-                    <span className="help-text">
-                      {formData.asignaturas.length} asignatura{formData.asignaturas.length !== 1 ? 's' : ''} seleccionada{formData.asignaturas.length !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-
-                  <div className="modal-actions">
-                    <button type="button" onClick={closeModalProfesor} className="btn-cancel" disabled={isSubmitting}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="btn-submit" disabled={isSubmitting}>
-                      {isSubmitting ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Profesor')}
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="credentials-container">
-                  <div className="credentials-icon">🔑</div>
-                  <h3>Profesor creado exitosamente</h3>
-                  <p className="credentials-intro">
-                    Se ha enviado un email al profesor con sus credenciales de acceso.
-                  </p>
-                  <div className="credentials-box">
-                    <div className="credential-item">
-                      <label>Email:</label>
-                      <span>{credencialesTemporales?.email}</span>
-                    </div>
-                    <div className="credential-item">
-                      <label>Contraseña temporal:</label>
-                      <div className="password-container">
-                        <span className="password">{credencialesTemporales?.password_temporal}</span>
-                        <button onClick={copyPassword} className="btn-copy" title="Copiar">
-                          📋
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <p className="credentials-note">⚠️ Guarda esta contraseña, no se volverá a mostrar.</p>
-                  <button onClick={closeModalProfesor} className="btn-close-credentials">
-                    Cerrar
+                    Siguiente
                   </button>
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
+
+          {showModalProfesor && (
+            <div className="modal-overlay" onClick={closeModalProfesor}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>{editingId ? 'Editar Profesor' : 'Nuevo Profesor'}</h2>
+                  <button onClick={closeModalProfesor} className="btn-close">×</button>
+                </div>
+
+                {!showCredentials ? (
+                  <form onSubmit={handleSubmitProfesor} className="modal-form">
+                    {!editingId && (
+                      <div className="form-group">
+                        <label htmlFor="email">
+                          Email <span className="required">*</span>
+                        </label>
+                        <input
+                          id="email"
+                          type="email"
+                          placeholder="profesor@academia.com"
+                          value={formData.email}
+                          onChange={(e) => {
+                            setFormData({ ...formData, email: e.target.value });
+                            if (errors.email) setErrors({ ...errors, email: '' });
+                          }}
+                          className={errors.email ? 'input-error' : ''}
+                        />
+                        {errors.email && <span className="error-message">{errors.email}</span>}
+                      </div>
+                    )}
+
+                    <div className="form-group">
+                      <label htmlFor="nombre">
+                        Nombre <span className="required">*</span>
+                      </label>
+                      <input
+                        id="nombre"
+                        type="text"
+                        placeholder="Ej: Juan"
+                        value={formData.nombre}
+                        onChange={(e) => {
+                          setFormData({ ...formData, nombre: e.target.value });
+                          if (errors.nombre) setErrors({ ...errors, nombre: '' });
+                        }}
+                        className={errors.nombre ? 'input-error' : ''}
+                        maxLength={100}
+                      />
+                      {errors.nombre && <span className="error-message">{errors.nombre}</span>}
+                      <span className="char-count">{formData.nombre.length}/100</span>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="apellido">
+                        Apellido <span className="required">*</span>
+                      </label>
+                      <input
+                        id="apellido"
+                        type="text"
+                        placeholder="Ej: Pérez"
+                        value={formData.apellido}
+                        onChange={(e) => {
+                          setFormData({ ...formData, apellido: e.target.value });
+                          if (errors.apellido) setErrors({ ...errors, apellido: '' });
+                        }}
+                        className={errors.apellido ? 'input-error' : ''}
+                        maxLength={100}
+                      />
+                      {errors.apellido && <span className="error-message">{errors.apellido}</span>}
+                      <span className="char-count">{formData.apellido.length}/100</span>
+                    </div>
+
+                    <div className="form-group">
+                      <label htmlFor="telefono">Teléfono (opcional)</label>
+                      <input
+                        id="telefono"
+                        type="tel"
+                        placeholder="3001234567"
+                        value={formData.telefono}
+                        onChange={(e) => {
+                          setFormData({ ...formData, telefono: e.target.value });
+                          if (errors.telefono) setErrors({ ...errors, telefono: '' });
+                        }}
+                        className={errors.telefono ? 'input-error' : ''}
+                        maxLength={20}
+                      />
+                      {errors.telefono && <span className="error-message">{errors.telefono}</span>}
+                    </div>
+
+                    {/* SELECT GLOBAL */}
+                    <div className="form-group">
+                      <label htmlFor="timezone">Zona horaria (opcional)</label>
+                      <select
+                        id="timezone"
+                        value={formData.timezone}
+                        onChange={(e) => setFormData({ ...formData, timezone: e.target.value })}
+                      >
+                        <option value="">Usar valor por defecto</option>
+                        {timeZoneOptions.map((tz) => (
+                          <option key={tz.value} value={tz.value}>
+                            {tz.label}
+                          </option>
+                        ))}
+                      </select>
+                      <span className="help-text">
+                        Si no seleccionas nada, se mantiene el default o el valor previo.
+                      </span>
+                    </div>
+
+                    <div className="form-group">
+                      <label>
+                        Asignaturas <span className="required">*</span>
+                      </label>
+                      <div className="asignaturas-selector">
+                        {asignaturasDisponibles.map((asig) => (
+                          <label key={asig.id} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={formData.asignaturas.includes(asig.id)}
+                              onChange={() => toggleAsignatura(asig.id)}
+                            />
+                            <span>{asig.nombre}</span>
+                          </label>
+                        ))}
+                      </div>
+
+                      {errors.asignaturas && <span className="error-message">{errors.asignaturas}</span>}
+                      <span className="help-text">
+                        {formData.asignaturas.length} asignatura{formData.asignaturas.length !== 1 ? 's' : ''} seleccionada{formData.asignaturas.length !== 1 ? 's' : ''}
+                      </span>
+                    </div>
+
+                    <div className="modal-actions">
+                      <button type="button" onClick={closeModalProfesor} className="btn-cancel" disabled={isSubmitting}>
+                        Cancelar
+                      </button>
+                      <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                        {isSubmitting ? 'Guardando...' : (editingId ? 'Actualizar' : 'Crear Profesor')}
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="credentials-container">
+                    <div className="credentials-icon">✅</div>
+                    <h3>Profesor creado exitosamente</h3>
+                    <p className="credentials-intro">
+                      Se ha enviado un email al profesor con sus credenciales de acceso.
+                    </p>
+
+                    <div className="credentials-box">
+                      <div className="credential-item">
+                        <label>Email</label>
+                        <span>{credencialesTemporales?.email}</span>
+                      </div>
+
+                      <div className="credential-item">
+                        <label>Contraseña temporal</label>
+                        <div className="password-container">
+                          <span className="password">{credencialesTemporales?.password_temporal}</span>
+                          <button onClick={copyPassword} className="btn-copy" title="Copiar">📋</button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="credentials-note">⚠️ Guarda esta contraseña, no se volverá a mostrar.</p>
+                    <button onClick={closeModalProfesor} className="btn-close-credentials">Cerrar</button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
+      {/* SECCIÓN 2: FRANJAS HORARIAS */}
       <div className="gestion-profesores-divider" />
 
-      {/* =========================
-          SECCIÓN 2: FRANJAS HORARIAS
-         ========================= */}
       <div className="franjas-horarias-container">
         <div className="franjas-header">
           <h1>Gestión de Franjas Horarias</h1>
@@ -702,7 +720,7 @@ const GestionProfesoresAdmin = () => {
         </div>
 
         <div className="selector-profesor">
-          <label htmlFor="profesor-select">Seleccionar Profesor:</label>
+          <label htmlFor="profesor-select">Seleccionar Profesor</label>
           <select
             id="profesor-select"
             value={profesorSeleccionado?.id || ''}
@@ -713,7 +731,7 @@ const GestionProfesoresAdmin = () => {
             disabled={loadingFranjas || profesores.length === 0}
           >
             <option value="">-- Selecciona un profesor --</option>
-            {profesores.map(profesor => (
+            {profesores.map((profesor) => (
               <option key={profesor.id} value={profesor.id}>
                 {profesor.nombre} {profesor.apellido} - {profesor.email}
               </option>
@@ -739,9 +757,7 @@ const GestionProfesoresAdmin = () => {
         {profesorSeleccionado && !loadingFranjas && (
           <div className="calendario-section">
             <div className="profesor-info">
-              <h2>
-                Horario de: {profesorSeleccionado.nombre} {profesorSeleccionado.apellido}
-              </h2>
+              <h2>Horario de {profesorSeleccionado.nombre} {profesorSeleccionado.apellido}</h2>
             </div>
 
             <CalendarioSemanal

@@ -14,7 +14,7 @@ export const getBrowserTimeZone = () => {
 };
 
 /**
- * Lista de zonas horarias comunes en Latinoamérica
+ * Lista de zonas horarias comunes en Latinoamérica (fallback / sugeridas)
  * Para mostrar en un selector si se desea
  */
 export const TIMEZONES_LATAM = [
@@ -41,13 +41,61 @@ export const TIMEZONES_LATAM = [
 ];
 
 /**
+ * Devuelve todas las timezones IANA soportadas por el runtime (cuando existe),
+ * para poblar un <select> global sin hardcodear cientos de zonas.
+ *
+ * Si el navegador no soporta Intl.supportedValuesOf('timeZone'), retorna un fallback.
+ * @returns {string[]} Lista de timezones IANA (ej: ["Africa/Abidjan", "America/Bogota", ...])
+ */
+export const getAllSupportedTimeZones = () => {
+  try {
+    if (typeof Intl !== 'undefined' && typeof Intl.supportedValuesOf === 'function') {
+      const zones = Intl.supportedValuesOf('timeZone');
+      if (Array.isArray(zones) && zones.length > 0) {
+        // Normalmente ya vienen como IANA IDs
+        return zones;
+      }
+    }
+  } catch (error) {
+    console.error('Error obteniendo lista global de timezones:', error);
+  }
+
+  // Fallback: usar la lista LATAM (y si no existe, al menos browser tz)
+  const fallback = TIMEZONES_LATAM?.map(t => t.value) || [];
+  const browserTZ = getBrowserTimeZone();
+  const uniq = Array.from(new Set([browserTZ, ...fallback].filter(Boolean)));
+  return uniq;
+};
+
+/**
+ * Devuelve lista de opciones lista para un <select>
+ * label incluye el offset (cuando se puede calcular).
+ *
+ * @returns {{value: string, label: string}[]}
+ */
+export const getAllTimeZoneOptions = () => {
+  const zones = getAllSupportedTimeZones();
+
+  const options = zones.map((tz) => {
+    const offset = getTimeZoneOffset(tz);
+    // Ej: "America/Bogota (GMT-5)"
+    const label = offset ? `${tz} (${offset})` : tz;
+    return { value: tz, label };
+  });
+
+  // Orden alfabético por label para UX
+  options.sort((a, b) => a.label.localeCompare(b.label));
+  return options;
+};
+
+/**
  * Valida si una zona horaria es válida según IANA
  * @param {string} timezone - Zona horaria a validar
  * @returns {boolean}
  */
 export const isValidTimeZone = (timezone) => {
   if (!timezone) return false;
-  
+
   try {
     Intl.DateTimeFormat(undefined, { timeZone: timezone });
     return true;
@@ -64,7 +112,7 @@ export const isValidTimeZone = (timezone) => {
  */
 export const formatDateInTimeZone = (isoDate, timezone = 'America/Bogota') => {
   if (!isoDate) return 'No especificada';
-  
+
   try {
     const date = new Date(isoDate);
     return new Intl.DateTimeFormat('es-CO', {
@@ -94,10 +142,10 @@ export const getTimeZoneOffset = (timezone) => {
       timeZone: timezone,
       timeZoneName: 'short'
     });
-    
+
     const parts = formatter.formatToParts(now);
     const timeZoneName = parts.find(part => part.type === 'timeZoneName');
-    
+
     return timeZoneName ? timeZoneName.value : '';
   } catch (error) {
     return '';
