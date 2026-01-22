@@ -41,18 +41,39 @@ export const TIMEZONES_LATAM = [
 ];
 
 /**
+ * Obtiene el offset de una zona horaria en formato legible
+ * @param {string} timezone - Zona horaria IANA
+ * @returns {string} Offset (ej: "GMT-5")
+ */
+export const getTimeZoneOffset = (timezone) => {
+  try {
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en', {
+      timeZone: timezone,
+      timeZoneName: 'short'
+    });
+
+    const parts = formatter.formatToParts(now);
+    const timeZoneName = parts.find(part => part.type === 'timeZoneName');
+
+    return timeZoneName ? timeZoneName.value : '';
+  } catch (error) {
+    return '';
+  }
+};
+
+/**
  * Devuelve todas las timezones IANA soportadas por el runtime (cuando existe),
- * para poblar un <select> global sin hardcodear cientos de zonas.
+ * para poblar un selector global sin hardcodear cientos de zonas.
  *
  * Si el navegador no soporta Intl.supportedValuesOf('timeZone'), retorna un fallback.
- * @returns {string[]} Lista de timezones IANA (ej: ["Africa/Abidjan", "America/Bogota", ...])
+ * @returns {string[]} Lista de timezones IANA
  */
 export const getAllSupportedTimeZones = () => {
   try {
     if (typeof Intl !== 'undefined' && typeof Intl.supportedValuesOf === 'function') {
       const zones = Intl.supportedValuesOf('timeZone');
       if (Array.isArray(zones) && zones.length > 0) {
-        // Normalmente ya vienen como IANA IDs
         return zones;
       }
     }
@@ -60,7 +81,6 @@ export const getAllSupportedTimeZones = () => {
     console.error('Error obteniendo lista global de timezones:', error);
   }
 
-  // Fallback: usar la lista LATAM (y si no existe, al menos browser tz)
   const fallback = TIMEZONES_LATAM?.map(t => t.value) || [];
   const browserTZ = getBrowserTimeZone();
   const uniq = Array.from(new Set([browserTZ, ...fallback].filter(Boolean)));
@@ -78,12 +98,10 @@ export const getAllTimeZoneOptions = () => {
 
   const options = zones.map((tz) => {
     const offset = getTimeZoneOffset(tz);
-    // Ej: "America/Bogota (GMT-5)"
     const label = offset ? `${tz} (${offset})` : tz;
     return { value: tz, label };
   });
 
-  // Orden alfabético por label para UX
   options.sort((a, b) => a.label.localeCompare(b.label));
   return options;
 };
@@ -127,27 +145,5 @@ export const formatDateInTimeZone = (isoDate, timezone = 'America/Bogota') => {
   } catch (error) {
     console.error('Error formateando fecha:', error);
     return isoDate;
-  }
-};
-
-/**
- * Obtiene el offset de una zona horaria en formato legible
- * @param {string} timezone - Zona horaria IANA
- * @returns {string} Offset (ej: "GMT-5")
- */
-export const getTimeZoneOffset = (timezone) => {
-  try {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en', {
-      timeZone: timezone,
-      timeZoneName: 'short'
-    });
-
-    const parts = formatter.formatToParts(now);
-    const timeZoneName = parts.find(part => part.type === 'timeZoneName');
-
-    return timeZoneName ? timeZoneName.value : '';
-  } catch (error) {
-    return '';
   }
 };

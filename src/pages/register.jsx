@@ -5,14 +5,14 @@ import { Header } from '../components/header';
 import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
-import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
+import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
 import googleAuthService from '../services/google_auth_service';
 import '../styles/register.css';
 
 export const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
-  
+
   const [nombre, set_nombre] = useState(() => sessionStorage.getItem('register_nombre') || '');
   const [apellido, set_apellido] = useState(() => sessionStorage.getItem('register_apellido') || '');
   const [email, set_email] = useState(() => sessionStorage.getItem('register_email') || '');
@@ -87,7 +87,6 @@ export const Register = () => {
     };
 
     const result = await register(user_data);
-    
     set_loading(false);
 
     if (result.success) {
@@ -100,7 +99,7 @@ export const Register = () => {
       sessionStorage.removeItem('register_password');
       sessionStorage.removeItem('register_confirm_password');
       sessionStorage.removeItem('register_accept_terms');
-      
+
       navigate('/estudiante/dashboard');
     } else {
       if (result.errors && result.errors.length > 0) {
@@ -113,26 +112,24 @@ export const Register = () => {
   };
 
   // NUEVO: Manejar registro con Google
-const handle_google_register = async () => {
-  try {
-    set_error('');
-    set_loading(true);
-    
-    console.log('🔐 Iniciando registro con Google...');
-    const result = await googleAuthService.signInWithGoogle();
-    
-    if (!result.success) {
-      set_error(result.message || 'Error al registrarse con Google');
+  const handle_google_register = async () => {
+    try {
+      set_error('');
+      set_loading(true);
+      console.log('🔐 Iniciando registro con Google...');
+
+      const result = await googleAuthService.signInWithGoogle();
+      if (!result.success) {
+        set_error(result.message || 'Error al registrarse con Google');
+        set_loading(false);
+      }
+      // Si es exitoso, el usuario será redirigido a Google y luego al callback
+    } catch (err) {
+      console.error('❌ Error al iniciar registro con Google:', err);
+      set_error('Error al registrarse con Google');
       set_loading(false);
     }
-    // Si es exitoso, el usuario será redirigido a Google y luego al callback
-  } catch (err) {
-    console.error('❌ Error al iniciar registro con Google:', err);
-    set_error('Error al registrarse con Google');
-    set_loading(false);
-  }
-};
-
+  };
 
   return (
     <div className="page">
@@ -142,9 +139,7 @@ const handle_google_register = async () => {
         <div className="register_container">
           <div className="register_card">
             <h1 className="register_title">AQUÍ INICIA ALGO GRANDE.</h1>
-            <p className="register_subtitle">
-              Estás dando el primer paso para transformar tu forma de aprender.
-            </p>
+            <p className="register_subtitle">Estás dando el primer paso para transformar tu forma de aprender.</p>
 
             {error && (
               <div className="error_message">
@@ -154,73 +149,63 @@ const handle_google_register = async () => {
 
             <form onSubmit={handle_submit} className="register_form">
               <div className="form_group">
-                <label htmlFor="nombre" className="form_label">
-                  Nombre:
-                </label>
+                <label htmlFor="nombre" className="form_label">Nombre</label>
                 <input
                   type="text"
                   id="nombre"
                   className="form_input"
                   value={nombre}
                   onChange={(e) => set_nombre(e.target.value)}
-                  placeholder='Ingresa tu nombre'
+                  placeholder="Ingresa tu nombre"
                   required
                   disabled={loading}
                 />
               </div>
 
               <div className="form_group">
-                <label htmlFor="apellido" className="form_label">
-                  Apellido:
-                </label>
+                <label htmlFor="apellido" className="form_label">Apellido</label>
                 <input
                   type="text"
                   id="apellido"
                   className="form_input"
                   value={apellido}
                   onChange={(e) => set_apellido(e.target.value)}
-                  placeholder='Ingresa tu apellido'
+                  placeholder="Ingresa tu apellido"
                   required
                   disabled={loading}
                 />
               </div>
 
               <div className="form_group">
-                <label htmlFor="email" className="form_label">
-                  Correo Electrónico:
-                </label>
+                <label htmlFor="email" className="form_label">Correo Electrónico</label>
                 <input
                   type="email"
                   id="email"
                   className="form_input"
                   value={email}
                   onChange={(e) => set_email(e.target.value)}
-                  placeholder='Ingresa tu correo electrónico'
+                  placeholder="Ingresa tu correo electrónico"
                   required
                   disabled={loading}
                 />
               </div>
 
               <div className="form_group">
-                <label htmlFor="telefono" className="form_label">
-                  Teléfono:
-                </label>
+                <label htmlFor="telefono" className="form_label">Teléfono</label>
                 <input
                   type="tel"
                   id="telefono"
                   className="form_input"
                   value={telefono}
                   onChange={(e) => set_telefono(e.target.value)}
-                  placeholder='Ingresa tu número telefónico'
+                  placeholder="Ingresa tu número telefónico"
                   disabled={loading}
                 />
               </div>
 
               {/* NUEVO CAMPO: Zona Horaria */}
               <div className="form_group">
-                <label htmlFor="timezone" className="form_label">
-                  Zona Horaria:
-                </label>
+                <label htmlFor="timezone" className="form_label">Zona Horaria</label>
                 <select
                   id="timezone"
                   className="form_input"
@@ -229,21 +214,17 @@ const handle_google_register = async () => {
                   disabled={loading}
                   required
                 >
-                  {TIMEZONES_LATAM.map((tz) => (
+                  {getAllTimeZoneOptions().map((tz) => (
                     <option key={tz.value} value={tz.value}>
                       {tz.label}
                     </option>
                   ))}
                 </select>
-                <small className="form_hint">
-                  Se detectó automáticamente tu zona horaria actual
-                </small>
+                <small className="form_hint">Se detectó automáticamente tu zona horaria actual</small>
               </div>
 
               <div className="form_group">
-                <label htmlFor="password" className="form_label">
-                  Contraseña:
-                </label>
+                <label htmlFor="password" className="form_label">Contraseña</label>
                 <PasswordInput
                   name="password"
                   value={password}
@@ -256,9 +237,7 @@ const handle_google_register = async () => {
               </div>
 
               <div className="form_group">
-                <label htmlFor="confirm_password" className="form_label">
-                  Confirmar Contraseña:
-                </label>
+                <label htmlFor="confirm_password" className="form_label">Confirmar Contraseña</label>
                 <PasswordInput
                   name="confirm_password"
                   value={confirm_password}
@@ -282,8 +261,8 @@ const handle_google_register = async () => {
                 <label htmlFor="terms" className="terms_label">
                   Al registrarse y utilizar los servicios, usted confirma que ha aceptado nuestros{' '}
                   <a href="/terms-and-policies" className="terms_link" target="_blank" rel="noopener noreferrer">
-                    Términos y Condiciones y Política de Privacidad.
-                  </a>
+                    Términos y Condiciones y Política de Privacidad
+                  </a>.
                 </label>
               </div>
 
@@ -305,13 +284,10 @@ const handle_google_register = async () => {
                 aria-label="Registrarse con Google"
                 disabled={loading}
               >
-                <img 
-                  src="/images/google.png" 
-                  alt="Google" 
-                  className="social_icon"
-                />
+                <img src="/images/google.png" alt="Google" className="social_icon" />
               </button>
             </div>
+
           </div>
         </div>
       </main>
