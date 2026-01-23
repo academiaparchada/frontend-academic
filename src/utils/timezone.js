@@ -41,6 +41,69 @@ export const TIMEZONES_LATAM = [
 ];
 
 /**
+ * NUEVO: lista "bonita" prioritaria para usuarios en español.
+ * Importante: value SIEMPRE es IANA; label es lo que ve el usuario.
+ * (Puedes ajustar nombres/regiones sin afectar backend.)
+ */
+const TIMEZONES_PREFERRED_ES = [
+  // LATAM (bonito por país / regiones donde aplica)
+  { value: 'America/Bogota', label: 'Colombia' },
+  { value: 'America/Mexico_City', label: 'México (Centro)' },
+  { value: 'America/Cancun', label: 'México (Sureste)' },
+  { value: 'America/Mazatlan', label: 'México (Pacífico)' },
+  { value: 'America/Tijuana', label: 'México (Noroeste)' },
+
+  { value: 'America/Guatemala', label: 'Guatemala' },
+  { value: 'America/El_Salvador', label: 'El Salvador' },
+  { value: 'America/Tegucigalpa', label: 'Honduras' },
+  { value: 'America/Managua', label: 'Nicaragua' },
+  { value: 'America/Costa_Rica', label: 'Costa Rica' },
+  { value: 'America/Panama', label: 'Panamá' },
+
+  { value: 'America/Havana', label: 'Cuba' },
+  { value: 'America/Santo_Domingo', label: 'República Dominicana' },
+  { value: 'America/Puerto_Rico', label: 'Puerto Rico' },
+
+  { value: 'America/Caracas', label: 'Venezuela' },
+  { value: 'America/Lima', label: 'Perú' },
+  { value: 'America/Guayaquil', label: 'Ecuador' },
+  { value: 'America/La_Paz', label: 'Bolivia' },
+  { value: 'America/Asuncion', label: 'Paraguay' },
+  { value: 'America/Montevideo', label: 'Uruguay' },
+  { value: 'America/Argentina/Buenos_Aires', label: 'Argentina' },
+  { value: 'America/Santiago', label: 'Chile' },
+
+  // Brasil (en español; regiones comunes)
+  { value: 'America/Sao_Paulo', label: 'Brasil (São Paulo)' },
+  { value: 'America/Manaus', label: 'Brasil (Amazonas)' },
+  { value: 'America/Cuiaba', label: 'Brasil (Mato Grosso)' },
+  { value: 'America/Fortaleza', label: 'Brasil (Nordeste)' },
+
+  // España
+  { value: 'Europe/Madrid', label: 'España (Península)' },
+  { value: 'Atlantic/Canary', label: 'España (Canarias)' },
+
+  // USA (por zonas)
+  { value: 'America/New_York', label: 'Estados Unidos (Este)' },
+  { value: 'America/Chicago', label: 'Estados Unidos (Central)' },
+  { value: 'America/Denver', label: 'Estados Unidos (Montaña)' },
+  { value: 'America/Los_Angeles', label: 'Estados Unidos (Pacífico)' },
+  { value: 'America/Anchorage', label: 'Estados Unidos (Alaska)' },
+  { value: 'Pacific/Honolulu', label: 'Estados Unidos (Hawái)' },
+
+  // Otros países donde probablemente compren en español
+  { value: 'Europe/Lisbon', label: 'Portugal' },
+  { value: 'Europe/Paris', label: 'Francia' },
+  { value: 'Europe/Rome', label: 'Italia' },
+  { value: 'Europe/Berlin', label: 'Alemania' },
+  { value: 'Europe/London', label: 'Reino Unido' },
+
+  // Canadá (comunes)
+  { value: 'America/Toronto', label: 'Canadá (Este)' },
+  { value: 'America/Vancouver', label: 'Canadá (Pacífico)' }
+];
+
+/**
  * Obtiene el offset de una zona horaria en formato legible
  * @param {string} timezone - Zona horaria IANA
  * @returns {string} Offset (ej: "GMT-5")
@@ -83,27 +146,43 @@ export const getAllSupportedTimeZones = () => {
 
   const fallback = TIMEZONES_LATAM?.map(t => t.value) || [];
   const browserTZ = getBrowserTimeZone();
-  const uniq = Array.from(new Set([browserTZ, ...fallback].filter(Boolean)));
-  return uniq;
+  return Array.from(new Set([browserTZ, ...fallback].filter(Boolean)));
 };
 
 /**
- * Devuelve lista de opciones lista para un <select>
- * label incluye el offset (cuando se puede calcular).
+ * Devuelve lista de opciones para <select>.
+ * - Primero: lista bonita (país/región + GMT).
+ * - Luego: resto de zonas globales como "America/Chicago (GMT-6)".
  *
  * @returns {{value: string, label: string}[]}
  */
 export const getAllTimeZoneOptions = () => {
-  const zones = getAllSupportedTimeZones();
+  const supported = getAllSupportedTimeZones();
 
-  const options = zones.map((tz) => {
-    const offset = getTimeZoneOffset(tz);
-    const label = offset ? `${tz} (${offset})` : tz;
-    return { value: tz, label };
-  });
+  // Preferidas (solo si existen en el runtime)
+  const preferred = TIMEZONES_PREFERRED_ES
+    .filter(item => supported.includes(item.value))
+    .map(item => {
+      const offset = getTimeZoneOffset(item.value);
+      return {
+        value: item.value,
+        label: offset ? `${item.label} (${offset})` : item.label
+      };
+    });
 
-  options.sort((a, b) => a.label.localeCompare(b.label));
-  return options;
+  const preferredValues = new Set(preferred.map(p => p.value));
+
+  // Resto (global)
+  const rest = supported
+    .filter(tz => !preferredValues.has(tz))
+    .map(tz => {
+      const offset = getTimeZoneOffset(tz);
+      const label = offset ? `${tz} (${offset})` : tz;
+      return { value: tz, label };
+    })
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  return [...preferred, ...rest];
 };
 
 /**
