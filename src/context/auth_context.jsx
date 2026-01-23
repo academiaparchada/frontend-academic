@@ -50,6 +50,7 @@ export const AuthProvider = ({ children }) => {
       set_is_authenticated(false);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('timezone');
     }
     
     set_loading(false);
@@ -63,6 +64,7 @@ export const AuthProvider = ({ children }) => {
       console.log('Datos de usuario guardados:', user_data);
       set_user(user_data);
       set_is_authenticated(true);
+      localStorage.setItem('timezone', user_data?.timezone || 'America/Bogota');
     }
     return result;
   };
@@ -73,6 +75,7 @@ export const AuthProvider = ({ children }) => {
       const registered_user = result.data?.user || result.data;
       set_user(registered_user);
       set_is_authenticated(true);
+      localStorage.setItem('timezone', registered_user?.timezone || 'America/Bogota');
     }
     return result;
   };
@@ -81,6 +84,7 @@ export const AuthProvider = ({ children }) => {
     await auth_service.logout();
     set_user(null);
     set_is_authenticated(false);
+    localStorage.removeItem('timezone');
   };
 
   // NUEVO: Método para actualizar usuario en contexto

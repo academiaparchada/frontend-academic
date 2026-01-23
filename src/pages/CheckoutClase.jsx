@@ -7,6 +7,7 @@ import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
 import '../styles/Checkout.css';
 
+
 const CheckoutClase = () => {
   const { claseId } = useParams();
   const navigate = useNavigate();
@@ -21,8 +22,10 @@ const CheckoutClase = () => {
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
+
   const [archivoAdjunto, setArchivoAdjunto] = useState(null);
   const [errorArchivo, setErrorArchivo] = useState('');
+
 
   // Estados para disponibilidad
   const [fechaSeleccionada, setFechaSeleccionada] = useState('');
@@ -30,25 +33,30 @@ const CheckoutClase = () => {
   const [loadingDisponibilidad, setLoadingDisponibilidad] = useState(false);
   const [franjaSeleccionada, setFranjaSeleccionada] = useState(null);
 
+
   const [datosClase, setDatosClase] = useState({
     descripcion_estudiante: ''
   });
+
 
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
     nombre: '',
     apellido: '',
     telefono: '',
-    timezone: getBrowserTimeZone(),
+    timezone: localStorage.getItem('timezone') || getBrowserTimeZone(),
     password: '',
     confirmarPassword: ''
   });
 
+
   const [errores, setErrores] = useState({});
+
 
   useEffect(() => {
     cargarClase();
   }, [claseId]);
+
 
   // Auto-consultar disponibilidad cuando cambia la fecha
   useEffect(() => {
@@ -56,6 +64,7 @@ const CheckoutClase = () => {
       consultarDisponibilidad();
     }
   }, [fechaSeleccionada]);
+
 
   const cargarClase = async () => {
     try {
@@ -90,11 +99,13 @@ const CheckoutClase = () => {
     }
   };
 
+
   const consultarDisponibilidad = async () => {
     setLoadingDisponibilidad(true);
     setDisponibilidad(null);
     setFranjaSeleccionada(null);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const response = await fetch(
@@ -105,10 +116,13 @@ const CheckoutClase = () => {
         `timezone=${datosUsuario.timezone || 'America/Bogota'}`
       );
 
+
       const data = await response.json();
+
 
       if (response.ok && data.success) {
         setDisponibilidad(data.data);
+
 
         if (data.data.total === 0) {
           setMensaje({ 
@@ -133,12 +147,14 @@ const CheckoutClase = () => {
     }
   };
 
+
   const handleChangeClase = (e) => {
     const { name, value } = e.target;
     setDatosClase(prev => ({
       ...prev,
       [name]: value
     }));
+
 
     if (errores[name]) {
       setErrores(prev => ({
@@ -147,6 +163,7 @@ const CheckoutClase = () => {
       }));
     }
   };
+
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
@@ -155,6 +172,7 @@ const CheckoutClase = () => {
       [name]: value
     }));
 
+
     if (errores[name]) {
       setErrores(prev => ({
         ...prev,
@@ -163,14 +181,17 @@ const CheckoutClase = () => {
     }
   };
 
+
   const handleArchivoChange = (e) => {
     const archivo = e.target.files[0];
     setErrorArchivo('');
+
 
     if (!archivo) {
       setArchivoAdjunto(null);
       return;
     }
+
 
     const validacion = comprasService.validarArchivo(archivo);
     if (!validacion.valido) {
@@ -180,8 +201,10 @@ const CheckoutClase = () => {
       return;
     }
 
+
     setArchivoAdjunto(archivo);
   };
+
 
   const handleEliminarArchivo = () => {
     setArchivoAdjunto(null);
@@ -192,23 +215,28 @@ const CheckoutClase = () => {
     }
   };
 
+
   const validarFormulario = () => {
     const nuevosErrores = {};
+
 
     // Validar fecha seleccionada
     if (!fechaSeleccionada) {
       nuevosErrores.fecha = 'Debes seleccionar una fecha';
     }
 
+
     // Validar franja seleccionada
     if (!franjaSeleccionada) {
       nuevosErrores.franja = 'Debes seleccionar un horario disponible';
     }
 
+
     // Validar descripción
     if (!datosClase.descripcion_estudiante || datosClase.descripcion_estudiante.trim().length < 10) {
       nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
     }
+
 
     // Validar datos de usuario nuevo
     if (esNuevoUsuario) {
@@ -216,34 +244,42 @@ const CheckoutClase = () => {
         nuevosErrores.email = 'Email inválido';
       }
 
+
       if (!datosUsuario.nombre.trim()) {
         nuevosErrores.nombre = 'El nombre es obligatorio';
       }
+
 
       if (!datosUsuario.apellido.trim()) {
         nuevosErrores.apellido = 'El apellido es obligatorio';
       }
 
+
       if (!datosUsuario.telefono.trim()) {
         nuevosErrores.telefono = 'El teléfono es obligatorio';
       }
+
 
       if (!datosUsuario.timezone) {
         nuevosErrores.timezone = 'La zona horaria es obligatoria';
       }
 
+
       if (datosUsuario.password.length < 6) {
         nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
       }
+
 
       if (datosUsuario.password !== datosUsuario.confirmarPassword) {
         nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
       }
     }
 
+
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
+
 
   const buildDatosCompra = () => {
     const datosCompra = {
@@ -253,6 +289,7 @@ const CheckoutClase = () => {
       descripcion_estudiante: datosClase.descripcion_estudiante,
       estudiante_timezone: datosUsuario.timezone || 'America/Bogota'
     };
+
 
     if (esNuevoUsuario) {
       datosCompra.estudiante = {
@@ -265,24 +302,31 @@ const CheckoutClase = () => {
       };
     }
 
+
     return datosCompra;
   };
 
+
   const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
+
 
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
+
     setProcesando(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const datosCompra = buildDatosCompra();
 
+
       let resultado;
+
 
       if (archivoAdjunto) {
         resultado = await comprasService.iniciarPagoMercadoPagoConArchivo(datosCompra, archivoAdjunto);
@@ -290,18 +334,22 @@ const CheckoutClase = () => {
         resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
       }
 
+
       if (resultado.success) {
         setMensaje({ tipo: 'exito', texto: '✅ Redirigiendo a Mercado Pago...' });
+
 
         setTimeout(() => {
           const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
           comprasService.redirigirACheckout(initPoint);
         }, 1000);
 
+
       } else {
         setMensaje({ tipo: 'error', texto: resultado.message || 'Error al procesar el pago' });
         setProcesando(false);
       }
+
 
     } catch (error) {
       console.error('❌ Error en el proceso de compra:', error);
@@ -310,21 +358,27 @@ const CheckoutClase = () => {
     }
   };
 
+
   const handleComprarWompi = async (e) => {
     e.preventDefault();
+
 
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
+
     setProcesandoWompi(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const datosCompra = buildDatosCompra();
 
+
       let resultado;
+
 
       if (archivoAdjunto) {
         resultado = await wompiService.crearCheckoutConArchivo(datosCompra, archivoAdjunto);
@@ -332,15 +386,19 @@ const CheckoutClase = () => {
         resultado = await wompiService.crearCheckout(datosCompra);
       }
 
+
       if (!resultado.success) {
         setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
         setProcesandoWompi(false);
         return;
       }
 
+
       setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
 
+
       await openWompiWidget(resultado.data);
+
 
       setProcesandoWompi(false);
     } catch (error) {
@@ -349,6 +407,7 @@ const CheckoutClase = () => {
       setProcesandoWompi(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -360,6 +419,7 @@ const CheckoutClase = () => {
       </div>
     );
   }
+
 
   if (error || !clase) {
     return (
@@ -375,6 +435,7 @@ const CheckoutClase = () => {
     );
   }
 
+
   return (
     <div className="checkout-container">
       <div className="checkout-header">
@@ -383,6 +444,7 @@ const CheckoutClase = () => {
         </button>
         <h1>Comprar Clase Personalizada</h1>
       </div>
+
 
       <div className="checkout-content">
         <div className="checkout-resumen">
@@ -397,10 +459,12 @@ const CheckoutClase = () => {
                 <span className="detalle-valor">{clase.duracion_horas} hora(s)</span>
               </div>
 
+
               <div className="detalle-item">
                 <span className="detalle-label">👥 Tipo:</span>
                 <span className="detalle-valor">Individual</span>
               </div>
+
 
               <div className="detalle-item">
                 <span className="detalle-label">🎯 Modalidad:</span>
@@ -408,19 +472,21 @@ const CheckoutClase = () => {
               </div>
             </div>
 
+
             {franjaSeleccionada && (
               <div className="info-box" style={{ background: '#d4edda', borderLeftColor: '#28a745' }}>
                 <p>
                   ✅ <strong>Horario seleccionado</strong>
                 </p>
                 <p className="info-small">
-                  📅 {fechaSeleccionada} de {franjaSeleccionada.hora_inicio.substring(0, 5)} a {franjaSeleccionada.hora_fin.substring(0, 5)}
+                  📅 {fechaSeleccionada} de {(franjaSeleccionada.inicio_estudiante || franjaSeleccionada.hora_inicio).substring(0, 5)} a {(franjaSeleccionada.fin_estudiante || franjaSeleccionada.hora_fin).substring(0, 5)}
                 </p>
                 <p className="info-small">
                   👨‍🏫 Profesor: {franjaSeleccionada.profesor.nombre} {franjaSeleccionada.profesor.apellido}
                 </p>
               </div>
             )}
+
 
             <div className="info-box">
               <p>
@@ -431,12 +497,14 @@ const CheckoutClase = () => {
               </p>
             </div>
 
+
             <div className="precio-total">
               <span>Total a Pagar:</span>
               <strong>{comprasService.formatearPrecio(clase.precio)}</strong>
             </div>
           </div>
         </div>
+
 
         <div className="checkout-formulario">
           <form onSubmit={(e) => e.preventDefault()}>
@@ -446,7 +514,9 @@ const CheckoutClase = () => {
               </div>
             )}
 
+
             <h2>📅 Selecciona Fecha y Horario</h2>
+
 
             {/* PASO 1: Seleccionar fecha */}
             <div className="form-group">
@@ -467,6 +537,7 @@ const CheckoutClase = () => {
               </span>
             </div>
 
+
             {/* Loading de disponibilidad */}
             {loadingDisponibilidad && (
               <div className="disponibilidad-loading">
@@ -474,6 +545,7 @@ const CheckoutClase = () => {
                 <span>Consultando disponibilidad...</span>
               </div>
             )}
+
 
             {/* PASO 2: Mostrar franjas disponibles */}
             {disponibilidad && disponibilidad.total > 0 && (
@@ -499,7 +571,7 @@ const CheckoutClase = () => {
                       />
                       <div className="franja-info">
                         <div className="franja-hora">
-                          {franja.hora_inicio.substring(0, 5)} - {franja.hora_fin.substring(0, 5)}
+                          {(franja.inicio_estudiante || franja.hora_inicio).substring(0, 5)} - {(franja.fin_estudiante || franja.hora_fin).substring(0, 5)}
                         </div>
                         <div className="franja-profesor">
                           👨‍🏫 {franja.profesor.nombre} {franja.profesor.apellido}
@@ -517,7 +589,9 @@ const CheckoutClase = () => {
               </div>
             )}
 
+
             <h2>📝 Detalles de la Clase</h2>
+
 
             <div className="form-group">
               <label>¿Qué necesitas aprender? *</label>
@@ -537,6 +611,7 @@ const CheckoutClase = () => {
                 Describe los temas que quieres ver en la clase (mínimo 10 caracteres)
               </span>
             </div>
+
 
             <div className="form-group">
               <label>📎 Adjuntar Documento (Opcional)</label>
@@ -589,12 +664,14 @@ const CheckoutClase = () => {
               </span>
             </div>
 
+
             {esNuevoUsuario && (
               <>
                 <h2>👤 Tus Datos</h2>
                 <p className="form-ayuda">
                   Crea tu cuenta para acceder a tu clase
                 </p>
+
 
                 <div className="form-group">
                   <label>Email *</label>
@@ -611,6 +688,7 @@ const CheckoutClase = () => {
                     <span className="error">{errores.email}</span>
                   )}
                 </div>
+
 
                 <div className="form-row">
                   <div className="form-group">
@@ -629,6 +707,7 @@ const CheckoutClase = () => {
                     )}
                   </div>
 
+
                   <div className="form-group">
                     <label>Apellido *</label>
                     <input
@@ -646,6 +725,7 @@ const CheckoutClase = () => {
                   </div>
                 </div>
 
+
                 <div className="form-group">
                   <label>Teléfono *</label>
                   <input
@@ -661,6 +741,7 @@ const CheckoutClase = () => {
                     <span className="error">{errores.telefono}</span>
                   )}
                 </div>
+
 
                 <div className="form-group">
                   <label>Zona Horaria *</label>
@@ -685,6 +766,7 @@ const CheckoutClase = () => {
                   </span>
                 </div>
 
+
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
@@ -703,6 +785,7 @@ const CheckoutClase = () => {
                     )}
                   </div>
 
+
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
                     <PasswordInput
@@ -720,6 +803,7 @@ const CheckoutClase = () => {
                   </div>
                 </div>
 
+
                 <div className="ya-tienes-cuenta">
                   <p>
                     ¿Ya tienes cuenta? 
@@ -736,6 +820,7 @@ const CheckoutClase = () => {
               </>
             )}
 
+
             <button 
               type="button"
               onClick={handleComprarMercadoPago}
@@ -751,6 +836,7 @@ const CheckoutClase = () => {
                 <>💳 Pagar con Mercado Pago</>
               )}
             </button>
+
 
             <button 
               type="button"
@@ -769,6 +855,7 @@ const CheckoutClase = () => {
               )}
             </button>
 
+
             <p className="aviso-pago">
               🔒 Pago seguro. Recibirás confirmación y datos del profesor por email.
             </p>
@@ -778,5 +865,6 @@ const CheckoutClase = () => {
     </div>
   );
 };
+
 
 export default CheckoutClase;

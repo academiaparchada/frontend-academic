@@ -5,12 +5,15 @@ import comprasService from '../../services/compras_service';
 import { getBrowserTimeZone } from '../../utils/timezone';
 import '../../styles/estudiante-css/DetallePaquete.css';
 
+
 const API_URL =
   import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
+
 
 const DetallePaquete = () => {
   const { compraId } = useParams();
   const navigate = useNavigate();
+
 
   const [paquete, setPaquete] = useState(null);
   const [sesiones, setSesiones] = useState([]);
@@ -18,10 +21,12 @@ const DetallePaquete = () => {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
+
   // Modal de agendar
   const [modalAbierto, setModalAbierto] = useState(false);
   const [procesando, setProcesando] = useState(false);
   const [subiendoArchivo, setSubiendoArchivo] = useState(false);
+
 
   // Añadimos campo fecha (YYYY-MM-DD), fecha_hora guardará el ISO de la franja seleccionada
   const [nuevaSesion, setNuevaSesion] = useState({
@@ -32,7 +37,9 @@ const DetallePaquete = () => {
     fecha: ''
   });
 
+
   const [errores, setErrores] = useState({});
+
 
   // Estado para disponibilidad de franjas
   const [franjas, setFranjas] = useState([]);
@@ -40,9 +47,11 @@ const DetallePaquete = () => {
   const [errorFranjas, setErrorFranjas] = useState('');
   const [franjaSeleccionadaIso, setFranjaSeleccionadaIso] = useState('');
 
+
   useEffect(() => {
     cargarDatos();
   }, [compraId]);
+
 
   const cargarDatos = async () => {
     try {
@@ -50,6 +59,7 @@ const DetallePaquete = () => {
       setError('');
       console.log('🔄 Cargando paquete con ID:', compraId);
       const resultado = await comprasService.obtenerDetallePaquete(compraId);
+
 
       if (resultado.success) {
         console.log('✅ Datos del paquete recibidos:', resultado.data);
@@ -71,13 +81,16 @@ const DetallePaquete = () => {
     }
   };
 
+
   const handleChangeSesion = (e) => {
     const { name, value } = e.target;
+
 
     setNuevaSesion((prev) => ({
       ...prev,
       [name]: name === 'duracion_horas' ? parseInt(value) : value
     }));
+
 
     // Si cambia la fecha, limpiar franjas y selección
     if (name === 'fecha') {
@@ -90,14 +103,17 @@ const DetallePaquete = () => {
       }));
     }
 
+
     if (errores[name]) {
       setErrores((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
+
   // Manejar selección de archivo
   const handleFileChange = (e) => {
     const file = e.target.files?.[0] || null;
+
 
     if (!file) {
       setNuevaSesion((prev) => ({ ...prev, archivo: null }));
@@ -105,12 +121,14 @@ const DetallePaquete = () => {
       return;
     }
 
+
     const validacion = comprasService.validarArchivo(file);
     if (!validacion.valido) {
       setErrores((prev) => ({ ...prev, archivo: validacion.mensaje }));
       setNuevaSesion((prev) => ({ ...prev, archivo: null }));
       return;
     }
+
 
     setNuevaSesion((prev) => ({ ...prev, archivo: file }));
     setErrores((prev) => ({ ...prev, archivo: '' }));
@@ -121,6 +139,7 @@ const DetallePaquete = () => {
     );
   };
 
+
   const handleRemoveFile = () => {
     setNuevaSesion((prev) => ({ ...prev, archivo: null }));
     setErrores((prev) => ({ ...prev, archivo: '' }));
@@ -128,19 +147,23 @@ const DetallePaquete = () => {
     if (fileInput) fileInput.value = '';
   };
 
+
   const validarFormulario = () => {
     const nuevosErrores = {};
     const horasDisponibles = paquete?.compra?.horas_disponibles || 0;
 
+
     console.log('🔍 VALIDANDO FORMULARIO');
     console.log(' → Horas disponibles:', horasDisponibles);
     console.log(' → Duración solicitada:', nuevaSesion.duracion_horas);
+
 
     // Ahora validamos que haya seleccionado una franja (fecha_hora ISO)
     if (!nuevaSesion.fecha_hora) {
       nuevosErrores.fecha_hora =
         'Debes seleccionar un horario disponible para agendar la clase';
     }
+
 
     if (nuevaSesion.duracion_horas < 1) {
       nuevosErrores.duracion_horas = 'La duración debe ser al menos 1 hora';
@@ -152,6 +175,7 @@ const DetallePaquete = () => {
       console.log('⚠️ ERROR: Duración excede horas disponibles');
     }
 
+
     if (
       !nuevaSesion.descripcion_estudiante ||
       nuevaSesion.descripcion_estudiante.trim().length < 10
@@ -160,6 +184,7 @@ const DetallePaquete = () => {
         'Describe qué necesitas (mínimo 10 caracteres)';
     }
 
+
     if (nuevaSesion.archivo) {
       const validacion = comprasService.validarArchivo(nuevaSesion.archivo);
       if (!validacion.valido) {
@@ -167,18 +192,22 @@ const DetallePaquete = () => {
       }
     }
 
+
     console.log(
       '✅ Validación:',
       Object.keys(nuevosErrores).length === 0 ? 'PASÓ' : 'FALLÓ',
       nuevosErrores
     );
 
+
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
 
+
   const consultarFranjas = async () => {
     if (!paquete || !nuevaSesion.fecha) return;
+
 
     try {
       setLoadingFranjas(true);
@@ -187,11 +216,13 @@ const DetallePaquete = () => {
       setFranjaSeleccionadaIso('');
       setNuevaSesion((prev) => ({ ...prev, fecha_hora: '' }));
 
+
       const asignaturaId =
         paquete.compra?.clase_personalizada?.asignatura?.id ||
         paquete.compra?.clase_personalizada?.asignatura_id;
       const duracion = nuevaSesion.duracion_horas || 1;
       const timezone = getBrowserTimeZone();
+
 
       const url = `${API_URL}/disponibilidad/franjas?fecha=${
         nuevaSesion.fecha
@@ -199,8 +230,10 @@ const DetallePaquete = () => {
         timezone
       )}`;
 
+
       const response = await fetch(url);
       const json = await response.json();
+
 
       if (!response.ok || !json.success) {
         setErrorFranjas(
@@ -209,10 +242,13 @@ const DetallePaquete = () => {
         return;
       }
 
+
       const data = json.data || {};
       const franjasDisponibles = data.franjas_disponibles || [];
 
+
       setFranjas(franjasDisponibles);
+
 
       if (franjasDisponibles.length === 0) {
         setErrorFranjas(
@@ -230,6 +266,7 @@ const DetallePaquete = () => {
     }
   };
 
+
   const handleSeleccionFranja = (franja) => {
     setFranjaSeleccionadaIso(franja.fecha_hora_inicio_iso);
     setNuevaSesion((prev) => ({
@@ -241,11 +278,13 @@ const DetallePaquete = () => {
     }
   };
 
+
   const handleAgendarSesion = async (e) => {
     e.preventDefault();
     console.log('═══════════════════════════════════════════════');
     console.log('🚀 INICIANDO AGENDAMIENTO DE SESIÓN');
     console.log('═══════════════════════════════════════════════');
+
 
     if (!validarFormulario()) {
       setMensaje({
@@ -255,8 +294,10 @@ const DetallePaquete = () => {
       return;
     }
 
+
     setProcesando(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       if (nuevaSesion.archivo) {
@@ -267,10 +308,12 @@ const DetallePaquete = () => {
         });
       }
 
+
       // Mantener el mismo flujo: convertirFechaAISO
       const fechaISO = comprasService.convertirFechaAISO(
         nuevaSesion.fecha_hora
       );
+
 
       console.log('📋 DATOS A ENVIAR:');
       console.log(' → Compra ID:', compraId);
@@ -283,11 +326,13 @@ const DetallePaquete = () => {
         nuevaSesion.archivo ? nuevaSesion.archivo.name : 'ninguno'
       );
 
+
       const datosSesion = {
         fecha_hora: fechaISO,
         duracion_horas: nuevaSesion.duracion_horas,
         descripcion_estudiante: nuevaSesion.descripcion_estudiante.trim()
       };
+
 
       const resultado = await comprasService.agendarSesionPaquete(
         compraId,
@@ -295,8 +340,10 @@ const DetallePaquete = () => {
         nuevaSesion.archivo
       );
 
+
       setSubiendoArchivo(false);
       console.log('📥 RESPUESTA COMPLETA:', JSON.stringify(resultado, null, 2));
+
 
       if (resultado.success) {
         console.log('✅ SESIÓN AGENDADA EXITOSAMENTE');
@@ -306,6 +353,7 @@ const DetallePaquete = () => {
             ? '¡Sesión agendada con documento adjunto! 🎉'
             : '¡Sesión agendada exitosamente! 🎉'
         });
+
 
         setNuevaSesion({
           fecha_hora: '',
@@ -318,8 +366,10 @@ const DetallePaquete = () => {
         setFranjas([]);
         setFranjaSeleccionadaIso('');
 
+
         const fileInput = document.querySelector('input[type="file"]');
         if (fileInput) fileInput.value = '';
+
 
         setTimeout(() => {
           setModalAbierto(false);
@@ -348,11 +398,13 @@ const DetallePaquete = () => {
     }
   };
 
+
   const abrirModal = () => {
     const horasDisponibles = paquete?.compra?.horas_disponibles || 0;
     console.log('🔓 ABRIENDO MODAL');
     console.log(' → Horas disponibles:', horasDisponibles);
     console.log(' → Estado pago:', paquete?.compra?.estado_pago);
+
 
     if (horasDisponibles <= 0) {
       alert('No tienes horas disponibles para agendar');
@@ -362,6 +414,7 @@ const DetallePaquete = () => {
       alert('El paquete debe estar pagado para agendar clases');
       return;
     }
+
 
     setModalAbierto(true);
     setMensaje({ tipo: '', texto: '' });
@@ -377,6 +430,7 @@ const DetallePaquete = () => {
     });
   };
 
+
   if (loading) {
     return (
       <div className="detalle-paquete-container">
@@ -387,6 +441,7 @@ const DetallePaquete = () => {
       </div>
     );
   }
+
 
   if (error || !paquete) {
     return (
@@ -402,14 +457,17 @@ const DetallePaquete = () => {
     );
   }
 
+
   const horasDisponibles =
     paquete?.compra?.horas_disponibles ??
     (paquete?.compra?.horas_totales - paquete?.compra?.horas_usadas) ??
     0;
 
+
   const porcentajeUsado = paquete?.compra?.horas_totales
     ? (paquete.compra.horas_usadas / paquete.compra.horas_totales) * 100
     : 0;
+
 
   return (
     <div className="detalle-paquete-container">
@@ -423,6 +481,7 @@ const DetallePaquete = () => {
         <h1>Detalle del Paquete</h1>
       </div>
 
+
       <div className="paquete-info-principal">
         <div className="info-card">
           <h2>
@@ -430,6 +489,7 @@ const DetallePaquete = () => {
             {paquete?.compra?.clase_personalizada?.asignatura?.nombre ||
               'Paquete de horas'}
           </h2>
+
 
           <div className="horas-resumen">
             <div className="horas-circle">
@@ -456,6 +516,7 @@ const DetallePaquete = () => {
               </svg>
             </div>
 
+
             <div className="horas-detalles">
               <div className="detalle-item">
                 <span className="label">Total:</span>
@@ -478,6 +539,7 @@ const DetallePaquete = () => {
             </div>
           </div>
 
+
           <div className="info-adicional">
             <div className="info-row">
               <span className="icon">💰</span>
@@ -491,6 +553,7 @@ const DetallePaquete = () => {
               </div>
             </div>
 
+
             <div className="info-row">
               <span className="icon">📅</span>
               <div>
@@ -502,6 +565,7 @@ const DetallePaquete = () => {
                 </strong>
               </div>
             </div>
+
 
             <div className="info-row">
               <span className="icon">✅</span>
@@ -518,6 +582,7 @@ const DetallePaquete = () => {
             </div>
           </div>
 
+
           {horasDisponibles > 0 && (
             <button
               className="btn-agendar-principal"
@@ -529,9 +594,11 @@ const DetallePaquete = () => {
         </div>
       </div>
 
+
       {/* Sesiones */}
       <div className="sesiones-section">
         <h2>📚 Mis Clases ({sesiones.length})</h2>
+
 
         {sesiones.length === 0 ? (
           <div className="sin-sesiones">
@@ -566,6 +633,7 @@ const DetallePaquete = () => {
                   </span>
                 </div>
 
+
                 <div className="sesion-info">
                   <div className="sesion-header">
                     <h3>
@@ -584,11 +652,13 @@ const DetallePaquete = () => {
                     </span>
                   </div>
 
+
                   {sesion.descripcion_estudiante && (
                     <p className="sesion-descripcion">
                       {sesion.descripcion_estudiante}
                     </p>
                   )}
+
 
                   {sesion.documento_url && (
                     <div className="sesion-documento">
@@ -603,6 +673,7 @@ const DetallePaquete = () => {
                       </a>
                     </div>
                   )}
+
 
                   {sesion.profesor && (
                     <div className="sesion-profesor">
@@ -625,6 +696,7 @@ const DetallePaquete = () => {
         )}
       </div>
 
+
       {/* Modal agendar */}
       {modalAbierto && (
         <div
@@ -646,6 +718,7 @@ const DetallePaquete = () => {
               </button>
             </div>
 
+
             <form
               onSubmit={handleAgendarSesion}
               className="modal-form"
@@ -655,6 +728,7 @@ const DetallePaquete = () => {
                   {mensaje.texto}
                 </div>
               )}
+
 
               {/* Fecha + franjas */}
               <div className="form-group">
@@ -681,9 +755,11 @@ const DetallePaquete = () => {
                 </div>
               </div>
 
+
               {errorFranjas && (
                 <div className="mensaje error">{errorFranjas}</div>
               )}
+
 
               {franjas.length > 0 && (
                 <div className="form-group">
@@ -712,8 +788,8 @@ const DetallePaquete = () => {
                         />
                         <div className="franja-info">
                           <div className="franja-hora">
-                            {franja.hora_inicio?.slice(0, 5)} -{' '}
-                            {franja.hora_fin?.slice(0, 5)}
+                            {(franja.inicio_estudiante || franja.hora_inicio)?.slice(0, 5)} -{' '}
+                            {(franja.fin_estudiante || franja.hora_fin)?.slice(0, 5)}
                           </div>
                           <div className="franja-profesor">
                             Profesor:{' '}
@@ -734,6 +810,7 @@ const DetallePaquete = () => {
                   )}
                 </div>
               )}
+
 
               {/* Duración */}
               <div className="form-group">
@@ -764,6 +841,7 @@ const DetallePaquete = () => {
                 </span>
               </div>
 
+
               {/* Descripción */}
               <div className="form-group">
                 <label>¿Qué necesitas aprender? *</label>
@@ -785,6 +863,7 @@ const DetallePaquete = () => {
                 )}
               </div>
 
+
               {/* Archivo */}
               <div className="form-group">
                 <label>
@@ -793,6 +872,7 @@ const DetallePaquete = () => {
                     Máx 25 MB - PDF, Word, Excel, imágenes, ZIP
                   </span>
                 </label>
+
 
                 {!nuevaSesion.archivo ? (
                   <div className="file-input-wrapper">
@@ -832,10 +912,12 @@ const DetallePaquete = () => {
                   </div>
                 )}
 
+
                 {errores.archivo && (
                   <span className="error">{errores.archivo}</span>
                 )}
               </div>
+
 
               <div className="modal-acciones">
                 <button
@@ -868,5 +950,6 @@ const DetallePaquete = () => {
     </div>
   );
 };
+
 
 export default DetallePaquete;
