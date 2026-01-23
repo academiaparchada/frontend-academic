@@ -5,7 +5,7 @@
   margin: 0 auto;
   padding: 2rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f5f0e8;
 }
 
 /* ===== HEADER ===== */
@@ -21,13 +21,13 @@
 }
 
 .mis-paquetes-header h1 {
-  color: #2d3748;
+  color: #2d5555;
   margin: 0 0 0.5rem 0;
   font-size: 2rem;
 }
 
 .mis-paquetes-header p {
-  color: #718096;
+  color: #3d7373;
   margin: 0;
   font-size: 1rem;
 }
@@ -38,7 +38,7 @@
 }
 
 .btn-comprar-paquete {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -46,18 +46,18 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(12, 71, 76, 0.25);
 }
 
 .btn-comprar-paquete:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(12, 71, 76, 0.35);
 }
 
 .btn-volver {
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #0C474C;
+  border: 2px solid #0C474C;
   padding: 0.75rem 1.5rem;
   border-radius: 10px;
   font-weight: 600;
@@ -66,7 +66,7 @@
 }
 
 .btn-volver:hover {
-  background: #667eea;
+  background: #0C474C;
   color: white;
 }
 
@@ -111,14 +111,14 @@
 }
 
 .stat-label {
-  color: #718096;
+  color: #3d7373;
   font-size: 0.9rem;
 }
 
-.stat-card.total .stat-numero { color: #667eea; }
-.stat-card.activos .stat-numero { color: #48bb78; }
-.stat-card.disponibles .stat-numero { color: #ed8936; }
-.stat-card.usadas .stat-numero { color: #e53e3e; }
+.stat-card.total .stat-numero { color: #0C474C; }
+.stat-card.activos .stat-numero { color: #3d7373; }
+.stat-card.disponibles .stat-numero { color: #5b9999; }
+.stat-card.usadas .stat-numero { color: rgba(255, 77, 77, 0.9); }
 
 /* ===== FILTROS ===== */
 .filtros-container {
@@ -134,22 +134,22 @@
 .btn-filtro {
   flex: 1;
   padding: 0.75rem 1.5rem;
-  border: 2px solid #e2e8f0;
+  border: 2px solid rgba(45, 85, 85, 0.18);
   background: white;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #4a5568;
+  color: #2d5555;
 }
 
 .btn-filtro:hover {
-  border-color: #667eea;
-  color: #667eea;
+  border-color: #5b9999;
+  color: #2d5555;
 }
 
 .btn-filtro.activo {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border-color: transparent;
 }
@@ -187,7 +187,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.85) 0%, rgba(255, 255, 255, 0.65) 100%);
   flex-wrap: wrap;
   gap: 0.5rem;
 }
@@ -200,27 +200,27 @@
 }
 
 .badge-pagado {
-  background: #c6f6d5;
-  color: #22543d;
+  background: rgba(91, 153, 153, 0.18);
+  color: #2d5555;
 }
 
 .badge-pendiente {
-  background: #feebc8;
-  color: #7c2d12;
+  background: rgba(45, 85, 85, 0.12);
+  color: #2d5555;
 }
 
 .badge-fallido {
-  background: #fed7d7;
-  color: #742a2a;
+  background: rgba(255, 77, 77, 0.18);
+  color: #2d5555;
 }
 
 .badge-agotado {
-  background: #fed7d7;
-  color: #742a2a;
+  background: rgba(255, 77, 77, 0.18);
+  color: #2d5555;
 }
 
 .fecha-compra {
-  color: #718096;
+  color: #3d7373;
   font-size: 0.85rem;
 }
 
@@ -231,7 +231,7 @@
 }
 
 .paquete-titulo {
-  color: #2d3748;
+  color: #2d5555;
   margin: 0 0 1.5rem 0;
   font-size: 1.4rem;
   text-align: center;
@@ -259,7 +259,7 @@
 
 .circle-bg {
   fill: none;
-  stroke: #edf2f7;
+  stroke: rgba(45, 85, 85, 0.12);
   stroke-width: 3.8;
 }
 
@@ -278,7 +278,7 @@
 }
 
 .percentage {
-  fill: #667eea;
+  fill: #0C474C;
   font-family: sans-serif;
   font-size: 0.5em;
   font-weight: bold;
@@ -297,7 +297,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(45, 85, 85, 0.12);
 }
 
 .progreso-detalle:last-child {
@@ -305,33 +305,33 @@
 }
 
 .progreso-detalle .label {
-  color: #718096;
+  color: #3d7373;
   font-size: 0.9rem;
 }
 
 .progreso-detalle .valor {
   font-weight: 700;
   font-size: 1.1rem;
-  color: #2d3748;
+  color: #2d5555;
 }
 
 .progreso-detalle .valor.usadas {
-  color: #e53e3e;
+  color: rgba(255, 77, 77, 0.9);
 }
 
 .progreso-detalle .valor.disponibles {
-  color: #48bb78;
+  color: #3d7373;
 }
 
 .progreso-detalle .valor.agotadas {
-  color: #a0aec0;
+  color: rgba(45, 85, 85, 0.45);
 }
 
 /* Barra de Progreso */
 .barra-progreso {
   width: 100%;
   height: 12px;
-  background: #edf2f7;
+  background: rgba(45, 85, 85, 0.12);
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 1.5rem;
@@ -339,7 +339,7 @@
 
 .barra-fill {
   height: 100%;
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   transition: width 0.5s ease;
 }
 
@@ -349,16 +349,16 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 2px dashed #e2e8f0;
+  border-top: 2px dashed rgba(45, 85, 85, 0.18);
 }
 
 .precio-label {
-  color: #718096;
+  color: #3d7373;
   font-size: 0.9rem;
 }
 
 .precio-valor {
-  color: #667eea;
+  color: #0C474C;
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -366,7 +366,7 @@
 /* Footer del Card */
 .paquete-card-footer {
   padding: 1.5rem;
-  background: #f7fafc;
+  background: rgba(255, 255, 255, 0.8);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -375,7 +375,7 @@
 .btn-agendar-clase {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -387,14 +387,14 @@
 
 .btn-agendar-clase:hover {
   transform: scale(1.02);
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(12, 71, 76, 0.35);
 }
 
 .btn-ver-historial {
   width: 100%;
   padding: 1rem;
-  background: #e2e8f0;
-  color: #4a5568;
+  background: rgba(45, 85, 85, 0.12);
+  color: #2d5555;
   border: none;
   border-radius: 10px;
   font-weight: 600;
@@ -404,15 +404,15 @@
 }
 
 .btn-ver-historial:hover {
-  background: #cbd5e0;
+  background: rgba(45, 85, 85, 0.18);
 }
 
 .btn-ver-detalle-secundario {
   width: 100%;
   padding: 0.75rem;
   background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+  color: #0C474C;
+  border: 2px solid #0C474C;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
@@ -420,7 +420,7 @@
 }
 
 .btn-ver-detalle-secundario:hover {
-  background: #667eea;
+  background: #0C474C;
   color: white;
 }
 
@@ -439,13 +439,13 @@
 }
 
 .sin-paquetes h3 {
-  color: #2d3748;
+  color: #2d5555;
   font-size: 1.8rem;
   margin-bottom: 1rem;
 }
 
 .sin-paquetes p {
-  color: #718096;
+  color: #3d7373;
   font-size: 1.1rem;
   max-width: 600px;
   margin: 0 auto 2rem;
@@ -453,7 +453,7 @@
 }
 
 .btn-comprar-primer-paquete {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -462,12 +462,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 15px rgba(12, 71, 76, 0.25);
 }
 
 .btn-comprar-primer-paquete:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(12, 71, 76, 0.35);
 }
 
 /* ===== INFO BOX ===== */
@@ -479,7 +479,7 @@
 }
 
 .info-box h3 {
-  color: #2d3748;
+  color: #2d5555;
   margin-bottom: 1rem;
 }
 
@@ -490,9 +490,9 @@
 }
 
 .info-box li {
-  color: #4a5568;
+  color: #2d5555;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(45, 85, 85, 0.12);
 }
 
 .info-box li:last-child {
@@ -510,8 +510,8 @@
 }
 
 .spinner {
-  border: 4px solid #f3f4f6;
-  border-top: 4px solid #667eea;
+  border: 4px solid rgba(45, 85, 85, 0.12);
+  border-top: 4px solid #0C474C;
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -525,7 +525,7 @@
 }
 
 .mensaje-error {
-  color: #e53e3e;
+  color: rgba(255, 77, 77, 0.9);
   font-weight: 600;
 }
 

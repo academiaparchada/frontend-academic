@@ -4,7 +4,7 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  background: #f8f9fa;
+  background: #f5f0e8;
   min-height: 100vh;
 }
 
@@ -16,7 +16,7 @@
 }
 
 .detalle-header h1 {
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 2rem;
   margin: 0;
 }
@@ -34,7 +34,7 @@
 }
 
 .info-card h2 {
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 1.8rem;
   margin: 0 0 2rem 0;
   text-align: center;
@@ -69,14 +69,14 @@
   display: block;
   font-size: 3rem;
   font-weight: bold;
-  color: #667eea;
+  color: #5b9999;
   line-height: 1;
 }
 
 .horas-label {
   display: block;
   font-size: 0.9rem;
-  color: #718096;
+  color: #3d7373;
   margin-top: 0.5rem;
 }
 
@@ -88,7 +88,7 @@
 
 .circle-bg {
   fill: none;
-  stroke: #e0e0e0;
+  stroke: rgba(45, 85, 85, 0.18);
   stroke-width: 8;
 }
 
@@ -112,28 +112,28 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 8px;
   font-size: 1.1rem;
 }
 
 .horas-detalles .label {
-  color: #718096;
+  color: #3d7373;
   font-weight: 600;
 }
 
 .horas-detalles .valor {
-  color: #2c3e50;
+  color: #2d5555;
   font-weight: bold;
   font-size: 1.3rem;
 }
 
 .horas-detalles .valor.usado {
-  color: #e74c3c;
+  color: rgba(255, 77, 77, 0.9);
 }
 
 .horas-detalles .valor.disponible {
-  color: #27ae60;
+  color: #3d7373;
 }
 
 /* Info adicional */
@@ -142,7 +142,7 @@
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
   margin-bottom: 2rem;
 }
@@ -167,12 +167,12 @@
 }
 
 .info-row .label {
-  color: #718096;
+  color: #3d7373;
   font-weight: 600;
 }
 
 .info-row strong {
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 1.1rem;
 }
 
@@ -184,15 +184,15 @@
 }
 
 .badge-completado {
-  background: #c6f6d5;
-  color: #22543d;
+  background: rgba(91, 153, 153, 0.18);
+  color: #2d5555;
 }
 
 /* Botón principal */
 .btn-agendar-principal {
   width: 100%;
   padding: 1.2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -204,7 +204,7 @@
 
 .btn-agendar-principal:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 6px 20px rgba(12, 71, 76, 0.35);
 }
 
 /* Sección de sesiones */
@@ -216,7 +216,7 @@
 }
 
 .sesiones-section h2 {
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 1.5rem;
   margin: 0 0 1.5rem 0;
 }
@@ -224,7 +224,7 @@
 .sin-sesiones {
   text-align: center;
   padding: 3rem 2rem;
-  color: #718096;
+  color: #3d7373;
 }
 
 .sin-sesiones p {
@@ -234,7 +234,7 @@
 
 .btn-agendar-vacio {
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -246,7 +246,7 @@
 
 .btn-agendar-vacio:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(12, 71, 76, 0.35);
 }
 
 /* Lista de sesiones */
@@ -260,14 +260,14 @@
   display: flex;
   gap: 1.5rem;
   padding: 1.5rem;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 12px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid #5b9999;
   transition: all 0.3s;
 }
 
 .sesion-card:hover {
-  background: #f0f4f8;
+  background: rgba(255, 255, 255, 0.85);
   transform: translateX(4px);
 }
 
@@ -278,7 +278,7 @@
   justify-content: center;
   min-width: 70px;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   border-radius: 8px;
   color: white;
 }
@@ -310,7 +310,7 @@
 }
 
 .sesion-header h3 {
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 1.2rem;
   margin: 0;
 }
@@ -324,22 +324,22 @@
 }
 
 .badge-estado.programada {
-  background: #feebc8;
-  color: #7c2d12;
+  background: rgba(91, 153, 153, 0.18);
+  color: #2d5555;
 }
 
 .badge-estado.completada {
-  background: #c6f6d5;
-  color: #22543d;
+  background: rgba(61, 115, 115, 0.18);
+  color: #2d5555;
 }
 
 .badge-estado.cancelada {
-  background: #fed7d7;
-  color: #742a2a;
+  background: rgba(255, 77, 77, 0.18);
+  color: #2d5555;
 }
 
 .sesion-descripcion {
-  color: #718096;
+  color: #3d7373;
   line-height: 1.5;
   margin: 0;
 }
@@ -352,7 +352,7 @@
   background: white;
   border-radius: 6px;
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: #2d5555;
   font-weight: 500;
 }
 
@@ -362,7 +362,7 @@
 
 .profesor-contacto {
   margin-left: auto;
-  color: #3498db;
+  color: #0C474C;
   font-size: 0.85rem;
 }
 
@@ -409,8 +409,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 2px solid #e9ecef;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: 2px solid rgba(45, 85, 85, 0.12);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
   border-radius: 12px 12px 0 0;
   position: sticky;
@@ -460,7 +460,7 @@
   display: block;
   margin-bottom: 0.5rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #2d5555;
   font-size: 0.95rem;
 }
 
@@ -469,12 +469,13 @@
 .form-group textarea {
   width: 100%;
   padding: 0.875rem;
-  border: 2px solid #e0e0e0;
+  border: 2px solid rgba(45, 85, 85, 0.18);
   border-radius: 8px;
   font-size: 1rem;
-  transition: border-color 0.3s;
+  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
   box-sizing: border-box;
   font-family: inherit;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 .form-group textarea {
@@ -486,24 +487,26 @@
 .form-group select:focus,
 .form-group textarea:focus {
   outline: none;
-  border-color: #3498db;
+  border-color: #0C474C;
+  box-shadow: 0 0 0 3px rgba(12, 71, 76, 0.25);
+  background-color: #ffffff;
 }
 
 .form-group input:disabled,
 .form-group select:disabled,
 .form-group textarea:disabled {
-  background: #f5f5f5;
+  background: rgba(255, 255, 255, 0.65);
   cursor: not-allowed;
   opacity: 0.7;
 }
 
 .form-group .input-error {
-  border-color: #e74c3c;
+  border-color: rgba(255, 77, 77, 0.9);
 }
 
 .form-group .error {
   display: block;
-  color: #e74c3c;
+  color: rgba(255, 77, 77, 0.9);
   font-size: 0.85rem;
   margin-top: 0.4rem;
   font-weight: 500;
@@ -511,7 +514,7 @@
 
 .help-text {
   display: block;
-  color: #7f8c8d;
+  color: #3d7373;
   font-size: 0.85rem;
   margin-top: 0.4rem;
   font-style: italic;
@@ -526,15 +529,15 @@
 }
 
 .mensaje.exito {
-  background: #d4edda;
-  color: #155724;
-  border: 2px solid #c3e6cb;
+  background: rgba(91, 153, 153, 0.18);
+  color: #2d5555;
+  border: 2px solid rgba(91, 153, 153, 0.25);
 }
 
 .mensaje.error {
-  background: #f8d7da;
-  color: #721c24;
-  border: 2px solid #f5c6cb;
+  background: rgba(255, 77, 77, 0.18);
+  color: #2d5555;
+  border: 2px solid rgba(255, 77, 77, 0.25);
 }
 
 .modal-acciones {
@@ -542,7 +545,7 @@
   gap: 1rem;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 2px solid #f0f0f0;
+  border-top: 2px solid rgba(45, 85, 85, 0.12);
 }
 
 .btn-cancelar,
@@ -562,22 +565,22 @@
 }
 
 .btn-cancelar {
-  background: #e0e0e0;
-  color: #2c3e50;
+  background: rgba(45, 85, 85, 0.12);
+  color: #2d5555;
 }
 
 .btn-cancelar:hover:not(:disabled) {
-  background: #d0d0d0;
+  background: rgba(45, 85, 85, 0.18);
 }
 
 .btn-guardar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   color: white;
 }
 
 .btn-guardar:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 12px rgba(12, 71, 76, 0.35);
 }
 
 .btn-cancelar:disabled,
@@ -611,8 +614,8 @@
 }
 
 .spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid rgba(45, 85, 85, 0.18);
+  border-top: 4px solid #0C474C;
   border-radius: 50%;
   width: 50px;
   height: 50px;
@@ -621,7 +624,7 @@
 
 .loading-spinner p {
   margin-top: 1rem;
-  color: #7f8c8d;
+  color: #3d7373;
   font-size: 1rem;
 }
 
@@ -634,19 +637,19 @@
 }
 
 .error-mensaje h3 {
-  color: #e74c3c;
+  color: rgba(255, 77, 77, 0.9);
   font-size: 1.5rem;
   margin-bottom: 1rem;
 }
 
 .error-mensaje p {
-  color: #718096;
+  color: #3d7373;
   margin-bottom: 2rem;
 }
 
 .error-mensaje button {
   padding: 0.875rem 2rem;
-  background: #3498db;
+  background: #0C474C;
   color: white;
   border: none;
   border-radius: 8px;
@@ -657,7 +660,7 @@
 }
 
 .error-mensaje button:hover {
-  background: #2980b9;
+  background: #2d5555;
   transform: translateY(-2px);
 }
 
@@ -749,14 +752,14 @@
     gap: 2rem;
     justify-content: center;
     padding: 1.5rem;
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.9) 100%);
     border-radius: 12px;
     
     .hora-item {
       text-align: center;
       
       &.disponible {
-        background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+        background: rgba(91, 153, 153, 0.18);
         padding: 1rem 1.5rem;
         border-radius: 8px;
         font-size: 1.1em;
@@ -770,8 +773,8 @@
     font-size: 0.85em;
     font-weight: 600;
     
-    &.completado { background: #d4edda; color: #155724; }
-    &.pendiente { background: #fff3cd; color: #856404; }
+    &.completado { background: rgba(91, 153, 153, 0.18); color: #2d5555; }
+    &.pendiente { background: rgba(45, 85, 85, 0.12); color: #2d5555; }
   }
   
   .sesiones-section {
@@ -783,7 +786,7 @@
     
     .sesiones-list {
       .sesion-item {
-        border: 1px solid #e9ecef;
+        border: 1px solid rgba(45, 85, 85, 0.12);
         border-radius: 8px;
         padding: 1rem;
         margin-bottom: 1rem;
@@ -798,7 +801,7 @@
   }
   
   .agendador-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
     color: white;
     padding: 2.5rem;
     border-radius: 16px;
@@ -832,7 +835,7 @@
     }
     
     .btn-agendar {
-      background: #28a745;
+      background: #0C474C;
       color: white;
       padding: 1rem 2rem;
       border: none;
@@ -843,19 +846,20 @@
       transition: all 0.3s;
       
       &:hover {
-        background: #218838;
+        background: #2d5555;
         transform: translateY(-2px);
       }
     }
   }
 }
+
 /* ===== DOCUMENTO ADJUNTO EN SESIONES ===== */
 .sesion-documento {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
-  background: #edf2f7;
+  background: rgba(255, 255, 255, 0.7);
   border-radius: 8px;
   margin-top: 0.75rem;
 }
@@ -865,14 +869,14 @@
 }
 
 .documento-link {
-  color: #667eea;
+  color: #0C474C;
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
 }
 
 .documento-link:hover {
-  color: #764ba2;
+  color: #2d5555;
   text-decoration: underline;
 }
 
@@ -893,20 +897,20 @@
 .file-input-label {
   display: block;
   padding: 1rem;
-  background: #f7fafc;
-  border: 2px dashed #cbd5e0;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px dashed rgba(45, 85, 85, 0.28);
   border-radius: 10px;
   text-align: center;
-  color: #4a5568;
+  color: #2d5555;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .file-input-label:hover {
-  background: #edf2f7;
-  border-color: #667eea;
-  color: #667eea;
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #5b9999;
+  color: #2d5555;
 }
 
 /* ===== ARCHIVO SELECCIONADO ===== */
@@ -915,8 +919,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
-  background: #edf2f7;
-  border: 2px solid #667eea;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px solid #5b9999;
   border-radius: 10px;
   margin-top: 0.5rem;
 }
@@ -940,14 +944,14 @@
 }
 
 .file-name {
-  color: #2d3748;
+  color: #2d5555;
   font-weight: 600;
   font-size: 0.95rem;
   word-break: break-word;
 }
 
 .file-size {
-  color: #718096;
+  color: #3d7373;
   font-size: 0.85rem;
 }
 
@@ -956,7 +960,7 @@
   height: 32px;
   min-width: 32px;
   padding: 0;
-  background: #e53e3e;
+  background: rgba(255, 77, 77, 0.9);
   color: white;
   border: none;
   border-radius: 50%;
@@ -971,7 +975,7 @@
 }
 
 .btn-remove-file:hover:not(:disabled) {
-  background: #c53030;
+  background: rgba(255, 77, 77, 1);
   transform: scale(1.1);
 }
 
@@ -984,15 +988,15 @@
 .label-info {
   display: block;
   font-size: 0.85rem;
-  color: #718096;
+  color: #3d7373;
   font-weight: normal;
   margin-top: 0.25rem;
 }
 
 /* ===== MENSAJE INFO (SUBIENDO) ===== */
 .mensaje.info {
-  background: #bee3f8;
-  color: #2c5282;
+  background: rgba(91, 153, 153, 0.18);
+  color: #2d5555;
   padding: 1rem;
   border-radius: 8px;
   display: flex;
@@ -1017,8 +1021,8 @@
     font-size: 0.9rem;
   }
 }
-/* ===== Fecha + franjas en modal ===== */
 
+/* ===== Fecha + franjas en modal ===== */
 .fecha-disponibilidad {
   display: flex;
   gap: 0.75rem;
@@ -1033,8 +1037,8 @@
   padding: 0.75rem 1rem;
   border-radius: 8px;
   border: none;
-  background: #edf2f7;
-  color: #2d3748;
+  background: rgba(255, 255, 255, 0.75);
+  color: #2d5555;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -1042,8 +1046,8 @@
 }
 
 .btn-secundario-fecha:hover:not(:disabled) {
-  background: #e2e8f0;
-  color: #1a202c;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2d5555;
 }
 
 .btn-secundario-fecha:disabled {
@@ -1052,7 +1056,6 @@
 }
 
 /* Lista de franjas */
-
 .franjas-lista {
   display: flex;
   flex-direction: column;
@@ -1066,21 +1069,21 @@
   align-items: flex-start;
   padding: 0.9rem 1rem;
   border-radius: 10px;
-  border: 2px solid #e2e8f0;
-  background: #f7fafc;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  background: rgba(255, 255, 255, 0.85);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .franja-item:hover {
-  border-color: #667eea;
-  background: #edf2ff;
+  border-color: #5b9999;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .franja-item.seleccionada {
-  border-color: #667eea;
-  background: #ebf4ff;
-  box-shadow: 0 0 0 1px rgba(102, 126, 234, 0.2);
+  border-color: #5b9999;
+  background: rgba(91, 153, 153, 0.12);
+  box-shadow: 0 0 0 1px rgba(91, 153, 153, 0.22);
 }
 
 .franja-item input[type="radio"] {
@@ -1095,22 +1098,21 @@
 
 .franja-hora {
   font-weight: 700;
-  color: #2d3748;
+  color: #2d5555;
   font-size: 0.95rem;
 }
 
 .franja-profesor {
   font-size: 0.9rem;
-  color: #4a5568;
+  color: #3d7373;
 }
 
 .franja-detalle {
   font-size: 0.8rem;
-  color: #718096;
+  color: #3d7373;
 }
 
 /* Responsive franjas */
-
 @media (max-width: 768px) {
   .fecha-disponibilidad {
     flex-direction: column;
