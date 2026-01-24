@@ -13,7 +13,15 @@ const materialEstudioService = {
   listarMaterial: async (cursoId) => {
   try {
     const token = getToken();
+    
+    console.log('🔧 [SERVICE DEBUG] listarMaterial llamado:', {
+      cursoId,
+      hasToken: !!token,
+      tokenLength: token?.length
+    });
+    
     if (!token) {
+      console.error('❌ No hay token');
       return {
         success: false,
         status: 401,
@@ -22,6 +30,7 @@ const materialEstudioService = {
     }
 
     if (!cursoId) {
+      console.error('❌ No hay cursoId');
       return {
         success: false,
         status: 400,
@@ -30,7 +39,18 @@ const materialEstudioService = {
     }
 
     const query = buildQuery({ curso_id: cursoId });
-    const response = await fetch(`${API_BASE_URL}/api/material-estudio${query}`, {
+    const url = `${API_BASE_URL}/api/material-estudio${query}`;
+    
+    console.log('🔧 [SERVICE DEBUG] Haciendo petición:', {
+      url,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token.substring(0, 20)}...`
+      }
+    });
+    
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -38,9 +58,26 @@ const materialEstudioService = {
       },
     });
 
+    console.log('🔧 [SERVICE DEBUG] Respuesta recibida:', {
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries())
+    });
+
     const data = await response.json();
+    
+    console.log('🔧 [SERVICE DEBUG] Data parseada:', {
+      data,
+      dataKeys: Object.keys(data)
+    });
 
     if (!response.ok) {
+      console.error('❌ Respuesta no OK:', {
+        status: response.status,
+        data
+      });
+      
       return {
         success: false,
         status: response.status,
@@ -52,6 +89,12 @@ const materialEstudioService = {
     // Extraer el array de materiales correctamente
     const materiales = data.data?.materiales || data.materiales || data.data || [];
 
+    console.log('✅ [SERVICE DEBUG] Materiales extraídos:', {
+      materiales,
+      length: materiales.length,
+      isArray: Array.isArray(materiales)
+    });
+
     return {
       success: true,
       status: 200,
@@ -59,7 +102,12 @@ const materialEstudioService = {
       data: Array.isArray(materiales) ? materiales : [],
     };
   } catch (error) {
-    console.error('Error al listar material:', error);
+    console.error('❌ [SERVICE DEBUG] Error capturado:', {
+      error,
+      message: error.message,
+      stack: error.stack
+    });
+    
     return {
       success: false,
       status: 500,
@@ -68,6 +116,7 @@ const materialEstudioService = {
     };
   }
 },
+
 
 
   /**

@@ -54,40 +54,63 @@ export const ModalMaterialEstudio = ({ isOpen, onClose, curso }) => {
   }, [isOpen, curso?.id]);
 
   const cargarMaterial = async () => {
-    try {
-      setLoading(true);
-      setError('');
-      setMensaje('');
+  try {
+    setLoading(true);
+    setError('');
+    setMensaje('');
 
-      const resultado = await materialEstudioService.listarMaterial(curso.id);
+    console.log('📱 [MOBILE DEBUG] Cargando material para curso:', {
+      cursoId: curso.id,
+      cursoNombre: curso.nombre,
+      userAgent: navigator.userAgent,
+      isMobile: /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    });
 
-      if (resultado.success) {
-        // Asegurarse de que siempre sea un array
-        const materialesData = resultado.data?.materiales || resultado.data || [];
-        
-        // Validar que sea un array
-        if (Array.isArray(materialesData)) {
-          setMateriales(materialesData);
-          if (materialesData.length === 0) {
-            setMensaje('Este curso aún no tiene material disponible.');
-          }
-        } else {
-          console.error('La respuesta no es un array:', materialesData);
-          setMateriales([]);
+    const resultado = await materialEstudioService.listarMaterial(curso.id);
+
+    console.log('📱 [MOBILE DEBUG] Resultado del servicio:', {
+      success: resultado.success,
+      status: resultado.status,
+      message: resultado.message,
+      dataLength: resultado.data?.length,
+      data: resultado.data
+    });
+
+    if (resultado.success) {
+      // Asegurarse de que siempre sea un array
+      const materialesData = resultado.data?.materiales || resultado.data || [];
+      
+      console.log('📱 [MOBILE DEBUG] Materiales extraídos:', {
+        materialesData,
+        isArray: Array.isArray(materialesData),
+        length: materialesData.length
+      });
+      
+      // Validar que sea un array
+      if (Array.isArray(materialesData)) {
+        setMateriales(materialesData);
+        if (materialesData.length === 0) {
           setMensaje('Este curso aún no tiene material disponible.');
         }
       } else {
-        setError(resultado.message);
+        console.error('❌ La respuesta no es un array:', materialesData);
         setMateriales([]);
+        setMensaje('Este curso aún no tiene material disponible.');
       }
-    } catch (err) {
-      console.error('Error al cargar material:', err);
-      setError('Error al cargar el material del curso');
+    } else {
+      console.error('❌ Error del servicio:', resultado);
+      setError(resultado.message);
       setMateriales([]);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err) {
+    console.error('❌ Error al cargar material:', err);
+    setError('Error al cargar el material del curso');
+    setMateriales([]);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDescargar = async (materialId) => {
     try {
