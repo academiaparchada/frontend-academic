@@ -7,6 +7,7 @@
   padding: 16px 32px;
   background-color: var(--teal);
   border-bottom: 2px solid var(--teal);
+  position: relative;
 }
 
 .header_logo {
@@ -14,6 +15,14 @@
   font-size: 18px;
   line-height: 1.2;
   color: var(--beige);
+  z-index: 1001;
+  user-select: none;
+}
+
+.header_logo:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .header_nav {
@@ -29,10 +38,17 @@
   cursor: pointer;
   font-size: 14px;
   padding: 8px 16px;
+  transition: background-color 0.3s ease;
 }
 
 .header_link:hover {
   background-color: rgba(61, 122, 128, 0.1);
+  border-radius: 4px;
+}
+
+.header_link:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 2px;
   border-radius: 4px;
 }
 
@@ -48,6 +64,7 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .header_btn--outline {
@@ -61,6 +78,11 @@
   color: var(--teal);
 }
 
+.header_btn--outline:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 2px;
+}
+
 .header_btn--solid {
   background-color: var(--beige);
   border: 2.5px solid var(--teal);
@@ -71,4 +93,366 @@
   background-color: var(--teal);
   border-color: var(--beige);
   color: var(--beige);
+}
+
+.header_btn--solid:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 2px;
+}
+
+/* Botón hamburguesa (oculto por defecto) */
+.header_hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1001;
+  transition: transform 0.3s ease;
+}
+
+.header_hamburger:focus-visible {
+  outline: 2px solid var(--beige);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.hamburger_line {
+  width: 25px;
+  height: 3px;
+  background-color: var(--beige);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Animación del hamburguesa cuando está abierto */
+.header_hamburger.active .hamburger_line:nth-child(1) {
+  transform: rotate(45deg) translate(7px, 7px);
+}
+
+.header_hamburger.active .hamburger_line:nth-child(2) {
+  opacity: 0;
+}
+
+.header_hamburger.active .hamburger_line:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+}
+
+/* Overlay (oculto por defecto) */
+.header_overlay {
+  display: none;
+}
+
+/* ============================================ */
+/* RESPONSIVE - TABLET GRANDE (hasta 1024px) */
+/* ============================================ */
+@media (max-width: 1024px) {
+  .header {
+    padding: 14px 24px;
+  }
+
+  .header_nav {
+    gap: 16px;
+  }
+
+  .header_link {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .header_actions {
+    gap: 10px;
+  }
+
+  .header_btn {
+    padding: 9px 14px;
+    font-size: 11px;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE - TABLET (hasta 768px) */
+/* ============================================ */
+@media (max-width: 768px) {
+  .header {
+    padding: 12px 20px;
+  }
+
+  .header_logo {
+    font-size: 16px;
+  }
+
+  /* Mostrar botón hamburguesa */
+  .header_hamburger {
+    display: flex;
+  }
+
+  /* Mostrar overlay */
+  .header_overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+  }
+
+  .header_overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Ocultar navegación y acciones por defecto */
+  .header_nav,
+  .header_actions {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    height: 100vh;
+    width: 280px;
+    background-color: var(--teal);
+    flex-direction: column;
+    padding: 80px 24px 24px;
+    gap: 16px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
+  }
+
+  /* Cuando el menú está abierto */
+  .header_nav.active,
+  .header_actions.active {
+    right: 0;
+  }
+
+  .header_nav {
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(245, 240, 232, 0.2);
+  }
+
+  .header_actions {
+    padding-top: 16px;
+    justify-content: stretch;
+  }
+
+  .header_link {
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 15px;
+    border-radius: 8px;
+  }
+
+  .header_link:hover {
+    background-color: rgba(245, 240, 232, 0.15);
+  }
+
+  .header_btn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+    text-align: center;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE - MÓVIL (hasta 640px) */
+/* ============================================ */
+@media (max-width: 640px) {
+  .header {
+    padding: 12px 16px;
+  }
+
+  .header_logo {
+    font-size: 15px;
+  }
+
+  .header_nav,
+  .header_actions {
+    width: 260px;
+    padding: 70px 20px 20px;
+  }
+
+  .header_nav {
+    gap: 12px;
+    padding-bottom: 14px;
+  }
+
+  .header_actions {
+    gap: 12px;
+    padding-top: 14px;
+  }
+
+  .header_link {
+    padding: 11px 14px;
+    font-size: 14px;
+  }
+
+  .header_btn {
+    padding: 11px 14px;
+    font-size: 13px;
+  }
+
+  .hamburger_line {
+    width: 23px;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE - MÓVIL PEQUEÑO (hasta 480px) */
+/* ============================================ */
+@media (max-width: 480px) {
+  .header {
+    padding: 10px 12px;
+  }
+
+  .header_logo {
+    font-size: 14px;
+  }
+
+  .header_nav,
+  .header_actions {
+    width: 240px;
+    padding: 65px 16px 16px;
+  }
+
+  .header_nav {
+    gap: 10px;
+    padding-bottom: 12px;
+  }
+
+  .header_actions {
+    gap: 10px;
+    padding-top: 12px;
+  }
+
+  .header_link {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .header_btn {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .hamburger_line {
+    width: 22px;
+    height: 2.5px;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE - MÓVIL EXTRA PEQUEÑO (hasta 375px) */
+/* ============================================ */
+@media (max-width: 375px) {
+  .header {
+    padding: 10px 10px;
+  }
+
+  .header_logo {
+    font-size: 13px;
+  }
+
+  .header_nav,
+  .header_actions {
+    width: 220px;
+    padding: 60px 14px 14px;
+  }
+
+  .header_nav {
+    padding-bottom: 10px;
+  }
+
+  .header_actions {
+    padding-top: 10px;
+  }
+
+  .header_link {
+    padding: 9px 10px;
+    font-size: 12px;
+  }
+
+  .header_btn {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+
+  .hamburger_line {
+    width: 20px;
+  }
+}
+
+/* ============================================ */
+/* MEJORAS PARA ACCESIBILIDAD Y UX */
+/* ============================================ */
+
+/* Prevenir scroll del body cuando el menú está abierto */
+body.menu-open {
+  overflow: hidden;
+}
+
+/* Mejora de hover solo para dispositivos con hover */
+@media (hover: hover) {
+  .header_link:hover {
+    background-color: rgba(61, 122, 128, 0.1);
+  }
+
+  .header_btn--outline:hover {
+    background-color: var(--beige);
+    color: var(--teal);
+  }
+
+  .header_btn--solid:hover {
+    background-color: var(--teal);
+    border-color: var(--beige);
+    color: var(--beige);
+  }
+}
+
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  .header_nav,
+  .header_actions,
+  .header_overlay,
+  .header_link,
+  .header_btn,
+  .header_hamburger,
+  .hamburger_line {
+    transition: none;
+  }
+}
+
+/* Smooth scrolling para el menú en móvil */
+@media (max-width: 768px) {
+  .header_nav,
+  .header_actions {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 240, 232, 0.3) transparent;
+  }
+
+  .header_nav::-webkit-scrollbar,
+  .header_actions::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .header_nav::-webkit-scrollbar-track,
+  .header_actions::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .header_nav::-webkit-scrollbar-thumb,
+  .header_actions::-webkit-scrollbar-thumb {
+    background-color: rgba(245, 240, 232, 0.3);
+    border-radius: 3px;
+  }
 }
