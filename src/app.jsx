@@ -1,10 +1,93 @@
-// src/app.jsx
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { Header } from './components/header';
 import { Footer } from './components/footer';
+import cursosService from './services/cursos_service';
+import clasesPersonalizadasService from './services/clases_personalizadas_service';
 import './styles/home.css';
 
+// ✅ Nota: reutilizamos clases CSS existentes de:
+// - home.css: estructura y secciones (coursessection/featuressection/sectionheader...) [file:67]
+// - CursosPublico.css: cards de curso (cursos-publico-grid/curso-publico-card...) [file:69]
+// - ClasesPublico.css: cards de clase (clases-grid/clase-card...) [file:66]
+
 function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [cursosPreview, setCursosPreview] = useState([]);
+  const [loadingCursos, setLoadingCursos] = useState(false);
+
+  const [clasesPreview, setClasesPreview] = useState([]);
+  const [loadingClases, setLoadingClases] = useState(false);
+
+  // ✅ Scroll automático cuando vienes de otra ruta (/?scroll=home-cursos o home-clases)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const targetId = params.get('scroll');
+
+    if (!targetId) return;
+
+    // esperar que renderice el DOM
+    setTimeout(() => {
+      const el = document.getElementById(targetId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 50);
+  }, [location.search]);
+
+  // ✅ Cargar 3 cursos (mismo servicio que CursosPublico.jsx)
+  useEffect(() => {
+    const cargarCursosPreview = async () => {
+      try {
+        setLoadingCursos(true);
+
+        const resultado = await cursosService.listarCursos({
+          page: 1,
+          limit: 3,
+          estado: 'activo',
+          tipo: ''
+        });
+
+        if (resultado?.success) {
+          setCursosPreview(resultado.data?.cursos || []);
+        } else {
+          setCursosPreview([]);
+        }
+      } catch (e) {
+        setCursosPreview([]);
+      } finally {
+        setLoadingCursos(false);
+      }
+    };
+
+    cargarCursosPreview();
+  }, []);
+
+  // ✅ Cargar 3 clases (mismo servicio que ClasesPersonalizadasPublico.jsx)
+  useEffect(() => {
+    const cargarClasesPreview = async () => {
+      try {
+        setLoadingClases(true);
+
+        const resultado = await clasesPersonalizadasService.listarClases();
+        if (resultado?.success) {
+          const all = resultado.data?.clases || [];
+          setClasesPreview(all.slice(0, 3));
+        } else {
+          setClasesPreview([]);
+        }
+      } catch (e) {
+        setClasesPreview([]);
+      } finally {
+        setLoadingClases(false);
+      }
+    };
+
+    cargarClasesPreview();
+  }, []);
+
   return (
     <div className="page">
       <Header />
@@ -14,7 +97,9 @@ function App() {
         <section className="hero_section">
           <div className="hero_content">
             <div className="hero_text">
-              <div className="hero_badge">Plataforma educativa innovadora</div>
+              <div className="hero_badge">
+                Plataforma educativa innovadora
+              </div>
               <h1 className="hero_title">
                 La plataforma de aprendizaje que transforma tu futuro
               </h1>
@@ -35,15 +120,27 @@ function App() {
             <div className="hero_image">
               {/* Aquí irán las imágenes flotantes de estudiantes/cursos */}
               <div className="floating_card card_1">
-                <img src="../images/seguimiento1.png" alt="Estudiante" className="card_img" />
+                <img
+                  src="../images/seguimiento1.png"
+                  alt="Estudiante"
+                  className="card_img"
+                />
                 <div className="card_badge">Sistema de seguimiento</div>
               </div>
               <div className="floating_card card_2">
-                <img src="../images/clasenvivo1.png" alt="Estudiante" className="card_img" />
+                <img
+                  src="../images/clasenvivo1.png"
+                  alt="Estudiante"
+                  className="card_img"
+                />
                 <div className="card_badge">Clases en vivo</div>
               </div>
               <div className="floating_card card_3">
-                <img src="../images/pregrabados1.png" alt="Estudiante" className="card_img" />
+                <img
+                  src="../images/pregrabados1.png"
+                  alt="Estudiante"
+                  className="card_img"
+                />
                 <div className="card_badge">Cursos pregrabados</div>
               </div>
               <div className="center_logo">
@@ -55,27 +152,95 @@ function App() {
           </div>
         </section>
 
-        {/* Cursos Section */}
-        <section className="courses_section">
+        {/* ✅ HOME: Cursos (preview + ver más) */}
+        <section id="home-cursos" className="courses_section">
           <div className="section_header">
-            <div className="section_badge">Modalidades de aprendizaje</div>
-            <h2 className="section_title">Una solución completa para tu educación</h2>
+            <div className="section_badge">Cursos</div>
+            <h2 className="section_title">
+              Una solución completa para tu educación
+            </h2>
             <p className="section_description">
               Parche Académico te ofrece múltiples opciones de aprendizaje diseñadas para adaptarse a tu estilo de vida.
             </p>
           </div>
 
-          <div className="courses_showcase">
-            <img src="../images/cursos1.jpeg" alt="Panel de cursos" className="showcase_image" />
+          {loadingCursos ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Cargando cursos...</p>
+            </div>
+          ) : (
+            <div className="cursos-publico-grid">
+              {cursosPreview.map((curso) => (
+                <div key={curso.id} className="curso-publico-card">
+                  <div className="curso-tipo-badge">
+                    <span>{curso.tipo || 'CURSO'}</span>
+                  </div>
+
+                  {/* Imagen (si existe) */}
+                  {curso.imagen_url ? (
+                    <div className="curso-publico-imagen">
+                      <img
+                        src={curso.imagen_url}
+                        alt={`Curso ${curso.nombre}`}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : null}
+
+                  <div className="curso-publico-header">
+                    <h3>{curso.nombre}</h3>
+                    <span className="duracion">
+                      ⏱️ {curso.duracion_horas || 0}h
+                    </span>
+                  </div>
+
+                  <p className="curso-publico-descripcion">
+                    {curso.descripcion || 'Curso completo con contenido actualizado'}
+                  </p>
+
+                  <div className="curso-publico-footer">
+                    <div className="precio-container">
+                      <span className="precio-label">Precio</span>
+                      <span className="precio-valor">
+                        {curso.precio ?? ''}
+                      </span>
+                    </div>
+
+                    <button
+                      className="btn-inscribirse"
+                      onClick={() => navigate(`/checkout/curso/${curso.id}`)}
+                    >
+                      Inscribirme
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {cursosPreview.length === 0 && (
+                <div className="sin-cursos" style={{ gridColumn: '1 / -1' }}>
+                  <h3>📚 No hay cursos para mostrar</h3>
+                  <p>Pronto agregaremos nuevos cursos</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+            <Link to="/cursos" className="btn_secondary" style={{ display: 'inline-block' }}>
+              Ver más cursos
+            </Link>
           </div>
         </section>
 
-        {/* Features Grid */}
+        {/* Features Grid (se queda como estaba) */}
         <section className="features_section">
           <div className="features_grid">
             {/* Cursos Pregrabados */}
             <div className="feature_card">
-              <div className="feature_icon">🎥</div>
+              <div className="feature_icon">📚</div>
               <h3 className="feature_title">Cursos Pregrabados</h3>
               <p className="feature_description">
                 Accede a contenido grabado de alta calidad disponible 24/7. Aprende a tu propio ritmo,
@@ -93,16 +258,16 @@ function App() {
             {/* Cursos en Vivo */}
             <div className="feature_card featured">
               <div className="feature_badge">Más popular</div>
-              <div className="feature_icon">📺</div>
+              <div className="feature_icon">🎥</div>
               <h3 className="feature_title">Cursos en Vivo</h3>
               <p className="feature_description">
-                Participa en clases programadas con horarios fijos durante varias semanas. Interacción
-                en tiempo real con profesores y compañeros.
+                Participa en clases programadas con horarios fijos durante varias semanas.
+                Interacción en tiempo real con profesores y compañeros.
               </p>
               <ul className="feature_list">
                 <li>Clases en vivo interactivas</li>
                 <li>Duración de X semanas</li>
-                <li>Sesiones de Q&A en tiempo real</li>
+                <li>Sesiones de Q&amp;A en tiempo real</li>
                 <li>Grupo de estudio colaborativo</li>
               </ul>
               <div className="feature_arrow">→</div>
@@ -110,7 +275,7 @@ function App() {
 
             {/* Clases Personalizadas */}
             <div className="feature_card">
-              <div className="feature_icon">🎯</div>
+              <div className="feature_icon">🧑‍🏫</div>
               <h3 className="feature_title">Clases Personalizadas</h3>
               <p className="feature_description">
                 Recibe atención individualizada con clases uno-a-uno adaptadas a tus necesidades específicas
@@ -124,6 +289,96 @@ function App() {
               </ul>
               <div className="feature_arrow">→</div>
             </div>
+          </div>
+        </section>
+
+        {/* ✅ HOME: Clases Personalizadas (preview + ver más) */}
+        <section id="home-clases" className="features_section">
+          <div className="section_header">
+            <div className="section_badge">Clases personalizadas</div>
+            <h2 className="section_title">Agenda clases 1 a 1 o compra paquetes</h2>
+            <p className="section_description">
+              Selección rápida de materias disponibles. Si quieres ver todas, entra en “Ver más”.
+            </p>
+          </div>
+
+          {loadingClases ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Cargando clases...</p>
+            </div>
+          ) : (
+            <div className="clases-grid">
+              {clasesPreview.map((clase) => (
+                <div key={clase.id} className="clase-card">
+                  {/* Imagen (si existe) */}
+                  {clase.imagen_url ? (
+                    <div className="clase-imagen">
+                      <img
+                        src={clase.imagen_url}
+                        alt={clase.asignatura?.nombre || 'Clase'}
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="clase-icon">🧑‍🏫</div>
+                  )}
+
+                  <h3>{clase.asignatura?.nombre || 'Clase personalizada'}</h3>
+
+                  <div className="clase-info">
+                    {clase.duracion_horas ? (
+                      <div className="info-item">
+                        <span className="icon">⏱️</span>
+                        <span>{clase.duracion_horas}h</span>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {clase.precio ? (
+                    <div className="precio-container">
+                      <div className="precio-label">Desde</div>
+                      <div className="precio-valor">{clase.precio}</div>
+                    </div>
+                  ) : null}
+
+                  <div className="clase-acciones">
+                    <button
+                      className="btn-comprar-clase"
+                      onClick={() => navigate(`/checkout/clase/${clase.id}`)}
+                    >
+                      Comprar clase
+                    </button>
+
+                    <button
+                      className="btn-comprar-paquete"
+                      onClick={() => navigate(`/checkout/paquete/${clase.id}`)}
+                    >
+                      Comprar paquete
+                    </button>
+
+                    <p className="ventaja-paquete">
+                      💡 Con el paquete puedes agendar tus clases cuando quieras
+                    </p>
+                  </div>
+                </div>
+              ))}
+
+              {clasesPreview.length === 0 && (
+                <div className="sin-clases" style={{ gridColumn: '1 / -1' }}>
+                  <h3>🧑‍🏫 Pronto agregaremos nuevas materias</h3>
+                  <p>Vuelve más tarde para ver nuevas opciones.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
+            <Link to="/clases-personalizadas" className="btn_secondary" style={{ display: 'inline-block' }}>
+              Ver más clases
+            </Link>
           </div>
         </section>
 
@@ -172,7 +427,11 @@ function App() {
             </div>
 
             <div className="benefits_image">
-              <img src="../images/aprendizaje2.png" alt="Dashboard de beneficios" className="dashboard_img" />
+              <img
+                src="../images/aprendizaje2.png"
+                alt="Dashboard de beneficios"
+                className="dashboard_img"
+              />
             </div>
           </div>
         </section>
@@ -181,12 +440,16 @@ function App() {
         <section className="extra_features_section">
           <div className="extra_features_grid">
             <div className="extra_card">
-              <img src="../images/recursos2.png" alt="Base de datos" className="extra_img" />
+              <img
+                src="../images/recursos2.png"
+                alt="Base de datos"
+                className="extra_img"
+              />
               <div className="extra_content">
                 <h3 className="extra_title">Biblioteca de recursos</h3>
                 <p className="extra_description">
-                  Gestiona tu contenido en una base de datos centralizada. Accede a recursos, materiales de estudio y
-                  contenido complementario en un solo lugar.
+                  Gestiona tu contenido en una base de datos centralizada. Accede a recursos, materiales de estudio
+                  y contenido complementario en un solo lugar.
                 </p>
                 <div className="extra_arrow">→</div>
               </div>
@@ -196,12 +459,16 @@ function App() {
               <div className="extra_content">
                 <h3 className="extra_title">Herramientas de evaluación</h3>
                 <p className="extra_description">
-                  Accede a cuestionarios personalizables, exámenes cronometrados y retroalimentación instantánea para
-                  medir tu progreso de manera efectiva.
+                  Accede a cuestionarios personalizables, exámenes cronometrados y retroalimentación instantánea
+                  para medir tu progreso de manera efectiva.
                 </p>
                 <div className="extra_arrow">→</div>
               </div>
-              <img src="../images/evaluacion1.png" alt="Evaluaciones" className="extra_img" />
+              <img
+                src="../images/evaluacion1.png"
+                alt="Evaluaciones"
+                className="extra_img"
+              />
             </div>
           </div>
         </section>
