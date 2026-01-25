@@ -1,4 +1,20 @@
 /* src/styles/CursosPublico.css */
+.cursos-publico-container {
+  min-height: calc(100vh - 200px); 
+  padding-top: 2rem;
+}
+
+/* Estados de loading y error también con padding */
+.loading-container,
+.error-container {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
 
 .cursos-publico-container {
   max-width: 1400px;
@@ -15,7 +31,7 @@
   font-size: 2.5rem;
   color: #1a202c;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #5b9999;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -48,13 +64,13 @@
 }
 
 .filtro-btn:hover {
-  border-color: #3182ce;
-  color: #3182ce;
+  border-color: #5b9999;
+  color: #5b9999;
   transform: translateY(-2px);
 }
 
 .filtro-btn.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #5b9999;
   color: white;
   border-color: transparent;
 }
@@ -80,18 +96,19 @@
 
 .curso-publico-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.801);
 }
 
 .curso-tipo-badge {
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #5b9999;
 }
 
 .curso-tipo-badge span {
   color: white;
+  background: transparent;
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
 }
 
 /* NUEVO: imagen del curso */

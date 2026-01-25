@@ -100,9 +100,9 @@
   outline-offset: 2px;
 }
 
-/* Botón hamburguesa (oculto por defecto) */
+/* Botón hamburguesa (oculto por defecto en desktop) */
 .header_hamburger {
-  display: none;
+  display: none !important; /* Forzar oculto en desktop */
   flex-direction: column;
   gap: 5px;
   background: none;
@@ -125,6 +125,7 @@
   background-color: var(--beige);
   border-radius: 2px;
   transition: all 0.3s ease;
+  display: block;
 }
 
 /* Animación del hamburguesa cuando está abierto */
@@ -184,9 +185,9 @@
     font-size: 16px;
   }
 
-  /* Mostrar botón hamburguesa */
+  /* MOSTRAR botón hamburguesa - MUY IMPORTANTE */
   .header_hamburger {
-    display: flex;
+    display: flex !important; /* Forzar visible en móvil */
   }
 
   /* Mostrar overlay */
@@ -209,10 +210,11 @@
     visibility: visible;
   }
 
-  /* Ocultar navegación y acciones por defecto */
+  /* OCULTAR navegación y acciones por defecto en móvil */
   .header_nav,
   .header_actions {
-    position: fixed;
+    position: fixed !important;
+    display: flex !important;
     top: 0;
     right: -100%;
     height: 100vh;
@@ -230,7 +232,7 @@
   /* Cuando el menú está abierto */
   .header_nav.active,
   .header_actions.active {
-    right: 0;
+    right: 0 !important;
   }
 
   .header_nav {

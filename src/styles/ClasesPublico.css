@@ -136,7 +136,7 @@
 .precio-valor {
   font-size: 2rem;
   font-weight: bold;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #32373e;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -162,7 +162,7 @@
 }
 
 .btn-comprar-clase {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
 }
 
@@ -172,13 +172,13 @@
 }
 
 .btn-comprar-paquete {
-  background: white;
-  color: #667eea;
+  background: #f41fc6;
+  color: white;
   border: 2px solid #667eea;
 }
 
 .btn-comprar-paquete:hover {
-  background: #f7fafc;
+  background: #22ef56;
   transform: translateY(-2px);
 }
 

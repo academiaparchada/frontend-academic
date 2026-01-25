@@ -380,7 +380,7 @@
 .btn-comprar-final {
   width: 100%;
   padding: 1.2rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #667eea;
   color: white;
   border: none;
   border-radius: 10px;
