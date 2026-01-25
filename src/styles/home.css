@@ -184,7 +184,8 @@
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -194,7 +195,8 @@
 
 /* Animación especial para card_2 que tiene transform inicial */
 @keyframes float-with-center {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-50%);
   }
   50% {
@@ -207,7 +209,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -215,50 +218,55 @@
   }
 }
 
-/* Courses Section */
+/* ============================================ */
+/* Courses Section (HOME) - ahora clara */
+/* ============================================ */
 .courses_section {
-  background-color: #1f3c3c;
+  background: linear-gradient(135deg, #f5f0e8 0%, #efe4d4 100%);
   padding: 4rem 2rem;
-  color: white;
+  color: #2d5555;
 }
 
-.section_header {
+.courses_section .section_header {
   max-width: 800px;
   margin: 0 auto 3rem;
   text-align: center;
 }
 
-.section_badge {
+.courses_section .section_badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background-color: rgba(91, 153, 153, 0.3);
-  color: #a8d5d5;
+  background-color: rgba(91, 153, 153, 0.14);
+  color: #2d5555;
+  border: 1px solid rgba(45, 85, 85, 0.15);
   border-radius: 2rem;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 1rem;
 }
 
-.section_title {
+.courses_section .section_title {
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
   line-height: 1.2;
+  color: #2d5555;
 }
 
-.section_description {
+.courses_section .section_description {
   font-size: 1.125rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.8);
+  color: #4b5563;
   margin: 0;
 }
 
+/* Showcase */
 .courses_showcase {
   max-width: 1200px;
   margin: 0 auto;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
 }
 
 .showcase_image {
@@ -267,9 +275,10 @@
   max-height: 600px;
   display: block;
   object-fit: contain;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(45, 85, 85, 0.04);
 }
 
+/* ============================================ */
 /* Features Section */
 .features_section {
   background-color: #f5f0e8;
@@ -294,7 +303,7 @@
 }
 
 .feature_card.featured {
-  background: linear-gradient(135deg, #5b9999 0%, #4a8080 100%);
+  background: linear-gradient(135deg, #2d5555 0%, #1f3c3c 100%);
   color: white;
   transform: scale(1.05);
 }
@@ -334,12 +343,12 @@
 .feature_description {
   font-size: 1rem;
   line-height: 1.7;
-  color: #666;
+  color: #4b5563;
   margin: 0 0 1.5rem 0;
 }
 
 .feature_card.featured .feature_description {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .feature_list {
@@ -352,18 +361,18 @@
   padding: 0.5rem 0;
   padding-left: 1.5rem;
   position: relative;
-  color: #666;
+  color: #374151;
 }
 
 .feature_card.featured .feature_list li {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .feature_list li::before {
   content: '✓';
   position: absolute;
   left: 0;
-  color: #5b9999;
+  color: #2d5555;
   font-weight: bold;
 }
 
@@ -373,7 +382,7 @@
 
 .feature_arrow {
   font-size: 1.5rem;
-  color: #5b9999;
+  color: #2d5555;
   font-weight: bold;
 }
 
@@ -381,6 +390,7 @@
   color: white;
 }
 
+/* ============================================ */
 /* Benefits Section */
 .benefits_section {
   background-color: white;
@@ -397,8 +407,9 @@
 }
 
 .benefits_content .section_badge {
-  background-color: rgba(255, 165, 0, 0.1);
-  color: #ff8c00;
+  background-color: rgba(255, 165, 0, 0.12);
+  color: #7a3e00;
+  border: 1px solid rgba(122, 62, 0, 0.18);
 }
 
 .benefits_content .section_title,
@@ -408,7 +419,7 @@
 }
 
 .benefits_content .section_description {
-  color: #666;
+  color: #4b5563;
 }
 
 .benefits_grid {
@@ -431,14 +442,14 @@
 
 .benefit_title {
   font-size: 1.25rem;
-  font-weight: 600;
+  font-weight: 700;
   color: #2d5555;
   margin: 0 0 0.5rem 0;
 }
 
 .benefit_desc {
   font-size: 1rem;
-  color: #666;
+  color: #4b5563;
   line-height: 1.6;
   margin: 0;
 }
@@ -458,6 +469,7 @@
   display: block;
 }
 
+/* ============================================ */
 /* Extra Features */
 .extra_features_section {
   background-color: #f5f0e8;
@@ -505,20 +517,21 @@
 
 .extra_description {
   font-size: 1rem;
-  color: #666;
+  color: #4b5563;
   line-height: 1.7;
   margin: 0 0 1.5rem 0;
 }
 
 .extra_arrow {
   font-size: 1.5rem;
-  color: #5b9999;
+  color: #2d5555;
   font-weight: bold;
 }
 
+/* ============================================ */
 /* Stats Section */
 .stats_section {
-  background: linear-gradient(135deg, #5b9999 0%, #3d7373 100%);
+  background: linear-gradient(135deg, #2d5555 0%, #1f3c3c 100%);
   padding: 3rem 2rem;
   text-align: center;
   color: white;
@@ -527,10 +540,11 @@
 .stats_badge {
   display: inline-block;
   padding: 0.5rem 1.5rem;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 2rem;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 2rem;
 }
 
@@ -548,15 +562,16 @@
 
 .stat_number {
   font-size: 3rem;
-  font-weight: 700;
+  font-weight: 800;
   margin-bottom: 0.5rem;
 }
 
 .stat_label {
   font-size: 1rem;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
+/* ============================================ */
 /* CTA Section */
 .cta_section {
   background-color: #f5f0e8;
@@ -578,7 +593,7 @@
 
 .cta_description {
   font-size: 1.125rem;
-  color: #666;
+  color: #4b5563;
   margin: 0 0 2rem 0;
 }
 
@@ -590,37 +605,157 @@
 
 .btn_cta_primary {
   padding: 1.25rem 2.5rem;
-  background-color: #5b9999;
+  background-color: #2d5555;
   color: white;
   text-decoration: none;
   border-radius: 0.5rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.125rem;
   transition: all 0.3s ease;
 }
 
 .btn_cta_primary:hover {
-  background-color: #4a8080;
+  background-color: #1f3c3c;
   transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(91, 153, 153, 0.3);
+  box-shadow: 0 10px 30px rgba(45, 85, 85, 0.25);
 }
 
 .btn_cta_secondary {
   padding: 1.25rem 2.5rem;
   background-color: transparent;
-  color: #5b9999;
+  color: #2d5555;
   text-decoration: none;
-  border: 2px solid #5b9999;
+  border: 2px solid #2d5555;
   border-radius: 0.5rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 1.125rem;
   transition: all 0.3s ease;
 }
 
 .btn_cta_secondary:hover {
-  background-color: #5b9999;
+  background-color: #2d5555;
   color: white;
   transform: translateY(-2px);
+}
+
+/* ============================================ */
+/* HOME - Ajustes para previews (Cursos/Clases)  */
+/* Sin tocar CursosPublico.css / ClasesPublico.css */
+/* ============================================ */
+
+/* Grid de cursos en home: asegurar ancho y espaciamiento */
+#home-cursos.courses_section .cursos-publico-grid {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+/* Cards de curso (en home) en modo claro */
+#home-cursos.courses_section .curso-publico-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(45, 85, 85, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+}
+
+#home-cursos.courses_section .curso-publico-card:hover {
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.14);
+}
+
+/* Textos dentro de card (evitar grises muy claros) */
+#home-cursos.courses_section .curso-publico-card h3 {
+  color: #1f2937;
+}
+
+#home-cursos.courses_section .curso-publico-card .curso-publico-descripcion {
+  color: #374151;
+}
+
+/* Pastillas y textos secundarios */
+#home-cursos.courses_section .curso-publico-card .duracion,
+#home-cursos.courses_section .curso-publico-card .precio-label {
+  color: #374151;
+}
+
+/* Forzar que el precio no quede con bajo contraste por gradiente */
+#home-cursos.courses_section .curso-publico-card .precio-valor {
+  color: #2d5555;
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+
+/* Botón inscribirse con buen contraste */
+#home-cursos.courses_section .btn-inscribirse {
+  background-color: #2d5555;
+  color: #fff;
+  border: none;
+}
+
+#home-cursos.courses_section .btn-inscribirse:hover {
+  background-color: #1f3c3c;
+}
+
+/* Estado vacío en cursos */
+#home-cursos.courses_section .sin-cursos {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed rgba(45, 85, 85, 0.28);
+  color: #2d5555;
+}
+
+/* Clases en home (sección clara): asegurar contenedor centrado */
+#home-clases.features_section .clases-grid {
+  max-width: 1200px;
+  margin: 0 auto 2rem;
+}
+
+/* Cards de clases: mantener look claro */
+#home-clases.features_section .clase-card {
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ✅ Contraste: textos dentro de clase-info (en ClasesPublico.css el texto es gris; aquí lo subo un poco) */
+#home-clases.features_section .clase-info .info-item,
+#home-clases.features_section .clase-info {
+  color: #374151;
+}
+
+/* Botones de clases: coherentes con paleta y contraste */
+#home-clases.features_section .btn-comprar-clase {
+  background-color: #2d5555;
+  color: #fff;
+  border: none;
+}
+
+#home-clases.features_section .btn-comprar-clase:hover {
+  background-color: #1f3c3c;
+}
+
+#home-clases.features_section .btn-comprar-paquete {
+  background-color: transparent;
+  color: #2d5555;
+  border: 2px solid #2d5555;
+}
+
+#home-clases.features_section .btn-comprar-paquete:hover {
+  background-color: #2d5555;
+  color: #fff;
+}
+
+/* Hint del paquete */
+#home-clases.features_section .ventaja-paquete {
+  color: #4b5563;
+}
+
+/* Estado vacío clases */
+#home-clases.features_section .sin-clases {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed rgba(45, 85, 85, 0.25);
+  color: #2d5555;
 }
 
 /* ============================================ */
@@ -1199,16 +1334,4 @@
   .stat_number {
     font-size: 2rem;
   }
-}
-/* FIX HEADER EN HOME - AL FINAL DEL ARCHIVO */
-.header,
-.header * {
-  background-color: var(--teal) !important;
-  color: var(--beige) !important;
-  border-color: var(--teal) !important;
-}
-
-.header_btn--outline {
-  border-color: var(--beige) !important;
-  color: var(--beige) !important;
 }

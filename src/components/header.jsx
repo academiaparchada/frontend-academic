@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/header.css';
 
 export function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogin = () => {
@@ -21,15 +22,23 @@ export function Header() {
     closeMenu();
   };
 
-  const handleCursos = () => {
-    navigate('/cursos');
+  // ✅ Nuevo: en Home hace scroll, en otras rutas navega con query para que Home scrollee
+  const goToHomeSection = (sectionId) => {
+    if (location.pathname === '/') {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      closeMenu();
+      return;
+    }
+
+    navigate(`/?scroll=${sectionId}`);
     closeMenu();
   };
 
-  const handleClases = () => {
-    navigate('/clases-personalizadas');
-    closeMenu();
-  };
+  const handleCursos = () => goToHomeSection('home-cursos');
+  const handleClases = () => goToHomeSection('home-clases');
 
   // Función para toggle del menú
   const toggleMenu = () => {
@@ -70,71 +79,64 @@ export function Header() {
   // Cerrar menú al cambiar de ruta
   useEffect(() => {
     setMenuOpen(false);
-  }, [navigate]);
+  }, [location.pathname]);
 
   return (
     <header className="header">
       {/* Logo clickable */}
-      <div 
-        className="header_logo" 
+      <div
+        className="header__logo"
         onClick={handleHome}
         style={{ cursor: 'pointer' }}
         role="button"
         tabIndex={0}
         onKeyPress={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            handleHome();
-          }
+          if (e.key === 'Enter') handleHome();
         }}
       >
-        PARCHE<br />ACADÉMICO
+        PARCHE<br />
+        ACADÉMICO
       </div>
 
       {/* Botón hamburguesa */}
       <button
-        className={`header_hamburger ${menuOpen ? 'active' : ''}`}
+        className={`header__hamburger ${menuOpen ? 'active' : ''}`}
         onClick={toggleMenu}
         aria-label="Toggle menu"
         aria-expanded={menuOpen}
       >
-        <span className="hamburger_line"></span>
-        <span className="hamburger_line"></span>
-        <span className="hamburger_line"></span>
+        <span className="hamburger__line"></span>
+        <span className="hamburger__line"></span>
+        <span className="hamburger__line"></span>
       </button>
 
       {/* Overlay */}
       <div
-        className={`header_overlay ${menuOpen ? 'active' : ''}`}
+        className={`header__overlay ${menuOpen ? 'active' : ''}`}
         onClick={closeMenu}
         aria-hidden="true"
-      ></div>
-      
+      />
+
       {/* Navegación */}
-      <nav className={`header_nav ${menuOpen ? 'active' : ''}`}>
-        <button 
-          className="header_link" 
-          onClick={handleCursos}
-        >
+      <nav className={`header__nav ${menuOpen ? 'active' : ''}`}>
+        <button className="header__link" onClick={handleCursos}>
           CURSOS
         </button>
-        <button 
-          className="header_link" 
-          onClick={handleClases}
-        >
+        <button className="header__link" onClick={handleClases}>
           CLASES
         </button>
       </nav>
-      
+
       {/* Acciones */}
-      <div className={`header_actions ${menuOpen ? 'active' : ''}`}>
-        <button 
-          className="header_btn header_btn--outline" 
+      <div className={`header__actions ${menuOpen ? 'active' : ''}`}>
+        <button
+          className="header__btn header__btn--outline"
           onClick={handleLogin}
         >
           INICIAR SESIÓN
         </button>
-        <button 
-          className="header_btn header_btn--solid" 
+        <button
+          className="header__btn header__btn--solid"
           onClick={handleRegister}
         >
           REGISTRARSE

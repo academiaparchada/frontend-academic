@@ -10,7 +10,8 @@
   position: relative;
 }
 
-.header_logo {
+/* ✅ Logo */
+.header__logo {
   font-weight: 700;
   font-size: 18px;
   line-height: 1.2;
@@ -19,18 +20,19 @@
   user-select: none;
 }
 
-.header_logo:focus-visible {
+.header__logo:focus-visible {
   outline: 2px solid var(--beige);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-.header_nav {
+/* ✅ Nav */
+.header__nav {
   display: flex;
   gap: 24px;
 }
 
-.header_link {
+.header__link {
   background: none;
   border: none;
   color: var(--beige);
@@ -41,23 +43,25 @@
   transition: background-color 0.3s ease;
 }
 
-.header_link:hover {
+.header__link:hover {
   background-color: rgba(61, 122, 128, 0.1);
   border-radius: 4px;
 }
 
-.header_link:focus-visible {
+.header__link:focus-visible {
   outline: 2px solid var(--beige);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-.header_actions {
+/* ✅ Actions */
+.header__actions {
   display: flex;
   gap: 12px;
 }
 
-.header_btn {
+/* ✅ Buttons */
+.header__btn {
   padding: 10px 16px;
   font-size: 12px;
   font-weight: 600;
@@ -67,41 +71,41 @@
   white-space: nowrap;
 }
 
-.header_btn--outline {
+.header__btn--outline {
   background: transparent;
   border: 2.5px solid var(--beige);
   color: var(--beige);
 }
 
-.header_btn--outline:hover {
+.header__btn--outline:hover {
   background-color: var(--beige);
   color: var(--teal);
 }
 
-.header_btn--outline:focus-visible {
+.header__btn--outline:focus-visible {
   outline: 2px solid var(--beige);
   outline-offset: 2px;
 }
 
-.header_btn--solid {
+.header__btn--solid {
   background-color: var(--beige);
   border: 2.5px solid var(--teal);
   color: var(--teal);
 }
 
-.header_btn--solid:hover {
+.header__btn--solid:hover {
   background-color: var(--teal);
   border-color: var(--beige);
   color: var(--beige);
 }
 
-.header_btn--solid:focus-visible {
+.header__btn--solid:focus-visible {
   outline: 2px solid var(--beige);
   outline-offset: 2px;
 }
 
-/* Botón hamburguesa (oculto por defecto) */
-.header_hamburger {
+/* ✅ Botón hamburguesa (oculto por defecto) */
+.header__hamburger {
   display: none;
   flex-direction: column;
   gap: 5px;
@@ -113,13 +117,13 @@
   transition: transform 0.3s ease;
 }
 
-.header_hamburger:focus-visible {
+.header__hamburger:focus-visible {
   outline: 2px solid var(--beige);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-.hamburger_line {
+.hamburger__line {
   width: 25px;
   height: 3px;
   background-color: var(--beige);
@@ -128,20 +132,20 @@
 }
 
 /* Animación del hamburguesa cuando está abierto */
-.header_hamburger.active .hamburger_line:nth-child(1) {
+.header__hamburger.active .hamburger__line:nth-child(1) {
   transform: rotate(45deg) translate(7px, 7px);
 }
 
-.header_hamburger.active .hamburger_line:nth-child(2) {
+.header__hamburger.active .hamburger__line:nth-child(2) {
   opacity: 0;
 }
 
-.header_hamburger.active .hamburger_line:nth-child(3) {
+.header__hamburger.active .hamburger__line:nth-child(3) {
   transform: rotate(-45deg) translate(7px, -7px);
 }
 
-/* Overlay (oculto por defecto) */
-.header_overlay {
+/* ✅ Overlay (oculto por defecto) */
+.header__overlay {
   display: none;
 }
 
@@ -153,20 +157,20 @@
     padding: 14px 24px;
   }
 
-  .header_nav {
+  .header__nav {
     gap: 16px;
   }
 
-  .header_link {
+  .header__link {
     font-size: 13px;
     padding: 8px 12px;
   }
 
-  .header_actions {
+  .header__actions {
     gap: 10px;
   }
 
-  .header_btn {
+  .header__btn {
     padding: 9px 14px;
     font-size: 11px;
   }
@@ -180,17 +184,17 @@
     padding: 12px 20px;
   }
 
-  .header_logo {
+  .header__logo {
     font-size: 16px;
   }
 
   /* Mostrar botón hamburguesa */
-  .header_hamburger {
+  .header__hamburger {
     display: flex;
   }
 
   /* Mostrar overlay */
-  .header_overlay {
+  .header__overlay {
     display: block;
     position: fixed;
     top: 0;
@@ -204,14 +208,14 @@
     z-index: 999;
   }
 
-  .header_overlay.active {
+  .header__overlay.active {
     opacity: 1;
     visibility: visible;
   }
 
   /* Ocultar navegación y acciones por defecto */
-  .header_nav,
-  .header_actions {
+  .header__nav,
+  .header__actions {
     position: fixed;
     top: 0;
     right: -100%;
@@ -228,22 +232,22 @@
   }
 
   /* Cuando el menú está abierto */
-  .header_nav.active,
-  .header_actions.active {
+  .header__nav.active,
+  .header__actions.active {
     right: 0;
   }
 
-  .header_nav {
+  .header__nav {
     padding-bottom: 16px;
     border-bottom: 1px solid rgba(245, 240, 232, 0.2);
   }
 
-  .header_actions {
+  .header__actions {
     padding-top: 16px;
     justify-content: stretch;
   }
 
-  .header_link {
+  .header__link {
     width: 100%;
     text-align: left;
     padding: 12px 16px;
@@ -251,11 +255,11 @@
     border-radius: 8px;
   }
 
-  .header_link:hover {
+  .header__link:hover {
     background-color: rgba(245, 240, 232, 0.15);
   }
 
-  .header_btn {
+  .header__btn {
     width: 100%;
     padding: 12px 16px;
     font-size: 14px;
@@ -271,37 +275,37 @@
     padding: 12px 16px;
   }
 
-  .header_logo {
+  .header__logo {
     font-size: 15px;
   }
 
-  .header_nav,
-  .header_actions {
+  .header__nav,
+  .header__actions {
     width: 260px;
     padding: 70px 20px 20px;
   }
 
-  .header_nav {
+  .header__nav {
     gap: 12px;
     padding-bottom: 14px;
   }
 
-  .header_actions {
+  .header__actions {
     gap: 12px;
     padding-top: 14px;
   }
 
-  .header_link {
+  .header__link {
     padding: 11px 14px;
     font-size: 14px;
   }
 
-  .header_btn {
+  .header__btn {
     padding: 11px 14px;
     font-size: 13px;
   }
 
-  .hamburger_line {
+  .hamburger__line {
     width: 23px;
   }
 }
@@ -314,37 +318,37 @@
     padding: 10px 12px;
   }
 
-  .header_logo {
+  .header__logo {
     font-size: 14px;
   }
 
-  .header_nav,
-  .header_actions {
+  .header__nav,
+  .header__actions {
     width: 240px;
     padding: 65px 16px 16px;
   }
 
-  .header_nav {
+  .header__nav {
     gap: 10px;
     padding-bottom: 12px;
   }
 
-  .header_actions {
+  .header__actions {
     gap: 10px;
     padding-top: 12px;
   }
 
-  .header_link {
+  .header__link {
     padding: 10px 12px;
     font-size: 13px;
   }
 
-  .header_btn {
+  .header__btn {
     padding: 10px 12px;
     font-size: 12px;
   }
 
-  .hamburger_line {
+  .hamburger__line {
     width: 22px;
     height: 2.5px;
   }
@@ -358,35 +362,35 @@
     padding: 10px 10px;
   }
 
-  .header_logo {
+  .header__logo {
     font-size: 13px;
   }
 
-  .header_nav,
-  .header_actions {
+  .header__nav,
+  .header__actions {
     width: 220px;
     padding: 60px 14px 14px;
   }
 
-  .header_nav {
+  .header__nav {
     padding-bottom: 10px;
   }
 
-  .header_actions {
+  .header__actions {
     padding-top: 10px;
   }
 
-  .header_link {
+  .header__link {
     padding: 9px 10px;
     font-size: 12px;
   }
 
-  .header_btn {
+  .header__btn {
     padding: 9px 10px;
     font-size: 11px;
   }
 
-  .hamburger_line {
+  .hamburger__line {
     width: 20px;
   }
 }
@@ -402,16 +406,16 @@ body.menu-open {
 
 /* Mejora de hover solo para dispositivos con hover */
 @media (hover: hover) {
-  .header_link:hover {
+  .header__link:hover {
     background-color: rgba(61, 122, 128, 0.1);
   }
 
-  .header_btn--outline:hover {
+  .header__btn--outline:hover {
     background-color: var(--beige);
     color: var(--teal);
   }
 
-  .header_btn--solid:hover {
+  .header__btn--solid:hover {
     background-color: var(--teal);
     border-color: var(--beige);
     color: var(--beige);
@@ -420,38 +424,38 @@ body.menu-open {
 
 /* Reducir animaciones si el usuario lo prefiere */
 @media (prefers-reduced-motion: reduce) {
-  .header_nav,
-  .header_actions,
-  .header_overlay,
-  .header_link,
-  .header_btn,
-  .header_hamburger,
-  .hamburger_line {
+  .header__nav,
+  .header__actions,
+  .header__overlay,
+  .header__link,
+  .header__btn,
+  .header__hamburger,
+  .hamburger__line {
     transition: none;
   }
 }
 
 /* Smooth scrolling para el menú en móvil */
 @media (max-width: 768px) {
-  .header_nav,
-  .header_actions {
+  .header__nav,
+  .header__actions {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: rgba(245, 240, 232, 0.3) transparent;
   }
 
-  .header_nav::-webkit-scrollbar,
-  .header_actions::-webkit-scrollbar {
+  .header__nav::-webkit-scrollbar,
+  .header__actions::-webkit-scrollbar {
     width: 6px;
   }
 
-  .header_nav::-webkit-scrollbar-track,
-  .header_actions::-webkit-scrollbar-track {
+  .header__nav::-webkit-scrollbar-track,
+  .header__actions::-webkit-scrollbar-track {
     background: transparent;
   }
 
-  .header_nav::-webkit-scrollbar-thumb,
-  .header_actions::-webkit-scrollbar-thumb {
+  .header__nav::-webkit-scrollbar-thumb,
+  .header__actions::-webkit-scrollbar-thumb {
     background-color: rgba(245, 240, 232, 0.3);
     border-radius: 3px;
   }
