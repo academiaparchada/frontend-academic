@@ -10,14 +10,14 @@ import '../styles/Checkout.css';
 const CheckoutPaquete = () => {
   const { claseId } = useParams();
   const navigate = useNavigate();
-  
+
   const [clase, setClase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
   const [procesandoWompi, setProcesandoWompi] = useState(false);
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
-  
+
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
@@ -42,9 +42,11 @@ const CheckoutPaquete = () => {
   const cargarClase = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`);
+      const response = await fetch(
+        `https://academiaparchada.onrender.com/api/clases-personalizadas/${claseId}`
+      );
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         let claseData = null;
 
@@ -67,16 +69,34 @@ const CheckoutPaquete = () => {
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
-    setDatosUsuario(prev => ({ ...prev, [name]: value }));
+    setDatosUsuario((prev) => ({ ...prev, [name]: value }));
 
     if (errores[name]) {
-      setErrores(prev => ({ ...prev, [name]: '' }));
+      setErrores((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
-  const calcularPrecioTotal = () => {
+  // ==========================
+  // ✅ NUEVO: cálculos precio
+  // (sin tocar estilos/markup)
+  // ==========================
+  const aplicaDescuento = () => Number(cantidadHoras) >= 2;
+
+  const calcularSubtotal = () => {
     if (!clase) return 0;
-    return clase.precio * cantidadHoras;
+    return Number(clase.precio || 0) * Number(cantidadHoras || 0);
+  };
+
+  const calcularDescuento = () => {
+    const subtotal = calcularSubtotal();
+    if (!aplicaDescuento()) return 0;
+    return subtotal * 0.1;
+  };
+
+  const calcularPrecioTotal = () => {
+    const subtotal = calcularSubtotal();
+    if (!aplicaDescuento()) return subtotal;
+    return subtotal * 0.9; // (precio_por_hora * cantidad_horas) * 0.9
   };
 
   const validarFormulario = () => {
@@ -215,6 +235,10 @@ const CheckoutPaquete = () => {
     );
   }
 
+  const subtotal = calcularSubtotal();
+  const descuento = calcularDescuento();
+  const total = calcularPrecioTotal();
+
   return (
     <div className="checkout-container">
       <div className="checkout-header">
@@ -227,10 +251,10 @@ const CheckoutPaquete = () => {
       <div className="checkout-content">
         <div className="checkout-resumen">
           <h2>📦 Resumen de Compra</h2>
-          
+
           <div className="curso-info-checkout">
             <h3>Paquete de {clase.asignatura?.nombre}</h3>
-            
+
             <div className="info-box">
               <p>
                 ✨ <strong>Máxima Flexibilidad</strong>
@@ -243,22 +267,22 @@ const CheckoutPaquete = () => {
             <div className="selector-horas">
               <label>Cantidad de Horas:</label>
               <div className="horas-controles">
-                <button 
+                <button
                   type="button"
                   onClick={() => setCantidadHoras(Math.max(1, cantidadHoras - 1))}
                   disabled={cantidadHoras <= 1 || procesando || procesandoWompi}
                 >
-                 -
+                  -
                 </button>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   value={cantidadHoras}
                   onChange={(e) => setCantidadHoras(parseInt(e.target.value) || 1)}
                   min="1"
                   max="20"
                   disabled={procesando || procesandoWompi}
                 />
-                <button 
+                <button
                   type="button"
                   onClick={() => setCantidadHoras(Math.min(20, cantidadHoras + 1))}
                   disabled={cantidadHoras >= 20 || procesando || procesandoWompi}
@@ -292,7 +316,27 @@ const CheckoutPaquete = () => {
 
             <div className="precio-total">
               <span>Total a Pagar:</span>
-              <strong>{comprasService.formatearPrecio(calcularPrecioTotal())}</strong>
+              <strong>{comprasService.formatearPrecio(total)}</strong>
+            </div>
+
+            {/* ✅ NUEVO: Bloque de cálculo usando SOLO clases existentes del CSS */}
+            <div className="calculo-precios">
+              <div className="precio-linea">
+                <span>Subtotal</span>
+                <span>{comprasService.formatearPrecio(subtotal)}</span>
+              </div>
+
+              {aplicaDescuento() && (
+                <div className="precio-linea descuento">
+                  <span>Descuento 10%</span>
+                  <span>-{comprasService.formatearPrecio(descuento)}</span>
+                </div>
+              )}
+
+              <div className="precio-linea">
+                <span>Total</span>
+                <span>{comprasService.formatearPrecio(total)}</span>
+              </div>
             </div>
 
             <div className="ventajas-paquete">
@@ -446,9 +490,9 @@ const CheckoutPaquete = () => {
 
                 <div className="ya-tienes-cuenta">
                   <p>
-                    ¿Ya tienes cuenta? 
-                    <button 
-                      type="button" 
+                    ¿Ya tienes cuenta?
+                    <button
+                      type="button"
                       onClick={() => navigate('/login')}
                       className="btn-link"
                       disabled={procesando || procesandoWompi}
@@ -467,7 +511,7 @@ const CheckoutPaquete = () => {
               </>
             )}
 
-            <button 
+            <button
               type="button"
               onClick={handleComprarMercadoPago}
               className="btn-comprar-final"
@@ -483,7 +527,7 @@ const CheckoutPaquete = () => {
               )}
             </button>
 
-            <button 
+            <button
               type="button"
               onClick={handleComprarWompi}
               className="btn-comprar-final"
