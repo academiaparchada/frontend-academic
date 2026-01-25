@@ -87,8 +87,8 @@
   background: white;
   border-radius: 16px;
   padding: 0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.283);
+  transition: transform 0.5s, box-shadow 0.3s;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -240,7 +240,7 @@
 .btn-inscribirse {
   width: 100%;
   padding: 1rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #5b9999;
   color: white;
   border: none;
   border-radius: 8px;
@@ -252,7 +252,7 @@
 
 .btn-inscribirse:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(60, 61, 62, 0.4);
 }
 
 /* Sin cursos */
