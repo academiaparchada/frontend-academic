@@ -306,3 +306,27 @@
     height: 160px;
   }
 }
+
+/* ===================================== */
+/* NUEVO: Secciones por categoría         */
+/* (no rompe nada existente)              */
+/* ===================================== */
+
+.categoria-seccion {
+  margin-bottom: 2.5rem;
+}
+
+.categoria-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0 0 1.25rem 0;
+}
+
+.categoria-titulo {
+  font-size: 1.5rem;
+  color: #1a202c;
+  margin: 0;
+  padding-left: 0.25rem;
+  border-left: 4px solid #667eea;
+}

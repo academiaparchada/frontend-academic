@@ -1,5 +1,5 @@
 // src/pages/ClasesPersonalizadasPublico.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import clasesPersonalizadasService from '../services/clases_personalizadas_service';
 import comprasService from '../services/compras_service';
@@ -8,12 +8,33 @@ import '../styles/ClasesPublico.css';
 const ClasesPersonalizadasPublico = () => {
   const navigate = useNavigate();
   const [clases, setClases] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [loadingCategorias, setLoadingCategorias] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     cargarClases();
+    cargarCategorias();
   }, []);
+
+  const cargarCategorias = async () => {
+    try {
+      setLoadingCategorias(true);
+      const res = await fetch('https://api.parcheacademico.com/api/categorias');
+      const data = await res.json();
+
+      if (res.ok && data?.success) {
+        setCategorias(Array.isArray(data?.data?.categorias) ? data.data.categorias : []);
+      } else {
+        setCategorias([]);
+      }
+    } catch (e) {
+      setCategorias([]);
+    } finally {
+      setLoadingCategorias(false);
+    }
+  };
 
   const cargarClases = async () => {
     try {
@@ -47,6 +68,52 @@ const ClasesPersonalizadasPublico = () => {
     navigate(`/checkout/paquete/${clase.id}`);
   };
 
+  const clasesPorCategoria = useMemo(() => {
+    const map = new Map();
+
+    const getCategoriaId = (clase) =>
+      clase?.categoria?.id || clase?.categoria_id || null;
+
+    const getCategoriaNombre = (clase) =>
+      clase?.categoria?.nombre || null;
+
+    clases.forEach((clase) => {
+      const catId = getCategoriaId(clase);
+      const catNombreDirecto = getCategoriaNombre(clase);
+
+      const key = catId || 'sin_categoria';
+      if (!map.has(key)) {
+        map.set(key, {
+          id: catId,
+          nombre: catNombreDirecto || null,
+          clases: []
+        });
+      }
+      map.get(key).clases.push(clase);
+    });
+
+    // Resolver nombres con la lista de categorias (si el item no trae categoria embebida)
+    const categoriasById = new Map((categorias || []).map((c) => [c.id, c]));
+    const secciones = Array.from(map.values()).map((sec) => {
+      if (!sec.nombre && sec.id && categoriasById.has(sec.id)) {
+        sec.nombre = categoriasById.get(sec.id).nombre;
+      }
+      if (!sec.nombre) sec.nombre = 'Otras';
+      return sec;
+    });
+
+    // Orden: primero categorías del backend, luego "Otras"
+    const orden = new Map((categorias || []).map((c, idx) => [c.id, idx]));
+    secciones.sort((a, b) => {
+      const aRank = a.id && orden.has(a.id) ? orden.get(a.id) : 9999;
+      const bRank = b.id && orden.has(b.id) ? orden.get(b.id) : 9999;
+      if (aRank !== bRank) return aRank - bRank;
+      return a.nombre.localeCompare(b.nombre);
+    });
+
+    return secciones;
+  }, [clases, categorias]);
+
   if (loading) {
     return (
       <div className="clases-publico-container">
@@ -79,73 +146,81 @@ const ClasesPersonalizadasPublico = () => {
         <p>Clases individuales adaptadas a tus necesidades</p>
       </header>
 
-      <div className="clases-grid">
-        {clases.map((clase) => (
-          <div key={clase.id} className="clase-card">
-            {/* IMAGEN / FALLBACK */}
-            {clase.imagen_url ? (
-              <div className="clase-imagen">
-                <img
-                  src={clase.imagen_url}
-                  alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
-                  loading="lazy"
-                  onError={(e) => {
-                    // si falla la carga, ocultar imagen y dejar que el layout siga normal
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-              </div>
-            ) : (
-              <div className="clase-icon">📚</div>
-            )}
-
-            <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
-
-            <div className="clase-info">
-              <div className="info-item">
-                <span className="icon">⏱️</span>
-                <span>{clase.duracion_horas} hora(s)</span>
-              </div>
-
-              <div className="info-item">
-                <span className="icon">👥</span>
-                <span>Individual</span>
-              </div>
-
-              <div className="info-item">
-                <span className="icon">🎯</span>
-                <span>Virtual</span>
-              </div>
-            </div>
-
-            <div className="precio-container">
-              <span className="precio-label">Precio por clase</span>
-              <span className="precio-valor">
-                {clasesPersonalizadasService.formatearPrecio(clase.precio)}
-              </span>
-            </div>
-
-            <div className="clase-acciones">
-              <button
-                className="btn-comprar-clase"
-                onClick={() => handleComprarClase(clase)}
-              >
-                Comprar 1 Clase
-              </button>
-              <button
-                className="btn-comprar-paquete"
-                onClick={() => handleComprarPaquete(clase)}
-              >
-                📦 Comprar Paquete
-              </button>
-            </div>
-
-            <p className="ventaja-paquete">
-              💡 Con el paquete puedes agendar tus clases cuando quieras
-            </p>
+      {clasesPorCategoria.map((seccion) => (
+        <section key={seccion.id || seccion.nombre} className="categoria-seccion">
+          <div className="categoria-header">
+            <h2 className="categoria-titulo">{seccion.nombre}</h2>
           </div>
-        ))}
-      </div>
+
+          <div className="clases-grid">
+            {seccion.clases.map((clase) => (
+              <div key={clase.id} className="clase-card">
+                {/* IMAGEN / FALLBACK */}
+                {clase.imagen_url ? (
+                  <div className="clase-imagen">
+                    <img
+                      src={clase.imagen_url}
+                      alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
+                      loading="lazy"
+                      onError={(e) => {
+                        // si falla la carga, ocultar imagen y dejar que el layout siga normal
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <div className="clase-icon">📚</div>
+                )}
+
+                <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
+
+                <div className="clase-info">
+                  <div className="info-item">
+                    <span className="icon">⏱️</span>
+                    <span>{clase.duracion_horas} hora(s)</span>
+                  </div>
+
+                  <div className="info-item">
+                    <span className="icon">👥</span>
+                    <span>Individual</span>
+                  </div>
+
+                  <div className="info-item">
+                    <span className="icon">🎯</span>
+                    <span>Virtual</span>
+                  </div>
+                </div>
+
+                <div className="precio-container">
+                  <span className="precio-label">Precio por clase</span>
+                  <span className="precio-valor">
+                    {clasesPersonalizadasService.formatearPrecio(clase.precio)}
+                  </span>
+                </div>
+
+                <div className="clase-acciones">
+                  <button
+                    className="btn-comprar-clase"
+                    onClick={() => handleComprarClase(clase)}
+                  >
+                    Comprar 1 Clase
+                  </button>
+                  <button
+                    className="btn-comprar-paquete"
+                    onClick={() => handleComprarPaquete(clase)}
+                  >
+                    📦 Comprar Paquete
+                  </button>
+                </div>
+
+                <p className="ventaja-paquete">
+                  💡 Con el paquete puedes agendar tus clases cuando quieras
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ))}
 
       {clases.length === 0 && (
         <div className="sin-clases">
