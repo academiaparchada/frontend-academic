@@ -1,7 +1,7 @@
 // src/services/google_auth_service.js
 import { supabase } from '../config/supabase';
 
-const API_URL = 'https://academiaparchada.onrender.com/api/auth';
+const API_URL = 'https://api.parcheacademico.com/api/auth';
 
 class GoogleAuthService {
   /**
@@ -12,8 +12,8 @@ class GoogleAuthService {
       // Determinar la URL de callback según el entorno
       const isDevelopment = window.location.hostname === 'localhost';
       const redirectTo = isDevelopment
-        ? `${window.location.origin}/auth/callback`
-        : 'https://parcheacademico.com/auth/callback';
+        ? `${window.location.origin}/auth/google/callback`
+        : 'https://parcheacademico.com/auth/google/callback';
 
       console.log('🔐 Iniciando login con Google, redirectTo:', redirectTo);
 
@@ -51,7 +51,7 @@ class GoogleAuthService {
   async handleGoogleCallback() {
     try {
       console.log('📥 URL completa del callback:', window.location.href);
-      
+
       // Obtener la sesión actual de Supabase
       // Supabase automáticamente procesa el hash fragment (#access_token=...)
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
@@ -85,7 +85,7 @@ class GoogleAuthService {
         if (accessToken) {
           console.log('⏳ Access token encontrado, esperando sesión...');
           await new Promise(resolve => setTimeout(resolve, 1000));
-          
+
           const { data: { session: retrySession } } = await supabase.auth.getSession();
           if (retrySession) {
             return await this.sendTokenToBackend(retrySession.access_token);
@@ -116,6 +116,8 @@ class GoogleAuthService {
         throw new Error('No se obtuvo access_token de Supabase');
       }
 
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Bogota';
+
       console.log('📤 Enviando access_token al backend...');
 
       const response = await fetch(`${API_URL}/google`, {
@@ -125,6 +127,7 @@ class GoogleAuthService {
         },
         body: JSON.stringify({
           access_token: accessToken,
+          timezone: timezone,
         }),
       });
 
@@ -139,6 +142,9 @@ class GoogleAuthService {
         // Guardar token y usuario del backend
         localStorage.setItem('token', result.data.token);
         localStorage.setItem('user', JSON.stringify(result.data.user));
+
+        // Guardar timezone (para que toda la app siga el mismo patrón que login/register)
+        localStorage.setItem('timezone', result.data.user?.timezone || timezone || 'America/Bogota');
 
         console.log('✅ Login con Google completado exitosamente');
         return {
@@ -165,6 +171,7 @@ class GoogleAuthService {
       // Limpiar localStorage
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('timezone');
 
       return { success: true };
     } catch (error) {
