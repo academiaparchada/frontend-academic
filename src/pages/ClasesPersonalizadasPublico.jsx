@@ -1,6 +1,8 @@
 // src/pages/ClasesPersonalizadasPublico.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Header } from '../components/header';
+import { Footer } from '../components/footer';
 import clasesPersonalizadasService from '../services/clases_personalizadas_service';
 import comprasService from '../services/compras_service';
 import '../styles/ClasesPublico.css';
@@ -116,119 +118,131 @@ const ClasesPersonalizadasPublico = () => {
 
   if (loading) {
     return (
-      <div className="clases-publico-container">
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Cargando clases...</p>
+      <>
+        <Header />
+        <div className="clases-publico-container">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>Cargando clases...</p>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="clases-publico-container">
-        <div className="error-container">
-          <h3>❌ Error</h3>
-          <p>{error}</p>
-          <button onClick={cargarClases} className="btn-retry">
-            Reintentar
-          </button>
+      <>
+        <Header />
+        <div className="clases-publico-container">
+          <div className="error-container">
+            <h3>❌ Error</h3>
+            <p>{error}</p>
+            <button onClick={cargarClases} className="btn-retry">
+              Reintentar
+            </button>
+          </div>
         </div>
-      </div>
+        <Footer />
+      </>
     );
   }
 
   return (
-    <div className="clases-publico-container">
-      <header className="clases-header">
-        <h1>Clases Personalizadas</h1>
-        <p>Clases individuales adaptadas a tus necesidades</p>
-      </header>
+    <>
+      <Header />
+      <div className="clases-publico-container">
+        <header className="clases-header">
+          <h1>Clases Personalizadas</h1>
+          <p>Clases individuales adaptadas a tus necesidades</p>
+        </header>
 
-      {clasesPorCategoria.map((seccion) => (
-        <section key={seccion.id || seccion.nombre} className="categoria-seccion">
-          <div className="categoria-header">
-            <h2 className="categoria-titulo">{seccion.nombre}</h2>
+        {clasesPorCategoria.map((seccion) => (
+          <section key={seccion.id || seccion.nombre} className="categoria-seccion">
+            <div className="categoria-header">
+              <h2 className="categoria-titulo">{seccion.nombre}</h2>
+            </div>
+
+            <div className="clases-grid">
+              {seccion.clases.map((clase) => (
+                <div key={clase.id} className="clase-card">
+                  {/* IMAGEN / FALLBACK */}
+                  {clase.imagen_url ? (
+                    <div className="clase-imagen">
+                      <img
+                        src={clase.imagen_url}
+                        alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
+                        loading="lazy"
+                        onError={(e) => {
+                          // si falla la carga, ocultar imagen y dejar que el layout siga normal
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className="clase-icon">📚</div>
+                  )}
+
+                  <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
+
+                  <div className="clase-info">
+                    <div className="info-item">
+                      <span className="icon">⏱️</span>
+                      <span>{clase.duracion_horas} hora(s)</span>
+                    </div>
+
+                    <div className="info-item">
+                      <span className="icon">👥</span>
+                      <span>Individual</span>
+                    </div>
+
+                    <div className="info-item">
+                      <span className="icon">🎯</span>
+                      <span>Virtual</span>
+                    </div>
+                  </div>
+
+                  <div className="precio-container">
+                    <span className="precio-label">Precio por clase</span>
+                    <span className="precio-valor">
+                      {clasesPersonalizadasService.formatearPrecio(clase.precio)}
+                    </span>
+                  </div>
+
+                  <div className="clase-acciones">
+                    <button
+                      className="btn-comprar-clase"
+                      onClick={() => handleComprarClase(clase)}
+                    >
+                      Comprar 1 Clase
+                    </button>
+                    <button
+                      className="btn-comprar-paquete"
+                      onClick={() => handleComprarPaquete(clase)}
+                    >
+                      📦 Comprar Paquete
+                    </button>
+                  </div>
+
+                  <p className="ventaja-paquete">
+                    💡 Con el paquete puedes agendar tus clases cuando quieras
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {clases.length === 0 && (
+          <div className="sin-clases">
+            <h3>📝 No hay clases disponibles</h3>
+            <p>Pronto agregaremos nuevas materias</p>
           </div>
-
-          <div className="clases-grid">
-            {seccion.clases.map((clase) => (
-              <div key={clase.id} className="clase-card">
-                {/* IMAGEN / FALLBACK */}
-                {clase.imagen_url ? (
-                  <div className="clase-imagen">
-                    <img
-                      src={clase.imagen_url}
-                      alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
-                      loading="lazy"
-                      onError={(e) => {
-                        // si falla la carga, ocultar imagen y dejar que el layout siga normal
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="clase-icon">📚</div>
-                )}
-
-                <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
-
-                <div className="clase-info">
-                  <div className="info-item">
-                    <span className="icon">⏱️</span>
-                    <span>{clase.duracion_horas} hora(s)</span>
-                  </div>
-
-                  <div className="info-item">
-                    <span className="icon">👥</span>
-                    <span>Individual</span>
-                  </div>
-
-                  <div className="info-item">
-                    <span className="icon">🎯</span>
-                    <span>Virtual</span>
-                  </div>
-                </div>
-
-                <div className="precio-container">
-                  <span className="precio-label">Precio por clase</span>
-                  <span className="precio-valor">
-                    {clasesPersonalizadasService.formatearPrecio(clase.precio)}
-                  </span>
-                </div>
-
-                <div className="clase-acciones">
-                  <button
-                    className="btn-comprar-clase"
-                    onClick={() => handleComprarClase(clase)}
-                  >
-                    Comprar 1 Clase
-                  </button>
-                  <button
-                    className="btn-comprar-paquete"
-                    onClick={() => handleComprarPaquete(clase)}
-                  >
-                    📦 Comprar Paquete
-                  </button>
-                </div>
-
-                <p className="ventaja-paquete">
-                  💡 Con el paquete puedes agendar tus clases cuando quieras
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-      ))}
-
-      {clases.length === 0 && (
-        <div className="sin-clases">
-          <h3>📝 No hay clases disponibles</h3>
-          <p>Pronto agregaremos nuevas materias</p>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+      <Footer />
+    </>
   );
 };
 

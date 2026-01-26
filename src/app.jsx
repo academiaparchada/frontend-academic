@@ -293,12 +293,12 @@ function App() {
         </section>
 
         {/* ✅ HOME: Clases Personalizadas (preview + ver más) */}
-        <section id="home-clases" className="features_section">
+        <section id="home-clases" className="courses_section">
           <div className="section_header">
             <div className="section_badge">Clases personalizadas</div>
             <h2 className="section_title">Agenda clases 1 a 1 o compra paquetes</h2>
             <p className="section_description">
-              Selección rápida de materias disponibles. Si quieres ver todas, entra en “Ver más”.
+              Selección rápida de materias disponibles. Si quieres ver todas, entra en "Ver más".
             </p>
           </div>
 
@@ -375,12 +375,13 @@ function App() {
             </div>
           )}
 
-          <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center' }}>
-            <Link to="/clases-personalizadas" className="btn_secondary" style={{ display: 'inline-block' }}>
+          <div style={{ maxWidth: 1200, margin: '2rem auto 0', textAlign: 'center' }}>
+            <Link to="/clases-personalizadas" className="btn_cta_primary" style={{ display: 'inline-block' }}>
               Ver más clases
             </Link>
           </div>
         </section>
+
 
         {/* Benefits Section */}
         <section className="benefits_section">
