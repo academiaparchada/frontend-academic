@@ -1,5 +1,5 @@
 // src/services/profesor_service.js
-const API_URL = import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.parcheacademico.com/api';
 
 class ProfesorService {
   _getToken() {
@@ -330,14 +330,19 @@ async actualizarMeetSesion(sesionId, linkMeet) {
   
   formatearFechaHora(fecha) {
     if (!fecha) return 'No especificada';
+
+    const timezone = localStorage.getItem('timezone') || 'America/Bogota';
+
     return new Date(fecha).toLocaleString('es-CO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: timezone
     });
-  }
+}
+
 
   obtenerBadgeEstado(estado) {
     const badges = {
