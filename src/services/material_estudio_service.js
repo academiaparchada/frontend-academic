@@ -144,7 +144,7 @@ const materialEstudioService = {
       }
 
       const query = buildQuery({ sesion_clase_id: sesionClaseId });
-      const response = await fetch(`${API_BASE_URL}/material-estudio${query}`, {
+      const response = await fetch(`${API_BASE_URL}/api/material-estudio${query}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
