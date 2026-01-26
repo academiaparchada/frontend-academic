@@ -7,7 +7,7 @@ import '../../styles/estudiante-css/estudiante_dashboard.css';
 export const EstudianteDashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  
+
   // ✅ INICIALIZAR stats con valores por defecto
   const [stats, setStats] = useState({
     cursos: 0,
@@ -34,7 +34,7 @@ export const EstudianteDashboard = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      
+
       // Obtener compras del estudiante
       const response = await fetch('https://academiaparchada.onrender.com/api/compras/estudiante', {
         headers: {
@@ -50,7 +50,7 @@ export const EstudianteDashboard = () => {
         const cursos = compras.filter(c => c.tipo_compra === 'curso').length;
         const clases = compras.filter(c => c.tipo_compra === 'clase_personalizada').length;
         const paquetes = compras.filter(c => c.tipo_compra === 'paquete_horas');
-        
+
         // Calcular total de horas disponibles en paquetes
         const horasDisponibles = paquetes.reduce((total, p) => {
           return total + ((p.horas_totales || 0) - (p.horas_usadas || 0));
@@ -81,10 +81,10 @@ export const EstudianteDashboard = () => {
   if (loading) {
     return (
       <div className="dashboard_container">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           minHeight: '100vh',
           flexDirection: 'column',
           gap: '1rem'
@@ -118,15 +118,15 @@ export const EstudianteDashboard = () => {
 
       {/* Cards Grid */}
       <div className="dashboard_grid">
-        
+
         {/* Explorar Cursos */}
         <div className="dashboard_card">
           <div className="card_icon">🎓</div>
           <h2 className="card_title">Explorar Cursos</h2>
           <p className="card_number">{stats.cursos}</p>
           <p className="card_description">Cursos Comprados</p>
-          <button 
-            className="btn_card" 
+          <button
+            className="btn_card"
             onClick={() => navigate('/cursos')}
           >
             Ver Catálogo
@@ -139,8 +139,8 @@ export const EstudianteDashboard = () => {
           <h2 className="card_title">Mis Compras</h2>
           <p className="card_number">{stats.cursos + stats.clases + stats.paquetes}</p>
           <p className="card_description">Compras Realizadas</p>
-          <button 
-            className="btn_card" 
+          <button
+            className="btn_card"
             onClick={() => navigate('/estudiante/mis-compras')}
           >
             Ver Historial
@@ -153,28 +153,41 @@ export const EstudianteDashboard = () => {
           <h2 className="card_title">Clases Personalizadas</h2>
           <p className="card_number">{stats.clases}</p>
           <p className="card_description">Clases Compradas</p>
-          <button 
-            className="btn_card" 
+          <button
+            className="btn_card"
             onClick={() => navigate('/clases-personalizadas')}
           >
             Explorar Clases
           </button>
         </div>
 
-       {/* Paquetes de Horas */}
+        {/* Paquetes de Horas */}
         <div className="dashboard_card">
           <div className="card_icon">⏱️</div>
           <h2 className="card_title">Paquetes de Horas</h2>
           <p className="card_number">{stats.horasDisponibles}h</p>
           <p className="card_description">Horas Disponibles</p>
-          <button 
-            className="btn_card" 
+          <button
+            className="btn_card"
             onClick={() => navigate('/estudiante/mis-paquetes')}
           >
             Gestionar Paquetes
           </button>
         </div>
 
+        {/* ✅ NUEVA CARD: Mis Clases */}
+        <div className="dashboard_card">
+          <div className="card_icon">🎥</div>
+          <h2 className="card_title">Mis Clases</h2>
+          <p className="card_number">{stats.clases}</p>
+          <p className="card_description">Ver fecha/hora y Meet</p>
+          <button
+            className="btn_card"
+            onClick={() => navigate('/estudiante/mis-clases')}
+          >
+            Ver Mis Clases
+          </button>
+        </div>
 
         {/* Mis Cursos Activos */}
         <div className="dashboard_card">
@@ -182,8 +195,8 @@ export const EstudianteDashboard = () => {
           <h2 className="card_title">Mis Cursos</h2>
           <p className="card_number">{stats.cursos}</p>
           <p className="card_description">Cursos Activos</p>
-          <button 
-            className="btn_card" 
+          <button
+            className="btn_card"
             onClick={() => navigate('/estudiante/mis-compras')}
           >
             Ver Mis Cursos
@@ -196,8 +209,8 @@ export const EstudianteDashboard = () => {
           <h2 className="card_title">Próximas Clases</h2>
           <p className="card_number">0</p>
           <p className="card_description">Clases Programadas</p>
-          <button 
-            className="btn_card" 
+          <button
+            className="btn_card"
             onClick={() => navigate('/estudiante/mis-compras')}
           >
             Ver Calendario
@@ -210,19 +223,19 @@ export const EstudianteDashboard = () => {
       <div className="quick_actions">
         <h2>Acciones Rápidas</h2>
         <div className="actions_grid">
-          <button 
+          <button
             className="action_btn primary"
             onClick={() => navigate('/cursos')}
           >
             🎓 Comprar Curso
           </button>
-          <button 
+          <button
             className="action_btn secondary"
             onClick={() => navigate('/clases-personalizadas')}
           >
             📝 Comprar Clase
           </button>
-          <button 
+          <button
             className="action_btn success"
             onClick={() => navigate('/estudiante/mis-compras')}
           >
@@ -236,7 +249,7 @@ export const EstudianteDashboard = () => {
         <div className="info_card">
           <h3>💡 ¿Sabías que...?</h3>
           <p>
-            Con los paquetes de horas puedes agendar tus clases cuando quieras 
+            Con los paquetes de horas puedes agendar tus clases cuando quieras
             y distribuir las horas como mejor te convenga.
           </p>
         </div>
@@ -244,7 +257,7 @@ export const EstudianteDashboard = () => {
         <div className="info_card">
           <h3>🎯 Recomendación</h3>
           <p>
-            Los cursos grupales son más económicos y te permiten aprender 
+            Los cursos grupales son más económicos y te permiten aprender
             junto a otros estudiantes con tus mismos objetivos.
           </p>
         </div>
