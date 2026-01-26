@@ -162,6 +162,7 @@ const MisClasesEstudiante = () => {
                           {estado}
                         </span>
 
+                        {/* ✅ CORRECCIÓN: usar el service (lee localStorage.timezone) */}
                         <span className="session-fecha">
                           {estudianteClasesService.formatearFechaHora(s.fecha_hora)}
                         </span>

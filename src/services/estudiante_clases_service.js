@@ -64,12 +64,16 @@ class EstudianteClasesService {
 
   formatearFechaHora(fecha) {
     if (!fecha) return 'No especificada';
+
+    const timezone = localStorage.getItem('timezone') ;
+
     return new Date(fecha).toLocaleString('es-CO', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      timeZone: timezone
     });
   }
 
