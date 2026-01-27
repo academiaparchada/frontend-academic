@@ -6,7 +6,9 @@ import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
 import googleAuthService from '../services/google_auth_service';
+import analyticsService from '../services/analytics_service';
 import '../styles/login.css';
+
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export const Login = () => {
   const [password, set_password] = useState('');
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
+
 
   const handle_submit = async (e) => {
     e.preventDefault();
@@ -25,12 +28,17 @@ export const Login = () => {
     set_loading(false);
 
     if (result.success) {
+      // ✅ GA4: login nativo exitoso
+      analyticsService.event('login', { method: 'email_password' });
+
       console.log('Login exitoso - Datos completos:', result);
       console.log('Usuario:', result.data?.user);
       console.log('Rol del usuario:', result.data?.user?.rol);
 
+
       let user_role = result.data?.user?.rol || result.data?.rol || result.user?.rol;
       console.log('Rol detectado:', user_role);
+
 
       if (user_role === 'admin' || user_role === 'administrador') {
         console.log('Redirigiendo a dashboard de admin');
@@ -47,12 +55,16 @@ export const Login = () => {
     }
   };
 
+
   // NUEVO: Manejar login con Google
   const handle_google_login = async () => {
     try {
       set_error('');
       set_loading(true);
       console.log('🔐 Iniciando login con Google...');
+
+      // ✅ GA4: intento de login con Google (inicio del flujo)
+      analyticsService.event('login', { method: 'google' });
 
       const result = await googleAuthService.signInWithGoogle();
 
@@ -68,20 +80,24 @@ export const Login = () => {
     }
   };
 
+
   const handle_forgot_password = (e) => {
     e.preventDefault();
     navigate('/forgot-password');
   };
 
+
   return (
     <div className="page">
       <Header />
+
 
       {/* ÚNICO CAMBIO: main -> login-page */}
       <main className="login-page">
         <div className="login-container">
           <div className="login-card">
             <h1 className="login-title">AQUÍ INICIA ALGO GRANDE.</h1>
+
 
             <p className="login-subtitle">
               Estás dando el primer paso para transformar tu forma de aprender.
@@ -91,6 +107,7 @@ export const Login = () => {
                 </div>
               )}
             </p>
+
 
             <form onSubmit={handle_submit} className="login-form">
               <div className="form-group">
@@ -106,6 +123,7 @@ export const Login = () => {
                 />
               </div>
 
+
               <div className="form-group">
                 <label className="form-label">Contraseña:</label>
                 <PasswordInput
@@ -118,10 +136,12 @@ export const Login = () => {
                 />
               </div>
 
+
               <button type="submit" className="btn-login" disabled={loading}>
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
             </form>
+
 
             <div className="forgot-password">
               ¿Olvidaste tu contraseña?{' '}
@@ -130,11 +150,13 @@ export const Login = () => {
               </a>
             </div>
 
+
             <div className="divider">
               <span className="divider-line"></span>
               <span className="divider-text">O Inicia Con</span>
               <span className="divider-line"></span>
             </div>
+
 
             <div className="social-login">
               <button
@@ -149,6 +171,7 @@ export const Login = () => {
           </div>
         </div>
       </main>
+
 
       <Footer />
     </div>

@@ -1,16 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import comprasService from '../services/compras_service';
+import analyticsService from '../services/analytics_service';
 import '../styles/ResultadoPago.css';
+
 
 const PagoFallido = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const compraId = searchParams.get('compraId');
 
+
   const [compra, setCompra] = useState(null);
   const [mensaje, setMensaje] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const CURRENCY = 'COP';
+  const FAILED_SENT_PREFIX = 'ga_purchase_failed_sent_';
+
+  const shouldSendFailedForCompra = (id) => {
+    if (!id) return false;
+    return localStorage.getItem(`${FAILED_SENT_PREFIX}${id}`) !== '1';
+  };
+
+  const markFailedSentForCompra = (id) => {
+    if (!id) return;
+    localStorage.setItem(`${FAILED_SENT_PREFIX}${id}`, '1');
+  };
+
+  const getMontoCompra = (data) => {
+    if (!data) return null;
+
+    const candidates = [
+      data.monto_total,
+      data.montoTotal,
+      data.montototal,
+      data.valor_total,
+      data.valorTotal,
+      data.total,
+      data.amount,
+      data.value,
+      data.precio,
+    ];
+
+    const found = candidates.find((v) => typeof v === 'number' || (typeof v === 'string' && v.trim() !== ''));
+    if (found == null) return null;
+
+    const n = typeof found === 'string' ? Number(found) : found;
+    return Number.isFinite(n) ? n : null;
+  };
+
 
   useEffect(() => {
     if (!compraId) {
@@ -19,21 +58,44 @@ const PagoFallido = () => {
       return;
     }
 
+
     consultarEstado();
   }, [compraId]);
+
 
   const consultarEstado = async () => {
     try {
       setLoading(true);
       const resultado = await comprasService.consultarEstadoCompra(compraId);
 
+
       if (resultado.success && resultado.data) {
         setCompra(resultado.data);
 
+
         const { estado_pago } = resultado.data;
+
 
         if (estado_pago === 'fallido') {
           setMensaje('Tu pago no pudo ser procesado');
+
+          if (shouldSendFailedForCompra(compraId)) {
+            const value = getMontoCompra(resultado.data);
+
+            try {
+              analyticsService.event('purchase_failed', {
+                transaction_id: String(compraId),
+                currency: CURRENCY,
+                ...(value != null ? { value } : {}),
+                payment_provider: resultado.data.proveedor_pago || undefined,
+                purchase_type: resultado.data.tipo_compra || undefined,
+                failure_reason: resultado.data.wompi_status || resultado.data.mp_status_detail || undefined,
+              });
+              markFailedSentForCompra(compraId);
+            } catch (e) {
+              console.error('Error enviando purchase_failed a GA4:', e);
+            }
+          }
         } else if (estado_pago === 'completado') {
           setMensaje('¡Tu pago fue exitoso!');
         } else {
@@ -50,9 +112,11 @@ const PagoFallido = () => {
     }
   };
 
+
   const handleVolverDashboard = () => {
     navigate('/estudiante/dashboard');
   };
+
 
   const handleIntentarNuevamente = () => {
     if (compra?.tipo_compra === 'curso') {
@@ -66,6 +130,7 @@ const PagoFallido = () => {
     }
   };
 
+
   if (loading) {
     return (
       <div className="resultado-pago-container">
@@ -77,6 +142,7 @@ const PagoFallido = () => {
     );
   }
 
+
   return (
     <div className="resultado-pago-container">
       <div className="resultado-card fallido">
@@ -85,6 +151,7 @@ const PagoFallido = () => {
         <p className="mensaje-principal">
           {mensaje || 'No se pudo procesar tu pago'}
         </p>
+
 
         {compra && (
           <div className="detalle-compra">
@@ -126,6 +193,7 @@ const PagoFallido = () => {
           </div>
         )}
 
+
         <div className="info-box">
           <h4>❓ ¿Por qué falló el pago?</h4>
           <p>
@@ -133,6 +201,7 @@ const PagoFallido = () => {
             errores en los datos de la tarjeta, límites de compra, o problemas 
             de verificación del banco.
           </p>
+
 
           <h4 style={{ marginTop: '1rem' }}>💡 ¿Qué puedes hacer?</h4>
           <ul>
@@ -143,15 +212,18 @@ const PagoFallido = () => {
           </ul>
         </div>
 
+
         <div className="acciones">
           <button className="btn-primary" onClick={handleIntentarNuevamente}>
             🔄 Intentar Nuevamente
           </button>
 
+
           <button className="btn-secondary" onClick={handleVolverDashboard}>
             🏠 Volver al Dashboard
           </button>
         </div>
+
 
         <div className="info-box" style={{ marginTop: '1.5rem', background: '#e3f2fd' }}>
           <h4>📞 ¿Necesitas ayuda?</h4>

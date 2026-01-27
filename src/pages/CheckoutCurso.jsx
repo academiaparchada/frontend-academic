@@ -5,11 +5,14 @@ import comprasService from '../services/compras_service';
 import wompiService from '../services/wompi_service';
 import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
+import analyticsService from '../services/analytics_service';
 import '../styles/Checkout.css';
+
 
 const CheckoutCurso = () => {
   const { cursoId } = useParams();
   const navigate = useNavigate();
+
 
   const [curso, setCurso] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,11 +21,14 @@ const CheckoutCurso = () => {
   const [error, setError] = useState(null);
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
+
   const [tokenValido, setTokenValido] = useState(false);
   const [verificandoToken, setVerificandoToken] = useState(true);
 
+
   const [bloquearCompra, setBloquearCompra] = useState(false);
   const [motivoBloqueo, setMotivoBloqueo] = useState('');
+
 
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
@@ -34,25 +40,41 @@ const CheckoutCurso = () => {
     confirmarPassword: ''
   });
 
+
   const [errores, setErrores] = useState({});
 
+
   const DASHBOARD_ESTUDIANTE_PATH = '/estudiante/dashboard';
+
 
   useEffect(() => {
     verificarAutenticacion();
     cargarCurso();
   }, [cursoId]);
 
+  // ✅ GA4: begin_checkout cuando ya cargó el curso (1 vez por cursoId)
+  useEffect(() => {
+    if (!loading && curso && !error) {
+      analyticsService.event('begin_checkout', {
+        checkout_type: 'curso',
+        curso_id: String(cursoId)
+      });
+    }
+  }, [loading, curso, error, cursoId]);
+
+
   const verificarAutenticacion = async () => {
     try {
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
+
 
       if (token && user) {
         try {
           const response = await fetch('https://academiaparchada.onrender.com/api/compras/estudiante', {
             headers: { Authorization: `Bearer ${token}` }
           });
+
 
           if (response.ok) {
             setTokenValido(true);
@@ -77,13 +99,16 @@ const CheckoutCurso = () => {
     }
   };
 
+
   const cargarCurso = async () => {
     try {
       setLoading(true);
       setError(null);
 
+
       const response = await fetch(`https://academiaparchada.onrender.com/api/cursos/${cursoId}`);
       const data = await response.json();
+
 
       if (response.ok && data.success && data.data && data.data.curso) {
         setCurso(data.data.curso);
@@ -98,12 +123,14 @@ const CheckoutCurso = () => {
     }
   };
 
+
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
     setDatosUsuario(prev => ({
       ...prev,
       [name]: value
     }));
+
 
     if (errores[name]) {
       setErrores(prev => ({
@@ -113,66 +140,82 @@ const CheckoutCurso = () => {
     }
   };
 
+
   const validarFormulario = () => {
     const nuevosErrores = {};
+
 
     if (!tokenValido) {
       if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
         nuevosErrores.email = 'Email inválido';
       }
 
+
       if (!datosUsuario.nombre || !datosUsuario.nombre.trim()) {
         nuevosErrores.nombre = 'El nombre es obligatorio';
       }
+
 
       if (!datosUsuario.apellido || !datosUsuario.apellido.trim()) {
         nuevosErrores.apellido = 'El apellido es obligatorio';
       }
 
+
       if (!datosUsuario.telefono || !datosUsuario.telefono.trim()) {
         nuevosErrores.telefono = 'El teléfono es obligatorio';
       }
+
 
       if (!datosUsuario.timezone) {
         nuevosErrores.timezone = 'La zona horaria es obligatoria';
       }
 
+
       if (!datosUsuario.password || datosUsuario.password.length < 6) {
         nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
       }
+
 
       if (datosUsuario.password && datosUsuario.confirmarPassword !== datosUsuario.password) {
         nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
       }
     }
 
+
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
 
+
   const inferirMotivoBloqueo = (msg = '') => {
     const m = String(msg).toLowerCase();
+
 
     if (m.includes('ya estás inscrito') || m.includes('ya estas inscrito') || m.includes('inscrit')) {
       return 'inscrito';
     }
 
+
     if (m.includes('capacidad máxima') || m.includes('capacidad maxima') || m.includes('no hay cupos') || m.includes('cupo')) {
       return 'cupo';
     }
 
+
     return '';
   };
+
 
   const handleIrAlDashboard = () => {
     navigate(DASHBOARD_ESTUDIANTE_PATH);
   };
+
 
   const buildDatosCompra = () => {
     const datosCompra = {
       tipo_compra: 'curso',
       curso_id: cursoId
     };
+
 
     if (!tokenValido) {
       datosCompra.estudiante = {
@@ -185,11 +228,14 @@ const CheckoutCurso = () => {
       };
     }
 
+
     return datosCompra;
   };
 
+
   const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
+
 
     if (bloquearCompra) {
       if (motivoBloqueo === 'inscrito') {
@@ -202,21 +248,34 @@ const CheckoutCurso = () => {
       return;
     }
 
+
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
+    // ✅ GA4: usuario eligió medio de pago
+    analyticsService.event('add_payment_info', {
+      payment_type: 'mercadopago',
+      checkout_type: 'curso',
+      curso_id: String(cursoId)
+    });
+
+
     setProcesando(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const datosCompra = buildDatosCompra();
 
+
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
+
 
       if (resultado.success) {
         setMensaje({ tipo: 'exito', texto: 'Redirigiendo a Mercado Pago...' });
+
 
         setTimeout(() => {
           const initPoint = resultado.data?.init_point || resultado.data?.sandbox_init_point;
@@ -228,8 +287,10 @@ const CheckoutCurso = () => {
           }
         }, 1500);
 
+
       } else {
         const motivo = inferirMotivoBloqueo(resultado.message);
+
 
         if (motivo === 'inscrito') {
           setBloquearCompra(true);
@@ -238,6 +299,7 @@ const CheckoutCurso = () => {
           setBloquearCompra(true);
           setMotivoBloqueo('cupo');
         }
+
 
         setMensaje({ tipo: 'error', texto: resultado.message || 'Error al procesar el pago' });
         setProcesando(false);
@@ -249,8 +311,10 @@ const CheckoutCurso = () => {
     }
   };
 
+
   const handleComprarWompi = async (e) => {
     e.preventDefault();
+
 
     if (bloquearCompra) {
       if (motivoBloqueo === 'inscrito') {
@@ -263,21 +327,34 @@ const CheckoutCurso = () => {
       return;
     }
 
+
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
+    // ✅ GA4: usuario eligió medio de pago
+    analyticsService.event('add_payment_info', {
+      payment_type: 'wompi',
+      checkout_type: 'curso',
+      curso_id: String(cursoId)
+    });
+
+
     setProcesandoWompi(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const datosCompra = buildDatosCompra();
 
+
       const resultado = await wompiService.crearCheckout(datosCompra);
+
 
       if (!resultado.success) {
         const motivo = inferirMotivoBloqueo(resultado.message);
+
 
         if (motivo === 'inscrito') {
           setBloquearCompra(true);
@@ -287,14 +364,18 @@ const CheckoutCurso = () => {
           setMotivoBloqueo('cupo');
         }
 
+
         setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
         setProcesandoWompi(false);
         return;
       }
 
+
       setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
 
+
       await openWompiWidget(resultado.data);
+
 
       setProcesandoWompi(false);
     } catch (error) {
@@ -304,9 +385,11 @@ const CheckoutCurso = () => {
     }
   };
 
+
   const handleCambiarALogin = () => {
     navigate(`/login?redirect=/checkout/curso/${cursoId}`);
   };
+
 
   const obtenerPrecio = () => {
     if (!curso) return null;
@@ -314,16 +397,20 @@ const CheckoutCurso = () => {
     return precio;
   };
 
+
   const formatearPrecioSeguro = () => {
     const precio = obtenerPrecio();
+
 
     if (precio === null || precio === undefined) {
       return 'Precio no disponible';
     }
 
+
     if (precio === 0) {
       return 'Gratis';
     }
+
 
     try {
       return comprasService.formatearPrecio(precio);
@@ -332,6 +419,7 @@ const CheckoutCurso = () => {
       return precio;
     }
   };
+
 
   if (loading || verificandoToken) {
     return (
@@ -343,6 +431,7 @@ const CheckoutCurso = () => {
       </div>
     );
   }
+
 
   if (error || !curso) {
     return (
@@ -357,6 +446,7 @@ const CheckoutCurso = () => {
       </div>
     );
   }
+
 
   if (bloquearCompra) {
     return (
@@ -392,6 +482,7 @@ const CheckoutCurso = () => {
     );
   }
 
+
   return (
     <div className="checkout-container">
       <div className="checkout-header">
@@ -401,16 +492,20 @@ const CheckoutCurso = () => {
         <h1>Comprar Curso</h1>
       </div>
 
+
       <div className="checkout-content">
         <div className="checkout-resumen">
           <h2>📚 Resumen de Compra</h2>
 
+
           <div className="curso-info-checkout">
             <h3>{curso.titulo}</h3>
+
 
             {curso.descripcion && (
               <p className="descripcion-curso">{curso.descripcion}</p>
             )}
+
 
             <div className="detalles-grid">
               {curso.duracion_semanas && (
@@ -420,12 +515,14 @@ const CheckoutCurso = () => {
                 </div>
               )}
 
+
               {curso.capacidad_maxima && (
                 <div className="detalle-item">
                   <span className="detalle-label">👥 Capacidad:</span>
                   <span className="detalle-valor">{curso.capacidad_maxima} estudiantes</span>
                 </div>
               )}
+
 
               {curso.modalidad && (
                 <div className="detalle-item">
@@ -435,10 +532,12 @@ const CheckoutCurso = () => {
               )}
             </div>
 
+
             <div className="precio-total">
               <span>Total a Pagar:</span>
               <strong>{formatearPrecioSeguro()}</strong>
             </div>
+
 
             <div className="info-box">
               <h4>✅ Incluye:</h4>
@@ -452,6 +551,7 @@ const CheckoutCurso = () => {
           </div>
         </div>
 
+
         <div className="checkout-formulario">
           <form onSubmit={(e) => e.preventDefault()}>
             {mensaje.texto && (
@@ -460,12 +560,14 @@ const CheckoutCurso = () => {
               </div>
             )}
 
+
             {!tokenValido && (
               <>
                 <h2>👤 Tus Datos</h2>
                 <p className="form-ayuda">
                   Crea tu cuenta para acceder al curso
                 </p>
+
 
                 <div className="form-group">
                   <label>Email *</label>
@@ -482,6 +584,7 @@ const CheckoutCurso = () => {
                     <span className="error">{errores.email}</span>
                   )}
                 </div>
+
 
                 <div className="form-row">
                   <div className="form-group">
@@ -500,6 +603,7 @@ const CheckoutCurso = () => {
                     )}
                   </div>
 
+
                   <div className="form-group">
                     <label>Apellido *</label>
                     <input
@@ -517,6 +621,7 @@ const CheckoutCurso = () => {
                   </div>
                 </div>
 
+
                 <div className="form-group">
                   <label>Teléfono *</label>
                   <input
@@ -532,6 +637,7 @@ const CheckoutCurso = () => {
                     <span className="error">{errores.telefono}</span>
                   )}
                 </div>
+
 
                 <div className="form-group">
                   <label>Zona Horaria *</label>
@@ -556,6 +662,7 @@ const CheckoutCurso = () => {
                   </span>
                 </div>
 
+
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
@@ -574,6 +681,7 @@ const CheckoutCurso = () => {
                     )}
                   </div>
 
+
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
                     <PasswordInput
@@ -591,6 +699,7 @@ const CheckoutCurso = () => {
                   </div>
                 </div>
 
+
                 <div className="ya-tienes-cuenta">
                   <p>
                     ¿Ya tienes cuenta? 
@@ -607,6 +716,7 @@ const CheckoutCurso = () => {
               </>
             )}
 
+
             {tokenValido && (
               <>
                 <h2>✅ Estás Listo</h2>
@@ -616,10 +726,12 @@ const CheckoutCurso = () => {
               </>
             )}
 
+
             <div className="info-pago">
               <h4>💳 Métodos de pago disponibles</h4>
               <p>Tarjetas de crédito/débito, PSE, efectivo y más opciones</p>
             </div>
+
 
             <button 
               type="button"
@@ -636,6 +748,7 @@ const CheckoutCurso = () => {
                 <>💳 Pagar con Mercado Pago</>
               )}
             </button>
+
 
             <button 
               type="button"
@@ -654,6 +767,7 @@ const CheckoutCurso = () => {
               )}
             </button>
 
+
             <p className="aviso-pago">
               🔒 Pago seguro y protegido. Acceso inmediato después del pago.
             </p>
@@ -663,5 +777,6 @@ const CheckoutCurso = () => {
     </div>
   );
 };
+
 
 export default CheckoutCurso;

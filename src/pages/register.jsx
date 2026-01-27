@@ -7,11 +7,14 @@ import { PasswordInput } from '../components/PasswordInput';
 import { useAuth } from '../context/auth_context';
 import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
 import googleAuthService from '../services/google_auth_service';
+import analyticsService from '../services/analytics_service';
 import '../styles/register.css';
+
 
 export const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
+
 
   const [nombre, set_nombre] = useState(() => sessionStorage.getItem('register_nombre') || '');
   const [apellido, set_apellido] = useState(() => sessionStorage.getItem('register_apellido') || '');
@@ -24,58 +27,72 @@ export const Register = () => {
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
 
+
   useEffect(() => {
     sessionStorage.setItem('register_nombre', nombre);
   }, [nombre]);
+
 
   useEffect(() => {
     sessionStorage.setItem('register_apellido', apellido);
   }, [apellido]);
 
+
   useEffect(() => {
     sessionStorage.setItem('register_email', email);
   }, [email]);
+
 
   useEffect(() => {
     sessionStorage.setItem('register_telefono', telefono);
   }, [telefono]);
 
+
   useEffect(() => {
     sessionStorage.setItem('register_timezone', timezone);
   }, [timezone]);
+
 
   useEffect(() => {
     sessionStorage.setItem('register_password', password);
   }, [password]);
 
+
   useEffect(() => {
     sessionStorage.setItem('register_confirm_password', confirm_password);
   }, [confirm_password]);
+
 
   useEffect(() => {
     sessionStorage.setItem('register_accept_terms', accept_terms);
   }, [accept_terms]);
 
+
   const handle_submit = async (e) => {
     e.preventDefault();
     set_error('');
+
 
     if (password !== confirm_password) {
       set_error('Las contraseñas no coinciden');
       return;
     }
 
+
     if (password.length < 6) {
       set_error('La contraseña debe tener al menos 6 caracteres');
       return;
     }
+
 
     if (!accept_terms) {
       set_error('Debes aceptar los términos y condiciones');
       return;
     }
 
+
     set_loading(true);
+
 
     const user_data = {
       nombre,
@@ -86,10 +103,15 @@ export const Register = () => {
       timezone // NUEVO: Incluir timezone
     };
 
+
     const result = await register(user_data);
     set_loading(false);
 
+
     if (result.success) {
+      // ✅ GA4: registro nativo exitoso
+      analyticsService.event('sign_up', { method: 'email_password' });
+
       // Limpiar sessionStorage
       sessionStorage.removeItem('register_nombre');
       sessionStorage.removeItem('register_apellido');
@@ -99,6 +121,7 @@ export const Register = () => {
       sessionStorage.removeItem('register_password');
       sessionStorage.removeItem('register_confirm_password');
       sessionStorage.removeItem('register_accept_terms');
+
 
       navigate('/estudiante/dashboard');
     } else {
@@ -111,12 +134,16 @@ export const Register = () => {
     }
   };
 
+
   // NUEVO: Manejar registro con Google
   const handle_google_register = async () => {
     try {
       set_error('');
       set_loading(true);
       console.log('🔐 Iniciando registro con Google...');
+
+      // ✅ GA4: inicio de registro con Google (antes del redirect)
+      analyticsService.event('sign_up', { method: 'google' });
 
       const result = await googleAuthService.signInWithGoogle();
       if (!result.success) {
@@ -125,15 +152,17 @@ export const Register = () => {
       }
       // Si es exitoso, el usuario será redirigido a Google y luego al callback
     } catch (err) {
-      console.error('❌ Error al iniciar registro con Google:', err);
+      console.error('❌ Error al iniciar registro:', err);
       set_error('Error al registrarse con Google');
       set_loading(false);
     }
   };
 
+
   return (
     <div className="page">
       <Header />
+
 
       <main className="main">
         <div className="register_container">
@@ -141,11 +170,13 @@ export const Register = () => {
             <h1 className="register_title">AQUÍ INICIA ALGO GRANDE.</h1>
             <p className="register_subtitle">Estás dando el primer paso para transformar tu forma de aprender.</p>
 
+
             {error && (
               <div className="error_message">
                 {error}
               </div>
             )}
+
 
             <form onSubmit={handle_submit} className="register_form">
               <div className="form_group">
@@ -162,6 +193,7 @@ export const Register = () => {
                 />
               </div>
 
+
               <div className="form_group">
                 <label htmlFor="apellido" className="form_label">Apellido</label>
                 <input
@@ -175,6 +207,7 @@ export const Register = () => {
                   disabled={loading}
                 />
               </div>
+
 
               <div className="form_group">
                 <label htmlFor="email" className="form_label">Correo Electrónico</label>
@@ -190,6 +223,7 @@ export const Register = () => {
                 />
               </div>
 
+
               <div className="form_group">
                 <label htmlFor="telefono" className="form_label">Teléfono</label>
                 <input
@@ -202,6 +236,7 @@ export const Register = () => {
                   disabled={loading}
                 />
               </div>
+
 
               {/* NUEVO CAMPO: Zona Horaria */}
               <div className="form_group">
@@ -223,6 +258,7 @@ export const Register = () => {
                 <small className="form_hint">Se detectó automáticamente tu zona horaria actual</small>
               </div>
 
+
               <div className="form_group">
                 <label htmlFor="password" className="form_label">Contraseña</label>
                 <PasswordInput
@@ -236,6 +272,7 @@ export const Register = () => {
                 />
               </div>
 
+
               <div className="form_group">
                 <label htmlFor="confirm_password" className="form_label">Confirmar Contraseña</label>
                 <PasswordInput
@@ -247,6 +284,7 @@ export const Register = () => {
                   required={true}
                 />
               </div>
+
 
               <div className="terms_group">
                 <input
@@ -266,16 +304,19 @@ export const Register = () => {
                 </label>
               </div>
 
+
               <button type="submit" className="btn_register" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
               </button>
             </form>
+
 
             <div className="divider">
               <span className="divider_line"></span>
               <span className="divider_text">O Inicia Con</span>
               <span className="divider_line"></span>
             </div>
+
 
             <div className="social_register">
               <button
@@ -288,9 +329,11 @@ export const Register = () => {
               </button>
             </div>
 
+
           </div>
         </div>
       </main>
+
 
       <Footer />
     </div>
