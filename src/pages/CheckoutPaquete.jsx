@@ -5,11 +5,14 @@ import comprasService from '../services/compras_service';
 import wompiService from '../services/wompi_service';
 import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
+import analyticsService from '../services/analytics_service';
 import '../styles/Checkout.css';
+
 
 const CheckoutPaquete = () => {
   const { claseId } = useParams();
   const navigate = useNavigate();
+
 
   const [clase, setClase] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,10 +21,13 @@ const CheckoutPaquete = () => {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
 
+
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
+
   const [cantidadHoras, setCantidadHoras] = useState(3);
+
 
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
@@ -33,11 +39,25 @@ const CheckoutPaquete = () => {
     confirmarPassword: ''
   });
 
+
   const [errores, setErrores] = useState({});
+
 
   useEffect(() => {
     cargarClase();
   }, [claseId]);
+
+  // ✅ GA4: begin_checkout cuando ya cargó la clase (1 vez por claseId)
+  useEffect(() => {
+    if (!loading && clase && !error) {
+      analyticsService.event('begin_checkout', {
+        checkout_type: 'paquete_horas',
+        clase_personalizada_id: String(claseId),
+        cantidad_horas: Number(cantidadHoras)
+      });
+    }
+  }, [loading, clase, error, claseId, cantidadHoras]);
+
 
   const cargarClase = async () => {
     try {
@@ -47,12 +67,15 @@ const CheckoutPaquete = () => {
       );
       const data = await response.json();
 
+
       if (response.ok && data.success) {
         let claseData = null;
+
 
         if (data.data?.clase) claseData = data.data.clase;
         else if (data.data?.clase_personalizada) claseData = data.data.clase_personalizada;
         else if (data.data) claseData = data.data;
+
 
         if (claseData) setClase(claseData);
         else setError('No se pudo cargar la información de la clase');
@@ -67,14 +90,17 @@ const CheckoutPaquete = () => {
     }
   };
 
+
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
     setDatosUsuario((prev) => ({ ...prev, [name]: value }));
+
 
     if (errores[name]) {
       setErrores((prev) => ({ ...prev, [name]: '' }));
     }
   };
+
 
   // ==========================
   // ✅ NUEVO: cálculos precio
@@ -82,10 +108,12 @@ const CheckoutPaquete = () => {
   // ==========================
   const aplicaDescuento = () => Number(cantidadHoras) >= 2;
 
+
   const calcularSubtotal = () => {
     if (!clase) return 0;
     return Number(clase.precio || 0) * Number(cantidadHoras || 0);
   };
+
 
   const calcularDescuento = () => {
     const subtotal = calcularSubtotal();
@@ -93,18 +121,22 @@ const CheckoutPaquete = () => {
     return subtotal * 0.1;
   };
 
+
   const calcularPrecioTotal = () => {
     const subtotal = calcularSubtotal();
     if (!aplicaDescuento()) return subtotal;
     return subtotal * 0.9; // (precio_por_hora * cantidad_horas) * 0.9
   };
 
+
   const validarFormulario = () => {
     const nuevosErrores = {};
+
 
     if (cantidadHoras < 1 || cantidadHoras > 20) {
       nuevosErrores.cantidad = 'Debes seleccionar entre 1 y 20 horas';
     }
+
 
     if (esNuevoUsuario) {
       if (!datosUsuario.email || !datosUsuario.email.includes('@')) nuevosErrores.email = 'Email inválido';
@@ -113,13 +145,16 @@ const CheckoutPaquete = () => {
       if (!datosUsuario.telefono.trim()) nuevosErrores.telefono = 'El teléfono es obligatorio';
       if (!datosUsuario.timezone) nuevosErrores.timezone = 'La zona horaria es obligatoria';
 
+
       if (datosUsuario.password.length < 6) nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
       if (datosUsuario.password !== datosUsuario.confirmarPassword) nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
     }
 
+
     setErrores(nuevosErrores);
     return Object.keys(nuevosErrores).length === 0;
   };
+
 
   const buildDatosCompra = () => {
     const datosCompra = {
@@ -127,6 +162,7 @@ const CheckoutPaquete = () => {
       clase_personalizada_id: claseId,
       cantidad_horas: cantidadHoras
     };
+
 
     if (esNuevoUsuario) {
       datosCompra.estudiante = {
@@ -139,24 +175,39 @@ const CheckoutPaquete = () => {
       };
     }
 
+
     return datosCompra;
   };
 
+
   const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
+
 
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
+    // ✅ GA4: usuario eligió medio de pago
+    analyticsService.event('add_payment_info', {
+      payment_type: 'mercadopago',
+      checkout_type: 'paquete_horas',
+      clase_personalizada_id: String(claseId),
+      cantidad_horas: Number(cantidadHoras)
+    });
+
+
     setProcesando(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const datosCompra = buildDatosCompra();
 
+
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
+
 
       if (resultado.success) {
         setMensaje({ tipo: 'exito', texto: '✅ Redirigiendo a Mercado Pago...' });
@@ -175,21 +226,35 @@ const CheckoutPaquete = () => {
     }
   };
 
+
   const handleComprarWompi = async (e) => {
     e.preventDefault();
+
 
     if (!validarFormulario()) {
       setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
+    // ✅ GA4: usuario eligió medio de pago
+    analyticsService.event('add_payment_info', {
+      payment_type: 'wompi',
+      checkout_type: 'paquete_horas',
+      clase_personalizada_id: String(claseId),
+      cantidad_horas: Number(cantidadHoras)
+    });
+
+
     setProcesandoWompi(true);
     setMensaje({ tipo: '', texto: '' });
+
 
     try {
       const datosCompra = buildDatosCompra();
 
+
       const resultado = await wompiService.crearCheckout(datosCompra);
+
 
       if (!resultado.success) {
         setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
@@ -197,10 +262,13 @@ const CheckoutPaquete = () => {
         return;
       }
 
+
       setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
+
 
       // Abre modal y redirige según status
       await openWompiWidget(resultado.data);
+
 
       setProcesandoWompi(false);
     } catch (error) {
@@ -209,6 +277,7 @@ const CheckoutPaquete = () => {
       setProcesandoWompi(false);
     }
   };
+
 
   if (loading) {
     return (
@@ -220,6 +289,7 @@ const CheckoutPaquete = () => {
       </div>
     );
   }
+
 
   if (error || !clase) {
     return (
@@ -235,9 +305,11 @@ const CheckoutPaquete = () => {
     );
   }
 
+
   const subtotal = calcularSubtotal();
   const descuento = calcularDescuento();
   const total = calcularPrecioTotal();
+
 
   return (
     <div className="checkout-container">
@@ -248,12 +320,15 @@ const CheckoutPaquete = () => {
         <h1>Comprar Paquete de Horas</h1>
       </div>
 
+
       <div className="checkout-content">
         <div className="checkout-resumen">
           <h2>📦 Resumen de Compra</h2>
 
+
           <div className="curso-info-checkout">
             <h3>Paquete de {clase.asignatura?.nombre}</h3>
+
 
             <div className="info-box">
               <p>
@@ -263,6 +338,7 @@ const CheckoutPaquete = () => {
                 Compra horas y agenda tus clases cuando quieras
               </p>
             </div>
+
 
             <div className="selector-horas">
               <label>Cantidad de Horas:</label>
@@ -333,11 +409,13 @@ const CheckoutPaquete = () => {
                 </div>
               )}
 
+
               <div className="precio-linea">
                 <span>Total</span>
                 <span>{comprasService.formatearPrecio(total)}</span>
               </div>
             </div>
+
 
             <div className="ventajas-paquete">
               <h4>✅ Ventajas del Paquete:</h4>
@@ -351,6 +429,7 @@ const CheckoutPaquete = () => {
           </div>
         </div>
 
+
         <div className="checkout-formulario">
           <form onSubmit={(e) => e.preventDefault()}>
             {mensaje.texto && (
@@ -359,12 +438,14 @@ const CheckoutPaquete = () => {
               </div>
             )}
 
+
             {esNuevoUsuario ? (
               <>
                 <h2>👤 Tus Datos</h2>
                 <p className="form-ayuda">
                   Crea tu cuenta para gestionar tu paquete de horas
                 </p>
+
 
                 <div className="form-group">
                   <label>Email *</label>
@@ -381,6 +462,7 @@ const CheckoutPaquete = () => {
                     <span className="error">{errores.email}</span>
                   )}
                 </div>
+
 
                 <div className="form-row">
                   <div className="form-group">
@@ -399,6 +481,7 @@ const CheckoutPaquete = () => {
                     )}
                   </div>
 
+
                   <div className="form-group">
                     <label>Apellido *</label>
                     <input
@@ -416,6 +499,7 @@ const CheckoutPaquete = () => {
                   </div>
                 </div>
 
+
                 <div className="form-group">
                   <label>Teléfono *</label>
                   <input
@@ -431,6 +515,7 @@ const CheckoutPaquete = () => {
                     <span className="error">{errores.telefono}</span>
                   )}
                 </div>
+
 
                 <div className="form-group">
                   <label>Zona Horaria *</label>
@@ -453,6 +538,7 @@ const CheckoutPaquete = () => {
                   </span>
                 </div>
 
+
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
@@ -471,6 +557,7 @@ const CheckoutPaquete = () => {
                     )}
                   </div>
 
+
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
                     <PasswordInput
@@ -487,6 +574,7 @@ const CheckoutPaquete = () => {
                     )}
                   </div>
                 </div>
+
 
                 <div className="ya-tienes-cuenta">
                   <p>
@@ -511,6 +599,7 @@ const CheckoutPaquete = () => {
               </>
             )}
 
+
             <button
               type="button"
               onClick={handleComprarMercadoPago}
@@ -527,6 +616,7 @@ const CheckoutPaquete = () => {
               )}
             </button>
 
+
             <button
               type="button"
               onClick={handleComprarWompi}
@@ -537,12 +627,13 @@ const CheckoutPaquete = () => {
               {procesandoWompi ? (
                 <>
                   <div className="spinner-small"></div>
-                  Abriendo Wompi...
+                  <span>Abriendo Wompi...</span>
                 </>
               ) : (
                 <>💰 Pagar con Wompi</>
               )}
             </button>
+
 
             <p className="aviso-pago">
               🔒 Pago seguro. Podrás agendar tus clases inmediatamente después.
@@ -553,5 +644,6 @@ const CheckoutPaquete = () => {
     </div>
   );
 };
+
 
 export default CheckoutPaquete;

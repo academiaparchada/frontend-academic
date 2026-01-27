@@ -1,27 +1,34 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import comprasService from '../services/compras_service';
+import analyticsService from '../services/analytics_service';
 import '../styles/ResultadoPago.css';
+
 
 const CURRENCY = 'COP';
 const PURCHASE_SENT_PREFIX = 'meta_purchase_sent_';
+
 
 const PagoExitoso = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const compraId = searchParams.get('compraId');
 
+
   const [compra, setCompra] = useState(null);
   const [loading, setLoading] = useState(true);
   const [verificando, setVerificando] = useState(false);
   const [mensaje, setMensaje] = useState('');
 
+
   const [intentosPolling, setIntentosPolling] = useState(0);
   const [pollingActivo, setPollingActivo] = useState(true);
   const MAX_INTENTOS = 150; // 150 * 2s = 5min
 
+
   const getMontoCompra = (data) => {
     if (!data) return null;
+
 
     const candidates = [
       data.monto_total,
@@ -35,27 +42,64 @@ const PagoExitoso = () => {
       data.precio,
     ];
 
+
     const found = candidates.find((v) => typeof v === 'number' || (typeof v === 'string' && v.trim() !== ''));
     if (found == null) return null;
+
 
     const n = typeof found === 'string' ? Number(found) : found;
     return Number.isFinite(n) ? n : null;
   };
+
 
   const shouldSendPurchaseForCompra = (id) => {
     if (!id) return false;
     return localStorage.getItem(`${PURCHASE_SENT_PREFIX}${id}`) !== '1';
   };
 
+
   const markPurchaseSentForCompra = (id) => {
     if (!id) return;
     localStorage.setItem(`${PURCHASE_SENT_PREFIX}${id}`, '1');
   };
 
+  const trackGaPurchase = useCallback(
+    (data) => {
+      if (!compraId) return;
+      if (!shouldSendPurchaseForCompra(compraId)) return;
+
+      const value = getMontoCompra(data);
+
+      try {
+        // ✅ GA4: purchase (con dedupe usando transaction_id)
+        analyticsService.event('purchase', {
+          transaction_id: String(compraId),
+          currency: CURRENCY,
+          ...(value != null ? { value } : {}),
+          items: [
+            {
+              item_id: String(compraId),
+              item_name: 'Compra',
+              quantity: 1,
+              ...(value != null ? { price: value } : {}),
+            },
+          ],
+        });
+
+        console.log('📈 GA4 purchase enviado', { compraId, value });
+      } catch (e) {
+        console.error('Error enviando purchase a GA4:', e);
+      }
+    },
+    [compraId]
+  );
+
+
   const trackPurchase = useCallback(
     (data) => {
       if (!compraId) return;
       if (!shouldSendPurchaseForCompra(compraId)) return;
+
 
       // Asegurar que fbq exista
       if (typeof window === 'undefined' || typeof window.fbq !== 'function') {
@@ -63,7 +107,9 @@ const PagoExitoso = () => {
         return;
       }
 
+
       const value = getMontoCompra(data);
+
 
       // Meta recomienda enviar value y currency en Purchase
       const payload = {
@@ -71,35 +117,43 @@ const PagoExitoso = () => {
         ...(value != null ? { value } : {}),
       };
 
+
       try {
         window.fbq('track', 'Purchase', payload);
+        trackGaPurchase(data);
         markPurchaseSentForCompra(compraId);
         console.log('📈 Meta Pixel Purchase enviado', { compraId, payload });
       } catch (e) {
         console.error('Error enviando Purchase a Meta Pixel:', e);
       }
     },
-    [compraId]
+  [compraId, trackGaPurchase]
   );
+
 
   const consultarEstado = useCallback(async () => {
     try {
       setLoading(true);
       console.log('🔍 Consultando estado de compra:', compraId);
 
+
       const resultado = await comprasService.consultarEstadoCompra(compraId);
       console.log('📥 Resultado consultarEstadoCompra:', resultado);
+
 
       if (resultado.success && resultado.data) {
         setCompra(resultado.data);
 
+
         const { estado_pago, proveedor_pago } = resultado.data;
         console.log('✅ Estado obtenido:', estado_pago);
+
 
         if (estado_pago === 'completado') {
           setMensaje('¡Tu pago ha sido confirmado exitosamente!');
           setPollingActivo(false);
           setIntentosPolling(MAX_INTENTOS);
+
 
           // ✅ Disparar Purchase al confirmar pago completado
           trackPurchase(resultado.data);
@@ -124,20 +178,24 @@ const PagoExitoso = () => {
     }
   }, [compraId, trackPurchase]);
 
+
   const consultarEstadoSilencioso = useCallback(async () => {
     try {
       const resultado = await comprasService.consultarEstadoCompra(compraId);
+
 
       if (resultado.success && resultado.data) {
         setCompra(resultado.data);
         const { estado_pago } = resultado.data;
         console.log(`🔄 Polling ${intentosPolling}/${MAX_INTENTOS} - Estado: ${estado_pago}`);
 
+
         if (estado_pago === 'completado') {
           console.log('✅ Pago confirmado, deteniendo polling');
           setMensaje('¡Tu pago ha sido confirmado exitosamente!');
           setPollingActivo(false);
           setIntentosPolling(MAX_INTENTOS);
+
 
           // ✅ Disparar Purchase al confirmar pago completado
           trackPurchase(resultado.data);
