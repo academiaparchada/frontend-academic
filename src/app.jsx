@@ -159,6 +159,105 @@ function App() {
           </div>
         </section>
 
+        {/* ✅ HOME: Clases Personalizadas (preview + ver más) */}
+        <section id="home-clases" className="courses_section">
+          <div className="section_header">
+            <div className="section_badge">Clases personalizadas</div>
+            <h2 className="section_title">Agenda clases 1 a 1 o compra paquetes</h2>
+            <p className="section_description">
+              Selección rápida de materias disponibles. Si quieres ver todas, entra en "Ver más".
+            </p>
+          </div>
+
+          {loadingClases ? (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Cargando clases...</p>
+            </div>
+          ) : (
+            <div className="clases-grid">
+              {clasesPreview.map((clase) => {
+                const descripcionAsignatura =
+                  (clase?.descripcion_asignatura && String(clase.descripcion_asignatura).trim()) ||
+                  (clase?.asignatura?.descripcion && String(clase.asignatura.descripcion).trim()) ||
+                  '';
+
+                return (
+                  <div key={clase.id} className="clase-card">
+                    {/* Imagen (si existe) */}
+                    {clase.imagen_url ? (
+                      <div className="clase-imagen">
+                        <img
+                          src={clase.imagen_url}
+                          alt={clase.asignatura?.nombre || 'Clase'}
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="clase-icon">🧑‍🏫</div>
+                    )}
+
+                    <h3>{clase.asignatura?.nombre || 'Clase personalizada'}</h3>
+
+                    {descripcionAsignatura ? (
+                      <p>{descripcionAsignatura}</p>
+                    ) : null}
+
+                    <div className="clase-info">
+                      {clase.duracion_horas ? (
+                        <div className="info-item">
+                          <span className="icon">⏱️</span>
+                          <span>{clase.duracion_horas}h</span>
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="precio-container">
+                      <div className="precio-label">Desde</div>
+                      <div className="precio-valor">{formatearPrecioSeguro(clase.precio)}</div>
+                    </div>
+
+                    <div className="clase-acciones">
+                      <button
+                        className="btn-comprar-clase"
+                        onClick={() => navigate(`/checkout/clase/${clase.id}`)}
+                      >
+                        Comprar clase
+                      </button>
+
+                      <button
+                        className="btn-comprar-paquete"
+                        onClick={() => navigate(`/checkout/paquete/${clase.id}`)}
+                      >
+                        Comprar paquete
+                      </button>
+
+                      <p className="ventaja-paquete">
+                        💡 Con el paquete puedes agendar tus clases cuando quieras
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {clasesPreview.length === 0 && (
+                <div className="sin-clases" style={{ gridColumn: '1 / -1' }}>
+                  <h3>🧑‍🏫 Pronto agregaremos nuevas materias</h3>
+                  <p>Vuelve más tarde para ver nuevas opciones.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ maxWidth: 1200, margin: '2rem auto 0', textAlign: 'center' }}>
+            <Link to="/clases-personalizadas" className="btn_cta_primary" style={{ display: 'inline-block' }}>
+              Ver más clases
+            </Link>
+          </div>
+        </section>
+
         {/* ✅ HOME: Cursos (preview + ver más) */}
         <section id="home-cursos" className="courses_section">
           <div className="section_header">
@@ -293,94 +392,6 @@ function App() {
               </ul>
               <div className="feature_arrow">→</div>
             </div>
-          </div>
-        </section>
-
-        {/* ✅ HOME: Clases Personalizadas (preview + ver más) */}
-        <section id="home-clases" className="courses_section">
-          <div className="section_header">
-            <div className="section_badge">Clases personalizadas</div>
-            <h2 className="section_title">Agenda clases 1 a 1 o compra paquetes</h2>
-            <p className="section_description">
-              Selección rápida de materias disponibles. Si quieres ver todas, entra en "Ver más".
-            </p>
-          </div>
-
-          {loadingClases ? (
-            <div className="loading-spinner">
-              <div className="spinner"></div>
-              <p>Cargando clases...</p>
-            </div>
-          ) : (
-            <div className="clases-grid">
-              {clasesPreview.map((clase) => (
-                <div key={clase.id} className="clase-card">
-                  {/* Imagen (si existe) */}
-                  {clase.imagen_url ? (
-                    <div className="clase-imagen">
-                      <img
-                        src={clase.imagen_url}
-                        alt={clase.asignatura?.nombre || 'Clase'}
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="clase-icon">🧑‍🏫</div>
-                  )}
-
-                  <h3>{clase.asignatura?.nombre || 'Clase personalizada'}</h3>
-
-                  <div className="clase-info">
-                    {clase.duracion_horas ? (
-                      <div className="info-item">
-                        <span className="icon">⏱️</span>
-                        <span>{clase.duracion_horas}h</span>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="precio-container">
-                    <div className="precio-label">Desde</div>
-                    <div className="precio-valor">{formatearPrecioSeguro(clase.precio)}</div>
-                  </div>
-
-                  <div className="clase-acciones">
-                    <button
-                      className="btn-comprar-clase"
-                      onClick={() => navigate(`/checkout/clase/${clase.id}`)}
-                    >
-                      Comprar clase
-                    </button>
-
-                    <button
-                      className="btn-comprar-paquete"
-                      onClick={() => navigate(`/checkout/paquete/${clase.id}`)}
-                    >
-                      Comprar paquete
-                    </button>
-
-                    <p className="ventaja-paquete">
-                      💡 Con el paquete puedes agendar tus clases cuando quieras
-                    </p>
-                  </div>
-                </div>
-              ))}
-
-              {clasesPreview.length === 0 && (
-                <div className="sin-clases" style={{ gridColumn: '1 / -1' }}>
-                  <h3>🧑‍🏫 Pronto agregaremos nuevas materias</h3>
-                  <p>Vuelve más tarde para ver nuevas opciones.</p>
-                </div>
-              )}
-            </div>
-          )}
-
-          <div style={{ maxWidth: 1200, margin: '2rem auto 0', textAlign: 'center' }}>
-            <Link to="/clases-personalizadas" className="btn_cta_primary" style={{ display: 'inline-block' }}>
-              Ver más clases
-            </Link>
           </div>
         </section>
 

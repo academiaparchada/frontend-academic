@@ -1,6 +1,6 @@
 // src/services/clases_personalizadas_service.js
-const API_URL = 'https://academiaparchada.onrender.com/api/clases-personalizadas';
-const API_IMAGENES_URL = 'https://academiaparchada.onrender.com/api/imagenes/clases-personalizadas';
+const API_URL = 'https://api.parcheacademico.com/api/clases-personalizadas';
+const API_IMAGENES_URL = 'https://api.parcheacademico.com/api/imagenes/clases-personalizadas';
 
 class ClasesPersonalizadasService {
   _getToken() {

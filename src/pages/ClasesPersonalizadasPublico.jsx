@@ -165,71 +165,82 @@ const ClasesPersonalizadasPublico = () => {
             </div>
 
             <div className="clases-grid">
-              {seccion.clases.map((clase) => (
-                <div key={clase.id} className="clase-card">
-                  {/* IMAGEN / FALLBACK */}
-                  {clase.imagen_url ? (
-                    <div className="clase-imagen">
-                      <img
-                        src={clase.imagen_url}
-                        alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
-                        loading="lazy"
-                        onError={(e) => {
-                          // si falla la carga, ocultar imagen y dejar que el layout siga normal
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="clase-icon">📚</div>
-                  )}
+              {seccion.clases.map((clase) => {
+                const descripcionAsignatura =
+                  (clase?.descripcion_asignatura && String(clase.descripcion_asignatura).trim()) ||
+                  (clase?.asignatura?.descripcion && String(clase.asignatura.descripcion).trim()) ||
+                  '';
 
-                  <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
+                return (
+                  <div key={clase.id} className="clase-card">
+                    {/* IMAGEN / FALLBACK */}
+                    {clase.imagen_url ? (
+                      <div className="clase-imagen">
+                        <img
+                          src={clase.imagen_url}
+                          alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
+                          loading="lazy"
+                          onError={(e) => {
+                            // si falla la carga, ocultar imagen y dejar que el layout siga normal
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <div className="clase-icon">📚</div>
+                    )}
 
-                  <div className="clase-info">
-                    <div className="info-item">
-                      <span className="icon">⏱️</span>
-                      <span>{clase.duracion_horas} hora(s)</span>
+                    <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
+
+                    {descripcionAsignatura ? (
+                      <p>{descripcionAsignatura}</p>
+                    ) : null}
+
+                    <div className="clase-info">
+                      <div className="info-item">
+                        <span className="icon">⏱️</span>
+                        <span>{clase.duracion_horas} hora(s)</span>
+                      </div>
+
+                      <div className="info-item">
+                        <span className="icon">👥</span>
+                        <span>Individual</span>
+                      </div>
+
+                      <div className="info-item">
+                        <span className="icon">🎯</span>
+                        <span>Virtual</span>
+                      </div>
                     </div>
 
-                    <div className="info-item">
-                      <span className="icon">👥</span>
-                      <span>Individual</span>
+                    <div className="precio-container">
+                      <span className="precio-label">Precio por clase</span>
+                      <span className="precio-valor">
+                        {comprasService.formatearPrecio(clase.precio)}
+                      </span>
                     </div>
 
-                    <div className="info-item">
-                      <span className="icon">🎯</span>
-                      <span>Virtual</span>
+                    <div className="clase-acciones">
+                      <button
+                        className="btn-comprar-clase"
+                        onClick={() => handleComprarClase(clase)}
+                      >
+                        Comprar 1 Clase
+                      </button>
+                      <button
+                        className="btn-comprar-paquete"
+                        onClick={() => handleComprarPaquete(clase)}
+                      >
+                        📦 Comprar Paquete
+                      </button>
                     </div>
+
+                    <p className="ventaja-paquete">
+                      💡 Con el paquete puedes agendar tus clases cuando quieras
+                    </p>
                   </div>
-
-                  <div className="precio-container">
-                    <span className="precio-label">Precio por clase</span>
-                    <span className="precio-valor">
-                      {comprasService.formatearPrecio(clase.precio)}
-                    </span>
-                  </div>
-
-                  <div className="clase-acciones">
-                    <button
-                      className="btn-comprar-clase"
-                      onClick={() => handleComprarClase(clase)}
-                    >
-                      Comprar 1 Clase
-                    </button>
-                    <button
-                      className="btn-comprar-paquete"
-                      onClick={() => handleComprarPaquete(clase)}
-                    >
-                      📦 Comprar Paquete
-                    </button>
-                  </div>
-
-                  <p className="ventaja-paquete">
-                    💡 Con el paquete puedes agendar tus clases cuando quieras
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         ))}
