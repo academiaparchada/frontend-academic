@@ -38,6 +38,7 @@ import ComprasAdmin from './pages/admin/compras.jsx'
 import SesionesPendientes from './pages/admin/sesiones_pendientes.jsx'
 import MisPaquetes from './pages/estudiante/MisPaquetes';
 import MisClasesEstudiante from './pages/estudiante/MisClases.jsx' 
+import MisCursosEstudiante from './pages/estudiante/MisCursos.jsx' 
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -92,6 +93,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/estudiante/compra/:compraId" element={<DetalleCompra />} />
           <Route path="/estudiante/mis-paquetes" element={<MisPaquetes />} />
           <Route path="/estudiante/mis-clases" element={<MisClasesEstudiante />} /> 
+          <Route path="/estudiante/mis-cursos" element={<MisCursosEstudiante />} />
 
           {/* Página principal (App) */}
           <Route path="/" element={<App />} />

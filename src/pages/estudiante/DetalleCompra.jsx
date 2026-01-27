@@ -100,122 +100,123 @@ const DetalleCompra = () => {
   });
 
   return (
-    <div className="page">
-      <Header />
-      <main className="main">
-        <div className="detalle-compra-container">
-          <div className="detalle-header">
-            <button className="btn-volver" onClick={() => navigate('/estudiante/mis-compras')}>
-              ← Volver
-            </button>
-            <h1>Detalle de Compra</h1>
-          </div>
-
-          <div className="detalle-card">
-            <div className="detalle-estado">
-              <span className={`badge ${badgeEstado.class}`}>
-                {badgeEstado.text}
-              </span>
-              <span className="fecha">
-                {comprasService.formatearFecha(compra.fecha_compra)}
-              </span>
+    <>
+      <div className="page">
+        <main className="main">
+          <div className="detalle-compra-container">
+            <div className="detalle-header">
+              <button className="btn-volver" onClick={() => navigate('/estudiante/mis-compras')}>
+                ← Volver
+              </button>
+              <h1>Detalle de Compra</h1>
             </div>
 
-            <h2>{compra.curso?.nombre || compra.clase_personalizada?.asignatura?.nombre}</h2>
-
-            {/* Botón de Material - Mostrar siempre para cursos */}
-            {compra.curso && (
-              <div className="acciones-curso">
-                <button className="btn-material-grande" onClick={handleVerMaterial}>
-                  📚 Ver Material de Estudio
-                </button>
-                {/* Debug: Mostrar estado */}
-                <small style={{ display: 'block', marginTop: '0.5rem', color: '#666', fontSize: '0.875rem' }}>
-                  Estado: {compra.estado_pago} | Tipo: {compra.tipo_compra}
-                </small>
+            <div className="detalle-card">
+              <div className="detalle-estado">
+                <span className={`badge ${badgeEstado.class}`}>
+                  {badgeEstado.text}
+                </span>
+                <span className="fecha">
+                  {comprasService.formatearFecha(compra.fecha_compra)}
+                </span>
               </div>
-            )}
 
-            <div className="detalle-info">
-              <div className="info-item">
-                <span className="label">💰 Monto Total:</span>
-                <span className="valor">{comprasService.formatearPrecio(compra.monto_total)}</span>
-              </div>
-              
+              <h2>{compra.curso?.nombre || compra.clase_personalizada?.asignatura?.nombre}</h2>
+
+              {/* Botón de Material - Mostrar siempre para cursos */}
               {compra.curso && (
-                <>
-                  <div className="info-item">
-                    <span className="label">⏱️ Duración:</span>
-                    <span className="valor">{compra.curso.duracion_horas} horas</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">👨‍🏫 Profesor:</span>
-                    <span className="valor">
-                      {compra.curso.profesor?.nombre} {compra.curso.profesor?.apellido}
-                    </span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">📚 Asignatura:</span>
-                    <span className="valor">{compra.curso.asignatura?.nombre || 'N/A'}</span>
-                  </div>
-                  {compra.curso.descripcion && (
-                    <div className="info-item descripcion">
-                      <span className="label">📝 Descripción:</span>
-                      <p className="valor">{compra.curso.descripcion}</p>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {compra.clase_personalizada && compra.sesion && (
-                <>
-                  <div className="info-item">
-                    <span className="label">⏱️ Duración:</span>
-                    <span className="valor">{compra.clase_personalizada.duracion_horas} horas</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">📅 Fecha programada:</span>
-                    <span className="valor">
-                      {comprasService.formatearFechaHora(compra.sesion.fecha_hora)}
-                    </span>
-                  </div>
-                  <div className="info-item">
-                    <span className="label">👨‍🏫 Profesor:</span>
-                    <span className="valor">
-                      {compra.sesion.profesor?.nombre} {compra.sesion.profesor?.apellido}
-                    </span>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div className="detalle-pago">
-              <h3>Información de Pago</h3>
-              <div className="info-item">
-                <span className="label">ID de Compra:</span>
-                <span className="valor mono">{compra.id}</span>
-              </div>
-              {compra.metodo_pago && (
-                <div className="info-item">
-                  <span className="label">Método de Pago:</span>
-                  <span className="valor">{compra.metodo_pago.toUpperCase()}</span>
+                <div className="acciones-curso">
+                  <button className="btn-material-grande" onClick={handleVerMaterial}>
+                    📚 Ver Material de Estudio
+                  </button>
+                  {/* Debug: Mostrar estado */}
+                  <small style={{ display: 'block', marginTop: '0.5rem', color: '#666', fontSize: '0.875rem' }}>
+                    Estado: {compra.estado_pago} | Tipo: {compra.tipo_compra}
+                  </small>
                 </div>
               )}
+
+              <div className="detalle-info">
+                <div className="info-item">
+                  <span className="label">💰 Monto Total:</span>
+                  <span className="valor">{comprasService.formatearPrecio(compra.monto_total)}</span>
+                </div>
+                
+                {compra.curso && (
+                  <>
+                    <div className="info-item">
+                      <span className="label">⏱️ Duración:</span>
+                      <span className="valor">{compra.curso.duracion_horas} horas</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">👨‍🏫 Profesor:</span>
+                      <span className="valor">
+                        {compra.curso.profesor?.nombre} {compra.curso.profesor?.apellido}
+                      </span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">📚 Asignatura:</span>
+                      <span className="valor">{compra.curso.asignatura?.nombre || 'N/A'}</span>
+                    </div>
+                    {compra.curso.descripcion && (
+                      <div className="info-item descripcion">
+                        <span className="label">📝 Descripción:</span>
+                        <p className="valor">{compra.curso.descripcion}</p>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {compra.clase_personalizada && compra.sesion && (
+                  <>
+                    <div className="info-item">
+                      <span className="label">⏱️ Duración:</span>
+                      <span className="valor">{compra.clase_personalizada.duracion_horas} horas</span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">📅 Fecha programada:</span>
+                      <span className="valor">
+                        {comprasService.formatearFechaHora(compra.sesion.fecha_hora)}
+                      </span>
+                    </div>
+                    <div className="info-item">
+                      <span className="label">👨‍🏫 Profesor:</span>
+                      <span className="valor">
+                        {compra.sesion.profesor?.nombre} {compra.sesion.profesor?.apellido}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="detalle-pago">
+                <h3>Información de Pago</h3>
+                <div className="info-item">
+                  <span className="label">ID de Compra:</span>
+                  <span className="valor mono">{compra.id}</span>
+                </div>
+                {compra.metodo_pago && (
+                  <div className="info-item">
+                    <span className="label">Método de Pago:</span>
+                    <span className="valor">{compra.metodo_pago.toUpperCase()}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </main>
-      <Footer />
+        </main>
+        <Footer />
 
-      {/* Modal de Material de Estudio */}
-      {compra.curso && (
-        <ModalMaterialEstudio
-          isOpen={modalMaterialOpen}
-          onClose={cerrarModalMaterial}
-          curso={compra.curso}
-        />
-      )}
-    </div>
+        {/* Modal de Material de Estudio */}
+        {compra.curso && (
+          <ModalMaterialEstudio
+            isOpen={modalMaterialOpen}
+            onClose={cerrarModalMaterial}
+            curso={compra.curso}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

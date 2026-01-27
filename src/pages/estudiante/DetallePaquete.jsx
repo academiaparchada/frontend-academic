@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
+import { Footer } from '../../components/footer';
 import { getBrowserTimeZone } from '../../utils/timezone';
 import '../../styles/estudiante-css/DetallePaquete.css';
 
@@ -416,460 +417,463 @@ const DetallePaquete = () => {
     : 0;
 
   return (
-    <div className="detalle-paquete-container">
-      <div className="detalle-header">
-        <button
-          className="btn-volver"
-          onClick={() => navigate('/estudiante/mis-paquetes')}
-        >
-          ← Volver
-        </button>
-        <h1>Detalle del Paquete</h1>
-      </div>
-
-      <div className="paquete-info-principal">
-        <div className="info-card">
-          <h2>
-            📦{' '}
-            {paquete?.compra?.clase_personalizada?.asignatura?.nombre ||
-              'Paquete de horas'}
-          </h2>
-
-          <div className="horas-resumen">
-            <div className="horas-circle">
-              <div className="circle-content">
-                <span className="horas-numero">{horasDisponibles}</span>
-                <span className="horas-label">hora(s) disponible(s)</span>
-              </div>
-              <svg className="circle-progress" viewBox="0 0 100 100">
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="45"
-                  className="circle-bg"
-                ></circle>
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="45"
-                  className="circle-fill"
-                  style={{
-                    strokeDasharray: `${porcentajeUsado * 2.827} 282.7`
-                  }}
-                ></circle>
-              </svg>
-            </div>
-
-            <div className="horas-detalles">
-              <div className="detalle-item">
-                <span className="label">Total:</span>
-                <span className="valor">
-                  {paquete.compra.horas_totales}h
-                </span>
-              </div>
-              <div className="detalle-item">
-                <span className="label">Usadas:</span>
-                <span className="valor usado">
-                  {paquete.compra.horas_usadas}h
-                </span>
-              </div>
-              <div className="detalle-item">
-                <span className="label">Disponibles:</span>
-                <span className="valor disponible">
-                  {horasDisponibles}h
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="info-adicional">
-            <div className="info-row">
-              <span className="icon">💰</span>
-              <div>
-                <span className="label">Monto Total</span>
-                <strong>
-                  {comprasService.formatearPrecio(
-                    paquete.compra.monto_total
-                  )}
-                </strong>
-              </div>
-            </div>
-
-            <div className="info-row">
-              <span className="icon">📅</span>
-              <div>
-                <span className="label">Fecha de Compra</span>
-                <strong>
-                  {comprasService.formatearFecha(
-                    paquete.compra.fecha_compra
-                  )}
-                </strong>
-              </div>
-            </div>
-
-            <div className="info-row">
-              <span className="icon">✅</span>
-              <div>
-                <span className="label">Estado</span>
-                <span
-                  className={`badge badge-${paquete.compra.estado_pago}`}
-                >
-                  {paquete.compra.estado_pago === 'completado'
-                    ? 'Pagado'
-                    : paquete.compra.estado_pago}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {horasDisponibles > 0 && (
-            <button
-              className="btn-agendar-principal"
-              onClick={abrirModal}
-            >
-              📅 Agendar Nueva Clase
-            </button>
-          )}
+    <>
+      <div className="detalle-paquete-container">
+        <div className="detalle-header">
+          <button
+            className="btn-volver"
+            onClick={() => navigate('/estudiante/mis-paquetes')}
+          >
+            ← Volver
+          </button>
+          <h1>Detalle del Paquete</h1>
         </div>
-      </div>
 
-      {/* Sesiones */}
-      <div className="sesiones-section">
-        <h2>📚 Mis Clases ({sesiones.length})</h2>
+        <div className="paquete-info-principal">
+          <div className="info-card">
+            <h2>
+              📦{' '}
+              {paquete?.compra?.clase_personalizada?.asignatura?.nombre ||
+                'Paquete de horas'}
+            </h2>
 
-        {sesiones.length === 0 ? (
-          <div className="sin-sesiones">
-            <p>📅 Aún no has agendado ninguna clase</p>
+            <div className="horas-resumen">
+              <div className="horas-circle">
+                <div className="circle-content">
+                  <span className="horas-numero">{horasDisponibles}</span>
+                  <span className="horas-label">hora(s) disponible(s)</span>
+                </div>
+                <svg className="circle-progress" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    className="circle-bg"
+                  ></circle>
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    className="circle-fill"
+                    style={{
+                      strokeDasharray: `${porcentajeUsado * 2.827} 282.7`
+                    }}
+                  ></circle>
+                </svg>
+              </div>
+
+              <div className="horas-detalles">
+                <div className="detalle-item">
+                  <span className="label">Total:</span>
+                  <span className="valor">
+                    {paquete.compra.horas_totales}h
+                  </span>
+                </div>
+                <div className="detalle-item">
+                  <span className="label">Usadas:</span>
+                  <span className="valor usado">
+                    {paquete.compra.horas_usadas}h
+                  </span>
+                </div>
+                <div className="detalle-item">
+                  <span className="label">Disponibles:</span>
+                  <span className="valor disponible">
+                    {horasDisponibles}h
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="info-adicional">
+              <div className="info-row">
+                <span className="icon">💰</span>
+                <div>
+                  <span className="label">Monto Total</span>
+                  <strong>
+                    {comprasService.formatearPrecio(
+                      paquete.compra.monto_total
+                    )}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <span className="icon">📅</span>
+                <div>
+                  <span className="label">Fecha de Compra</span>
+                  <strong>
+                    {comprasService.formatearFecha(
+                      paquete.compra.fecha_compra
+                    )}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="info-row">
+                <span className="icon">✅</span>
+                <div>
+                  <span className="label">Estado</span>
+                  <span
+                    className={`badge badge-${paquete.compra.estado_pago}`}
+                  >
+                    {paquete.compra.estado_pago === 'completado'
+                      ? 'Pagado'
+                      : paquete.compra.estado_pago}
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {horasDisponibles > 0 && (
               <button
-                className="btn-agendar-vacio"
+                className="btn-agendar-principal"
                 onClick={abrirModal}
               >
-                Agendar mi Primera Clase
+                📅 Agendar Nueva Clase
               </button>
             )}
           </div>
-        ) : (
-          <div className="sesiones-lista">
-            {sesiones.map((sesion) => (
-              <div key={sesion.id} className="sesion-card">
-                <div className="sesion-fecha">
-                  <span className="fecha-dia">
-                    {new Date(
-                      sesion.fecha_hora
-                    ).toLocaleDateString('es-CO', {
-                      day: 'numeric'
-                    })}
-                  </span>
-                  <span className="fecha-mes">
-                    {new Date(
-                      sesion.fecha_hora
-                    ).toLocaleDateString('es-CO', {
-                      month: 'short'
-                    })}
-                  </span>
-                </div>
+        </div>
 
-                <div className="sesion-info">
-                  <div className="sesion-header">
-                    <h3>
-                      {comprasService.formatearFechaHora(
+        {/* Sesiones */}
+        <div className="sesiones-section">
+          <h2>📚 Mis Clases ({sesiones.length})</h2>
+
+          {sesiones.length === 0 ? (
+            <div className="sin-sesiones">
+              <p>📅 Aún no has agendado ninguna clase</p>
+              {horasDisponibles > 0 && (
+                <button
+                  className="btn-agendar-vacio"
+                  onClick={abrirModal}
+                >
+                  Agendar mi Primera Clase
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="sesiones-lista">
+              {sesiones.map((sesion) => (
+                <div key={sesion.id} className="sesion-card">
+                  <div className="sesion-fecha">
+                    <span className="fecha-dia">
+                      {new Date(
                         sesion.fecha_hora
-                      )}
-                    </h3>
-                    <span
-                      className={`badge-estado ${sesion.estado}`}
-                    >
-                      {sesion.estado === 'programada'
-                        ? '⏳ Programada'
-                        : sesion.estado === 'completada'
-                        ? '✅ Completada'
-                        : '❌ Cancelada'}
+                      ).toLocaleDateString('es-CO', {
+                        day: 'numeric'
+                      })}
+                    </span>
+                    <span className="fecha-mes">
+                      {new Date(
+                        sesion.fecha_hora
+                      ).toLocaleDateString('es-CO', {
+                        month: 'short'
+                      })}
                     </span>
                   </div>
 
-                  {sesion.descripcion_estudiante && (
-                    <p className="sesion-descripcion">
-                      {sesion.descripcion_estudiante}
-                    </p>
-                  )}
-
-                  {sesion.documento_url && (
-                    <div className="sesion-documento">
-                      <span className="icon">📎</span>
-                      <a
-                        href={sesion.documento_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="documento-link"
+                  <div className="sesion-info">
+                    <div className="sesion-header">
+                      <h3>
+                        {comprasService.formatearFechaHora(
+                          sesion.fecha_hora
+                        )}
+                      </h3>
+                      <span
+                        className={`badge-estado ${sesion.estado}`}
                       >
-                        Ver documento adjunto
-                      </a>
-                    </div>
-                  )}
-
-                  {sesion.profesor && (
-                    <div className="sesion-profesor">
-                      <span className="icon">👨‍🏫</span>
-                      <span>
-                        {sesion.profesor.nombre}{' '}
-                        {sesion.profesor.apellido}
+                        {sesion.estado === 'programada'
+                          ? '⏳ Programada'
+                          : sesion.estado === 'completada'
+                          ? '✅ Completada'
+                          : '❌ Cancelada'}
                       </span>
-                      {sesion.profesor.email && (
-                        <span className="profesor-contacto">
-                          📧 {sesion.profesor.email}
-                        </span>
-                      )}
                     </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      {/* Modal agendar */}
-      {modalAbierto && (
-        <div
-          className="modal-overlay"
-          onClick={() => !procesando && setModalAbierto(false)}
-        >
-          <div
-            className="modal-contenido"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-header">
-              <h2>📅 Agendar Nueva Clase</h2>
-              <button
-                className="btn-cerrar"
-                onClick={() => setModalAbierto(false)}
-                disabled={procesando}
-              >
-                ×
-              </button>
-            </div>
+                    {sesion.descripcion_estudiante && (
+                      <p className="sesion-descripcion">
+                        {sesion.descripcion_estudiante}
+                      </p>
+                    )}
 
-            <form
-              onSubmit={handleAgendarSesion}
-              className="modal-form"
-            >
-              {mensaje.texto && (
-                <div className={`mensaje ${mensaje.tipo}`}>
-                  {mensaje.texto}
-                </div>
-              )}
-
-              {/* Fecha + franjas */}
-              <div className="form-group">
-                <label>Fecha de la clase *</label>
-                <div className="fecha-disponibilidad">
-                  <input
-                    type="date"
-                    name="fecha"
-                    value={nuevaSesion.fecha}
-                    onChange={handleChangeSesion}
-                    min={new Date().toISOString().split('T')[0]}
-                    disabled={procesando}
-                  />
-                  <button
-                    type="button"
-                    className="btn-secundario-fecha"
-                    onClick={consultarFranjas}
-                    disabled={!nuevaSesion.fecha || procesando}
-                  >
-                    {loadingFranjas
-                      ? 'Consultando...'
-                      : 'Ver horarios disponibles'}
-                  </button>
-                </div>
-              </div>
-
-              {errorFranjas && (
-                <div className="mensaje error">{errorFranjas}</div>
-              )}
-
-              {franjas.length > 0 && (
-                <div className="form-group">
-                  <label>Horarios disponibles *</label>
-                  <div className="franjas-lista">
-                    {franjas.map((franja) => (
-                      <label
-                        key={franja.fecha_hora_inicio_iso}
-                        className={`franja-item ${
-                          franjaSeleccionadaIso ===
-                          franja.fecha_hora_inicio_iso
-                            ? 'seleccionada'
-                            : ''
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="franja"
-                          value={franja.fecha_hora_inicio_iso}
-                          checked={
-                            franjaSeleccionadaIso ===
-                            franja.fecha_hora_inicio_iso
-                          }
-                          onChange={() => handleSeleccionFranja(franja)}
-                          disabled={procesando}
-                        />
-                        <div className="franja-info">
-                          <div className="franja-hora">
-                            {(franja.inicio_estudiante || franja.hora_inicio)?.slice(0, 5)} -{' '}
-                            {(franja.fin_estudiante || franja.hora_fin)?.slice(0, 5)}
-                          </div>
-                          <div className="franja-profesor">
-                            Profesor:{' '}
-                            {franja.profesor
-                              ? `${franja.profesor.nombre} ${franja.profesor.apellido}`
-                              : 'Por asignar'}
-                          </div>
-                          <div className="franja-detalle">
-                            Duración: {franja.duracion_horas} hora
-                            {franja.duracion_horas > 1 ? 's' : ''}
-                          </div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                  {errores.fecha_hora && (
-                    <span className="error">{errores.fecha_hora}</span>
-                  )}
-                </div>
-              )}
-
-              {/* Duración */}
-              <div className="form-group">
-                <label>Duración (horas) *</label>
-                <select
-                  name="duracion_horas"
-                  value={nuevaSesion.duracion_horas}
-                  onChange={handleChangeSesion}
-                  disabled={procesando}
-                  className={errores.duracion_horas ? 'input-error' : ''}
-                >
-                  {Array.from(
-                    {
-                      length: Math.min(horasDisponibles, 8)
-                    },
-                    (_, i) => i + 1
-                  ).map((h) => (
-                    <option key={h} value={h}>
-                      {h} hora{h > 1 ? 's' : ''}
-                    </option>
-                  ))}
-                </select>
-                {errores.duracion_horas && (
-                  <span className="error">{errores.duracion_horas}</span>
-                )}
-                <span className="help-text">
-                  Tienes {horasDisponibles} hora(s) disponible(s)
-                </span>
-              </div>
-
-              {/* Descripción */}
-              <div className="form-group">
-                <label>¿Qué necesitas aprender? *</label>
-                <textarea
-                  name="descripcion_estudiante"
-                  value={nuevaSesion.descripcion_estudiante}
-                  onChange={handleChangeSesion}
-                  placeholder="Ej: Necesito ayuda con derivadas parciales..."
-                  rows={4}
-                  disabled={procesando}
-                  className={
-                    errores.descripcion_estudiante ? 'input-error' : ''
-                  }
-                />
-                {errores.descripcion_estudiante && (
-                  <span className="error">
-                    {errores.descripcion_estudiante}
-                  </span>
-                )}
-              </div>
-
-              {/* Archivo */}
-              <div className="form-group">
-                <label>
-                  📎 Documento (opcional)
-                  <span className="label-info">
-                    Máx 25 MB - PDF, Word, Excel, imágenes, ZIP
-                  </span>
-                </label>
-
-                {!nuevaSesion.archivo ? (
-                  <div className="file-input-wrapper">
-                    <input
-                      type="file"
-                      onChange={handleFileChange}
-                      disabled={procesando}
-                      accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.7z,.png,.jpg,.jpeg,.webp,.txt"
-                    />
-                    <label className="file-input-label">
-                      📁 Seleccionar archivo
-                    </label>
-                  </div>
-                ) : (
-                  <div className="file-selected">
-                    <div className="file-info">
-                      <span className="file-icon">📄</span>
-                      <div className="file-details">
-                        <span className="file-name">
-                          {nuevaSesion.archivo.name}
-                        </span>
-                        <span className="file-size">
-                          {comprasService.formatearTamanoArchivo(
-                            nuevaSesion.archivo.size
-                          )}
-                        </span>
+                    {sesion.documento_url && (
+                      <div className="sesion-documento">
+                        <span className="icon">📎</span>
+                        <a
+                          href={sesion.documento_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="documento-link"
+                        >
+                          Ver documento adjunto
+                        </a>
                       </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn-remove-file"
-                      onClick={handleRemoveFile}
-                      disabled={procesando}
-                    >
-                      ×
-                    </button>
+                    )}
+
+                    {sesion.profesor && (
+                      <div className="sesion-profesor">
+                        <span className="icon">👨‍🏫</span>
+                        <span>
+                          {sesion.profesor.nombre}{' '}
+                          {sesion.profesor.apellido}
+                        </span>
+                        {sesion.profesor.email && (
+                          <span className="profesor-contacto">
+                            📧 {sesion.profesor.email}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-                {errores.archivo && (
-                  <span className="error">{errores.archivo}</span>
-                )}
-              </div>
-
-              <div className="modal-acciones">
+        {/* Modal agendar */}
+        {modalAbierto && (
+          <div
+            className="modal-overlay"
+            onClick={() => !procesando && setModalAbierto(false)}
+          >
+            <div
+              className="modal-contenido"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h2>📅 Agendar Nueva Clase</h2>
                 <button
-                  type="button"
-                  className="btn-cancelar"
+                  className="btn-cerrar"
                   onClick={() => setModalAbierto(false)}
                   disabled={procesando}
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-guardar"
-                  disabled={procesando}
-                >
-                  {procesando ? (
-                    <>
-                      <div className="spinner-small" />
-                      {subiendoArchivo ? 'Subiendo...' : 'Agendando...'}
-                    </>
-                  ) : (
-                    '✅ Agendar Clase'
-                  )}
+                  ×
                 </button>
               </div>
-            </form>
+
+              <form
+                onSubmit={handleAgendarSesion}
+                className="modal-form"
+              >
+                {mensaje.texto && (
+                  <div className={`mensaje ${mensaje.tipo}`}>
+                    {mensaje.texto}
+                  </div>
+                )}
+
+                {/* Fecha + franjas */}
+                <div className="form-group">
+                  <label>Fecha de la clase *</label>
+                  <div className="fecha-disponibilidad">
+                    <input
+                      type="date"
+                      name="fecha"
+                      value={nuevaSesion.fecha}
+                      onChange={handleChangeSesion}
+                      min={new Date().toISOString().split('T')[0]}
+                      disabled={procesando}
+                    />
+                    <button
+                      type="button"
+                      className="btn-secundario-fecha"
+                      onClick={consultarFranjas}
+                      disabled={!nuevaSesion.fecha || procesando}
+                    >
+                      {loadingFranjas
+                        ? 'Consultando...'
+                        : 'Ver horarios disponibles'}
+                    </button>
+                  </div>
+                </div>
+
+                {errorFranjas && (
+                  <div className="mensaje error">{errorFranjas}</div>
+                )}
+
+                {franjas.length > 0 && (
+                  <div className="form-group">
+                    <label>Horarios disponibles *</label>
+                    <div className="franjas-lista">
+                      {franjas.map((franja) => (
+                        <label
+                          key={franja.fecha_hora_inicio_iso}
+                          className={`franja-item ${
+                            franjaSeleccionadaIso ===
+                            franja.fecha_hora_inicio_iso
+                              ? 'seleccionada'
+                              : ''
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="franja"
+                            value={franja.fecha_hora_inicio_iso}
+                            checked={
+                              franjaSeleccionadaIso ===
+                              franja.fecha_hora_inicio_iso
+                            }
+                            onChange={() => handleSeleccionFranja(franja)}
+                            disabled={procesando}
+                          />
+                          <div className="franja-info">
+                            <div className="franja-hora">
+                              {(franja.inicio_estudiante || franja.hora_inicio)?.slice(0, 5)} -{' '}
+                              {(franja.fin_estudiante || franja.hora_fin)?.slice(0, 5)}
+                            </div>
+                            <div className="franja-profesor">
+                              Profesor:{' '}
+                              {franja.profesor
+                                ? `${franja.profesor.nombre} ${franja.profesor.apellido}`
+                                : 'Por asignar'}
+                            </div>
+                            <div className="franja-detalle">
+                              Duración: {franja.duracion_horas} hora
+                              {franja.duracion_horas > 1 ? 's' : ''}
+                            </div>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    {errores.fecha_hora && (
+                      <span className="error">{errores.fecha_hora}</span>
+                    )}
+                  </div>
+                )}
+
+                {/* Duración */}
+                <div className="form-group">
+                  <label>Duración (horas) *</label>
+                  <select
+                    name="duracion_horas"
+                    value={nuevaSesion.duracion_horas}
+                    onChange={handleChangeSesion}
+                    disabled={procesando}
+                    className={errores.duracion_horas ? 'input-error' : ''}
+                  >
+                    {Array.from(
+                      {
+                        length: Math.min(horasDisponibles, 8)
+                      },
+                      (_, i) => i + 1
+                    ).map((h) => (
+                      <option key={h} value={h}>
+                        {h} hora{h > 1 ? 's' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  {errores.duracion_horas && (
+                    <span className="error">{errores.duracion_horas}</span>
+                  )}
+                  <span className="help-text">
+                    Tienes {horasDisponibles} hora(s) disponible(s)
+                  </span>
+                </div>
+
+                {/* Descripción */}
+                <div className="form-group">
+                  <label>¿Qué necesitas aprender? *</label>
+                  <textarea
+                    name="descripcion_estudiante"
+                    value={nuevaSesion.descripcion_estudiante}
+                    onChange={handleChangeSesion}
+                    placeholder="Ej: Necesito ayuda con derivadas parciales..."
+                    rows={4}
+                    disabled={procesando}
+                    className={
+                      errores.descripcion_estudiante ? 'input-error' : ''
+                    }
+                  />
+                  {errores.descripcion_estudiante && (
+                    <span className="error">
+                      {errores.descripcion_estudiante}
+                    </span>
+                  )}
+                </div>
+
+                {/* Archivo */}
+                <div className="form-group">
+                  <label>
+                    📎 Documento (opcional)
+                    <span className="label-info">
+                      Máx 25 MB - PDF, Word, Excel, imágenes, ZIP
+                    </span>
+                  </label>
+
+                  {!nuevaSesion.archivo ? (
+                    <div className="file-input-wrapper">
+                      <input
+                        type="file"
+                        onChange={handleFileChange}
+                        disabled={procesando}
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar,.7z,.png,.jpg,.jpeg,.webp,.txt"
+                      />
+                      <label className="file-input-label">
+                        📁 Seleccionar archivo
+                      </label>
+                    </div>
+                  ) : (
+                    <div className="file-selected">
+                      <div className="file-info">
+                        <span className="file-icon">📄</span>
+                        <div className="file-details">
+                          <span className="file-name">
+                            {nuevaSesion.archivo.name}
+                          </span>
+                          <span className="file-size">
+                            {comprasService.formatearTamanoArchivo(
+                              nuevaSesion.archivo.size
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        className="btn-remove-file"
+                        onClick={handleRemoveFile}
+                        disabled={procesando}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  )}
+
+                  {errores.archivo && (
+                    <span className="error">{errores.archivo}</span>
+                  )}
+                </div>
+
+                <div className="modal-acciones">
+                  <button
+                    type="button"
+                    className="btn-cancelar"
+                    onClick={() => setModalAbierto(false)}
+                    disabled={procesando}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-guardar"
+                    disabled={procesando}
+                  >
+                    {procesando ? (
+                      <>
+                        <div className="spinner-small" />
+                        {subiendoArchivo ? 'Subiendo...' : 'Agendando...'}
+                      </>
+                    ) : (
+                      '✅ Agendar Clase'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+      <Footer />
+    </>
   );
 };
 

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth_context';
+import { Footer } from '../../components/footer';
 import '../../styles/estudiante-css/estudiante_dashboard.css';
 
 export const EstudianteDashboard = () => {
@@ -97,171 +98,115 @@ export const EstudianteDashboard = () => {
   }
 
   return (
-    <div className="dashboard_container">
-      {/* Header */}
-      <header className="dashboard_header">
-        <div className="header_content">
-          <h1>Dashboard de Estudiante</h1>
-          <p className="welcome_message">
-            Bienvenido, <strong>{user?.nombre || 'Estudiante'} {user?.apellido || ''}</strong>
-          </p>
-        </div>
-        <div className="header_actions">
-          <button className="btn_profile" onClick={() => navigate('/estudiante/perfil')}>
-            👤 Mi Perfil
-          </button>
-          <button className="btn_logout" onClick={handleLogout}>
-            🚪 Cerrar Sesión
-          </button>
-        </div>
-      </header>
+    <>
+      <div className="dashboard_container">
+        {/* Header */}
+        <header className="dashboard_header">
+          <div className="header_content">
+            <h1>Dashboard de Estudiante</h1>
+            <p className="welcome_message">
+              Bienvenido, <strong>{user?.nombre || 'Estudiante'} {user?.apellido || ''}</strong>
+            </p>
+          </div>
+          <div className="header_actions">
+            <button className="btn_profile" onClick={() => navigate('/estudiante/perfil')}>
+              👤 Mi Perfil
+            </button>
+            <button className="btn_logout" onClick={handleLogout}>
+              🚪 Cerrar Sesión
+            </button>
+          </div>
+        </header>
 
-      {/* Cards Grid */}
-      <div className="dashboard_grid">
+        {/* Cards Grid */}
+        <div className="dashboard_grid">
 
-        {/* Explorar Cursos */}
-        <div className="dashboard_card">
-          <div className="card_icon">🎓</div>
-          <h2 className="card_title">Explorar Cursos</h2>
-          <p className="card_number">{stats.cursos}</p>
-          <p className="card_description">Cursos Comprados</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/cursos')}
-          >
-            Ver Catálogo
-          </button>
-        </div>
+          {/* Explorar Cursos */}
+          <div className="dashboard_card">
+            <div className="card_icon">🎓</div>
+            <h2 className="card_title">Explorar Cursos</h2>
+            <p className="card_number">{stats.cursos}</p>
+            <p className="card_description">Cursos Comprados</p>
+            <button
+              className="btn_card"
+              onClick={() => navigate('/cursos')}
+            >
+              Ver Catálogo
+            </button>
+          </div>
 
-        {/* Mis Compras */}
-        <div className="dashboard_card">
-          <div className="card_icon">📦</div>
-          <h2 className="card_title">Mis Compras</h2>
-          <p className="card_number">{stats.cursos + stats.clases + stats.paquetes}</p>
-          <p className="card_description">Compras Realizadas</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/estudiante/mis-compras')}
-          >
-            Ver Historial
-          </button>
-        </div>
+          {/* Mis Compras */}
+          <div className="dashboard_card">
+            <div className="card_icon">📦</div>
+            <h2 className="card_title">Mis Compras</h2>
+            <p className="card_number">{stats.cursos + stats.clases + stats.paquetes}</p>
+            <p className="card_description">Compras Realizadas</p>
+            <button
+              className="btn_card"
+              onClick={() => navigate('/estudiante/mis-compras')}
+            >
+              Ver Historial
+            </button>
+          </div>
 
-        {/* Clases Personalizadas */}
-        <div className="dashboard_card">
-          <div className="card_icon">📝</div>
-          <h2 className="card_title">Clases Personalizadas</h2>
-          <p className="card_number">{stats.clases}</p>
-          <p className="card_description">Clases Compradas</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/clases-personalizadas')}
-          >
-            Explorar Clases
-          </button>
-        </div>
+          {/* Clases Personalizadas */}
+          <div className="dashboard_card">
+            <div className="card_icon">📝</div>
+            <h2 className="card_title">Clases Personalizadas</h2>
+            <p className="card_number">{stats.clases}</p>
+            <p className="card_description">Clases Compradas</p>
+            <button
+              className="btn_card"
+              onClick={() => navigate('/clases-personalizadas')}
+            >
+              Explorar Clases
+            </button>
+          </div>
 
-        {/* Paquetes de Horas */}
-        <div className="dashboard_card">
-          <div className="card_icon">⏱️</div>
-          <h2 className="card_title">Paquetes de Horas</h2>
-          <p className="card_number">{stats.horasDisponibles}h</p>
-          <p className="card_description">Horas Disponibles</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/estudiante/mis-paquetes')}
-          >
-            Gestionar Paquetes
-          </button>
-        </div>
+          {/* Paquetes de Horas */}
+          <div className="dashboard_card">
+            <div className="card_icon">⏱️</div>
+            <h2 className="card_title">Paquetes de Horas</h2>
+            <p className="card_number">{stats.horasDisponibles}h</p>
+            <p className="card_description">Horas Disponibles</p>
+            <button
+              className="btn_card"
+              onClick={() => navigate('/estudiante/mis-paquetes')}
+            >
+              Gestionar Paquetes
+            </button>
+          </div>
 
-        {/* ✅ NUEVA CARD: Mis Clases */}
-        <div className="dashboard_card">
-          <div className="card_icon">🎥</div>
-          <h2 className="card_title">Mis Clases</h2>
-          <p className="card_number">{stats.clases}</p>
-          <p className="card_description">Ver fecha/hora y Meet</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/estudiante/mis-clases')}
-          >
-            Ver Mis Clases
-          </button>
-        </div>
+          {/* ✅ NUEVA CARD: Mis Clases */}
+          <div className="dashboard_card">
+            <div className="card_icon">🎥</div>
+            <h2 className="card_title">Mis Clases</h2>
+            <p className="card_number">{stats.clases}</p>
+            <p className="card_description">Ver fecha/hora y Meet</p>
+            <button
+              className="btn_card"
+              onClick={() => navigate('/estudiante/mis-clases')}
+            >
+              Ver Mis Clases
+            </button>
+          </div>
 
-        {/* Mis Cursos Activos */}
-        <div className="dashboard_card">
-          <div className="card_icon">📚</div>
-          <h2 className="card_title">Mis Cursos</h2>
-          <p className="card_number">{stats.cursos}</p>
-          <p className="card_description">Cursos Activos</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/estudiante/mis-compras')}
-          >
-            Ver Mis Cursos
-          </button>
-        </div>
-
-        {/* Próximas Clases */}
-        <div className="dashboard_card">
-          <div className="card_icon">📅</div>
-          <h2 className="card_title">Próximas Clases</h2>
-          <p className="card_number">0</p>
-          <p className="card_description">Clases Programadas</p>
-          <button
-            className="btn_card"
-            onClick={() => navigate('/estudiante/mis-compras')}
-          >
-            Ver Calendario
-          </button>
-        </div>
-
-      </div>
-
-      {/* Sección de Acciones Rápidas */}
-      <div className="quick_actions">
-        <h2>Acciones Rápidas</h2>
-        <div className="actions_grid">
-          <button
-            className="action_btn primary"
-            onClick={() => navigate('/cursos')}
-          >
-            🎓 Comprar Curso
-          </button>
-          <button
-            className="action_btn secondary"
-            onClick={() => navigate('/clases-personalizadas')}
-          >
-            📝 Comprar Clase
-          </button>
-          <button
-            className="action_btn success"
-            onClick={() => navigate('/estudiante/mis-compras')}
-          >
-            📦 Ver Mis Compras
-          </button>
+          {/* Mis Cursos Activos */}
+          <div className="dashboard_card">
+            <div className="card_icon">📚</div>
+            <h2 className="card_title">Mis Cursos</h2>
+            <p className="card_number">{stats.cursos}</p>
+            <p className="card_description">Cursos Activos</p>
+            <button
+              className="btn_card"
+              onClick={() => navigate('/estudiante/mis-cursos')}
+            >
+              Ver Mis Cursos
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Información Adicional */}
-      <div className="info_section">
-        <div className="info_card">
-          <h3>💡 ¿Sabías que...?</h3>
-          <p>
-            Con los paquetes de horas puedes agendar tus clases cuando quieras
-            y distribuir las horas como mejor te convenga.
-          </p>
-        </div>
-
-        <div className="info_card">
-          <h3>🎯 Recomendación</h3>
-          <p>
-            Los cursos grupales son más económicos y te permiten aprender
-            junto a otros estudiantes con tus mismos objetivos.
-          </p>
-        </div>
-      </div>
-    </div>
+      <Footer />
+    </>
   );
 };
