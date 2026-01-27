@@ -4,7 +4,7 @@ import { PasswordInput } from '../components/PasswordInput';
 import comprasService from '../services/compras_service';
 import wompiService from '../services/wompi_service';
 import { openWompiWidget } from '../utils/wompi_widget';
-import { getBrowserTimeZone, TIMEZONES_LATAM } from '../utils/timezone';
+import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
 import '../styles/Checkout.css';
 
 
@@ -752,11 +752,11 @@ const CheckoutClase = () => {
                     disabled={procesando || procesandoWompi}
                     className={errores.timezone ? 'input-error' : ''}
                   >
-                    {TIMEZONES_LATAM.map((tz) => (
-                      <option key={tz.value} value={tz.value}>
-                        {tz.label}
-                      </option>
-                    ))}
+                    {getAllTimeZoneOptions().map((tz) => (
+                    <option key={tz.value} value={tz.value}>
+                      {tz.label}
+                    </option>
+                  ))}
                   </select>
                   {errores.timezone && (
                     <span className="error">{errores.timezone}</span>
