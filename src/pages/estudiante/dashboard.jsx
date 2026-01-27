@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth_context';
+import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import '../../styles/estudiante-css/estudiante_dashboard.css';
 
@@ -82,6 +83,7 @@ export const EstudianteDashboard = () => {
   if (loading) {
     return (
       <div className="dashboard_container">
+        <Header />
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -93,12 +95,15 @@ export const EstudianteDashboard = () => {
           <div className="spinner"></div>
           <p>Cargando dashboard...</p>
         </div>
+        <Footer />
       </div>
     );
   }
 
   return (
     <>
+      <Header />
+
       <div className="dashboard_container">
         {/* Header */}
         <header className="dashboard_header">
@@ -107,14 +112,6 @@ export const EstudianteDashboard = () => {
             <p className="welcome_message">
               Bienvenido, <strong>{user?.nombre || 'Estudiante'} {user?.apellido || ''}</strong>
             </p>
-          </div>
-          <div className="header_actions">
-            <button className="btn_profile" onClick={() => navigate('/estudiante/perfil')}>
-              👤 Mi Perfil
-            </button>
-            <button className="btn_logout" onClick={handleLogout}>
-              🚪 Cerrar Sesión
-            </button>
           </div>
         </header>
 

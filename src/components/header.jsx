@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/header.css';
+import { useAuth } from '../context/auth_context';
 
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const { user, logout, is_authenticated, loading } = useAuth();
 
   const handleLogin = () => {
     navigate('/login');
@@ -19,6 +22,23 @@ export function Header() {
 
   const handleHome = () => {
     navigate('/');
+    closeMenu();
+  };
+
+  const handleMiPerfil = () => {
+    const rol = user?.rol;
+
+    if (rol === 'admin') navigate('/admin/dashboard');
+    else if (rol === 'profesor') navigate('/profesor/mi-perfil');
+    else if (rol === 'estudiante') navigate('/estudiante/dashboard');
+    else navigate('/');
+
+    closeMenu();
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
     closeMenu();
   };
 
@@ -129,18 +149,39 @@ export function Header() {
 
       {/* Acciones */}
       <div className={`header__actions ${menuOpen ? 'active' : ''}`}>
-        <button
-          className="header__btn header__btn--outline"
-          onClick={handleLogin}
-        >
-          INICIAR SESIÓN
-        </button>
-        <button
-          className="header__btn header__btn--solid"
-          onClick={handleRegister}
-        >
-          REGISTRARSE
-        </button>
+        {!loading && !is_authenticated && (
+          <>
+            <button
+              className="header__btn header__btn--outline"
+              onClick={handleLogin}
+            >
+              INICIAR SESIÓN
+            </button>
+            <button
+              className="header__btn header__btn--solid"
+              onClick={handleRegister}
+            >
+              REGISTRARSE
+            </button>
+          </>
+        )}
+
+        {!loading && is_authenticated && (
+          <>
+            <button
+              className="header__btn header__btn--outline"
+              onClick={handleMiPerfil}
+            >
+              MI PERFIL
+            </button>
+            <button
+              className="header__btn header__btn--solid"
+              onClick={handleLogout}
+            >
+              CERRAR SESIÓN
+            </button>
+          </>
+        )}
       </div>
     </header>
   );

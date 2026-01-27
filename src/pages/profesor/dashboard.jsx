@@ -62,9 +62,6 @@ export const ProfesorDashboard = () => {
               <h1 className="dashboard_title">¡Bienvenido, Profesor {user?.nombre}!</h1>
               <p className="dashboard_subtitle">Dashboard de Profesor</p>
             </div>
-            <button onClick={handle_logout} className="btn_logout">
-              Cerrar Sesión
-            </button>
           </div>
 
           <div className="dashboard_grid">

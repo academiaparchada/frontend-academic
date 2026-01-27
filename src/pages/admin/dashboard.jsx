@@ -75,9 +75,6 @@ export const AdminDashboard = () => {
                   : ''}
               </p>
             </div>
-            <button onClick={handle_logout} className="btn_logout">
-              Cerrar Sesión
-            </button>
           </div>
 
           <div className="dashboard_grid">
