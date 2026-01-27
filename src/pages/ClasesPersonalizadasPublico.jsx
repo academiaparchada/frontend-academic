@@ -206,7 +206,7 @@ const ClasesPersonalizadasPublico = () => {
                   <div className="precio-container">
                     <span className="precio-label">Precio por clase</span>
                     <span className="precio-valor">
-                      {clasesPersonalizadasService.formatearPrecio(clase.precio)}
+                      {comprasService.formatearPrecio(clase.precio)}
                     </span>
                   </div>
 

@@ -6,7 +6,6 @@ import mercadoPagoService from './mercadopago_service';
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.parcheacademico.com/api';
 
 class ComprasService {
-
   _getToken() {
     return localStorage.getItem('token');
   }
@@ -480,7 +479,7 @@ class ComprasService {
    * Flujo de 2 pasos:
    * 1. Si hay archivo, subirlo primero → obtener documento_url
    * 2. Agendar sesión con documento_url (opcional)
-   * 
+   *
    * @param {string} compraId - ID de la compra del paquete
    * @param {Object} datosSesion - Datos de la sesión
    * @param {string} datosSesion.fecha_hora - Fecha y hora en formato ISO 8601
@@ -503,9 +502,9 @@ class ComprasService {
       // ✅ PASO 1: Si hay archivo, subirlo primero
       if (archivo) {
         console.log('📤 PASO 1: Subiendo documento...');
-        
+
         const resultadoSubida = await this.subirDocumentoClasePersonalizada(archivo);
-        
+
         if (!resultadoSubida.success) {
           console.error('❌ Error subiendo documento:', resultadoSubida.message);
           return {
@@ -522,7 +521,7 @@ class ComprasService {
 
       // ✅ PASO 2: Agendar sesión (con o sin documento_url)
       console.log('📅 PASO 2: Agendando sesión...');
-      
+
       const payload = {
         fecha_hora: datosSesion.fecha_hora,
         duracion_horas: datosSesion.duracion_horas,
@@ -703,13 +702,133 @@ class ComprasService {
 
   // ==================== UTILIDADES ====================
 
-  // Formatear precio
+  // ====== NUEVO (solo UI): moneda por timezone + conversion aproximada ======
+  _getBrowserTimeZone() {
+    return (
+      localStorage.getItem('timezone') ||
+      Intl.DateTimeFormat().resolvedOptions().timeZone ||
+      'America/Bogota'
+    );
+  }
+
+  /**
+   * Mapeo amplio por zonas horarias típicas (LATAM + ES + algunos otros).
+   * IMPORTANTE: timezone no identifica país al 100%, pero es suficiente para aproximación visual.
+   */
+  _getCurrencyConfigByTimezone(timezone) {
+    const tz = String(timezone || '').toLowerCase();
+
+    // Default: Colombia
+    const fallback = { locale: 'es-CO', currency: 'COP', rateFromCOP: 1 };
+
+    // ---- COLOMBIA (COP) ----
+    if (tz.includes('bogota')) return { locale: 'es-CO', currency: 'COP', rateFromCOP: 1 };
+
+    // ---- MÉXICO (MXN) ----
+    if (tz.includes('mexico') || tz.includes('tijuana') || tz.includes('chihuahua') || tz.includes('monterrey') || tz.includes('cancun')) {
+      return { locale: 'es-MX', currency: 'MXN', rateFromCOP: 0.0046 };
+    }
+
+    // ---- CENTROAMÉRICA (mezcla, simplificado) ----
+    // Guatemala (GTQ), Honduras (HNL), Nicaragua (NIO), Costa Rica (CRC), El Salvador (USD), Panamá (USD)
+    if (tz.includes('guatemala')) return { locale: 'es-GT', currency: 'GTQ', rateFromCOP: 0.0019 };
+    if (tz.includes('tegucigalpa')) return { locale: 'es-HN', currency: 'HNL', rateFromCOP: 0.0063 };
+    if (tz.includes('managua')) return { locale: 'es-NI', currency: 'NIO', rateFromCOP: 0.0092 };
+    if (tz.includes('costa_rica') || tz.includes('san_jose')) return { locale: 'es-CR', currency: 'CRC', rateFromCOP: 0.13 };
+    if (tz.includes('el_salvador')) return { locale: 'es-SV', currency: 'USD', rateFromCOP: 0.00025 };
+    if (tz.includes('panama')) return { locale: 'es-PA', currency: 'USD', rateFromCOP: 0.00025 };
+
+    // ---- CARIBE (simplificado) ----
+    // República Dominicana (DOP), Puerto Rico (USD), Cuba (CUP) — Cuba es raro por timezone; lo omitimos
+    if (tz.includes('santo_domingo')) return { locale: 'es-DO', currency: 'DOP', rateFromCOP: 0.015 };
+    if (tz.includes('puerto_rico')) return { locale: 'es-PR', currency: 'USD', rateFromCOP: 0.00025 };
+
+    // ---- VENEZUELA (USD simplificado) ----
+    // (Venezuela tiene VES, pero por simplicidad y “poca precisión”, lo pongo USD)
+    if (tz.includes('caracas')) return { locale: 'es-VE', currency: 'USD', rateFromCOP: 0.00025 };
+
+    // ---- ECUADOR (USD) ----
+    if (tz.includes('guayaquil') || tz.includes('quito')) return { locale: 'es-EC', currency: 'USD', rateFromCOP: 0.00025 };
+
+    // ---- PERÚ (PEN) ----
+    if (tz.includes('lima')) return { locale: 'es-PE', currency: 'PEN', rateFromCOP: 0.00095 };
+
+    // ---- BOLIVIA (BOB) ----
+    if (tz.includes('la_paz')) return { locale: 'es-BO', currency: 'BOB', rateFromCOP: 0.0017 };
+
+    // ---- CHILE (CLP) ----
+    if (tz.includes('santiago')) return { locale: 'es-CL', currency: 'CLP', rateFromCOP: 0.22 };
+
+    // ---- ARGENTINA (ARS) ----
+    if (tz.includes('argentina') || tz.includes('buenos_aires')) return { locale: 'es-AR', currency: 'ARS', rateFromCOP: 0.26 };
+
+    // ---- URUGUAY (UYU) ----
+    if (tz.includes('montevideo')) return { locale: 'es-UY', currency: 'UYU', rateFromCOP: 0.0098 };
+
+    // ---- PARAGUAY (PYG) ----
+    if (tz.includes('asuncion')) return { locale: 'es-PY', currency: 'PYG', rateFromCOP: 1.8 };
+
+    // ---- BRASIL (BRL) ----
+    if (tz.includes('sao_paulo') || tz.includes('fortaleza') || tz.includes('manaus') || tz.includes('rio_branco') || tz.includes('recife')) {
+      return { locale: 'pt-BR', currency: 'BRL', rateFromCOP: 0.00125 };
+    }
+
+    // ---- USA (USD) / CANADÁ (CAD) ----
+    if (tz.includes('new_york') || tz.includes('los_angeles') || tz.includes('chicago') || tz.includes('denver') || tz.includes('phoenix')) {
+      return { locale: 'en-US', currency: 'USD', rateFromCOP: 0.00025 };
+    }
+    if (tz.includes('toronto') || tz.includes('vancouver') || tz.includes('edmonton') || tz.includes('halifax')) {
+      return { locale: 'en-CA', currency: 'CAD', rateFromCOP: 0.00034 };
+    }
+
+    // ---- ESPAÑA / EUROPA (EUR) ----
+    if (tz.includes('madrid') || tz.includes('barcelona') || tz.includes('canary') || tz.includes('ceuta') || tz.includes('melilla')) {
+      return { locale: 'es-ES', currency: 'EUR', rateFromCOP: 0.00023 };
+    }
+    // Algunos otros en Europa (por si timezone viene distinto)
+    if (tz.includes('paris') || tz.includes('berlin') || tz.includes('rome') || tz.includes('amsterdam') || tz.includes('lisbon')) {
+      return { locale: 'es-ES', currency: 'EUR', rateFromCOP: 0.00023 };
+    }
+
+    // ---- REINO UNIDO (GBP) ----
+    if (tz.includes('london')) return { locale: 'en-GB', currency: 'GBP', rateFromCOP: 0.00020 };
+
+    // ---- AUSTRALIA / NZ (por si acaso) ----
+    if (tz.includes('sydney') || tz.includes('melbourne') || tz.includes('brisbane') || tz.includes('perth')) {
+      return { locale: 'en-AU', currency: 'AUD', rateFromCOP: 0.00038 };
+    }
+    if (tz.includes('auckland')) return { locale: 'en-NZ', currency: 'NZD', rateFromCOP: 0.00041 };
+
+    return fallback;
+  }
+
+  _convertFromCOP(precioCOP, rateFromCOP) {
+    const n = Number(precioCOP);
+    if (!Number.isFinite(n)) return 0;
+
+    const rate = Number(rateFromCOP);
+    if (!Number.isFinite(rate) || rate <= 0) return n;
+
+    return n * rate;
+  }
+
+  // Formatear precio (ACTUALIZADO: solo visual)
   formatearPrecio(precio) {
-    return new Intl.NumberFormat('es-CO', {
+    const timezone = this._getBrowserTimeZone();
+    const cfg = this._getCurrencyConfigByTimezone(timezone);
+
+    const precioConvertido = this._convertFromCOP(precio, cfg.rateFromCOP);
+
+    // Mantener el "look" anterior: COP sin decimales; USD/EUR/GBP/CAD/AUD/NZD con 2.
+    const usaDecimales = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'PEN', 'BOB', 'BRL', 'MXN', 'UYU', 'GTQ', 'HNL', 'NIO', 'DOP'].includes(cfg.currency);
+
+    return new Intl.NumberFormat(cfg.locale, {
       style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(precio);
+      currency: cfg.currency,
+      currencyDisplay: 'code', // ✅ OPCIÓN A: mostrar COP/MXN/EUR/etc [web:35]
+      minimumFractionDigits: usaDecimales ? 2 : 0,
+      maximumFractionDigits: usaDecimales ? 2 : 0
+    }).format(precioConvertido);
   }
 
   // Formatear fecha y hora
