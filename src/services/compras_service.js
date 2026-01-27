@@ -19,10 +19,12 @@ class ComprasService {
 
   _getHeadersMultipart() {
     const token = this._getToken();
-    return token ? {
-      'Authorization': `Bearer ${token}`
-      // NO incluir Content-Type para que el navegador lo configure automáticamente con boundary
-    } : {};
+    return token
+      ? {
+          Authorization: `Bearer ${token}`
+          // NO incluir Content-Type para que el navegador lo configure automáticamente con boundary
+        }
+      : {};
   }
 
   // ==================== NUEVO: SUBIR DOCUMENTO ====================
@@ -76,7 +78,6 @@ class ComprasService {
           size: data.data.size
         }
       };
-
     } catch (error) {
       console.error('❌ Error subiendo documento:', error);
       return {
@@ -133,7 +134,6 @@ class ComprasService {
       }
 
       return resultado;
-
     } catch (error) {
       console.error('❌ Error iniciando pago:', error);
       return {
@@ -238,7 +238,6 @@ class ComprasService {
         data: data.data,
         message: data.message
       };
-
     } catch (error) {
       console.error('❌ Error iniciando pago con archivo:', error);
       return {
@@ -255,11 +254,7 @@ class ComprasService {
    */
   validarArchivo(archivo) {
     const MAX_SIZE = 25 * 1024 * 1024; // 25MB
-    const EXTENSIONES_PERMITIDAS = [
-      'pdf', 'doc', 'docx', 'txt',
-      'jpg', 'jpeg', 'png',
-      'zip', 'rar', '7z'
-    ];
+    const EXTENSIONES_PERMITIDAS = ['pdf', 'doc', 'docx', 'txt', 'jpg', 'jpeg', 'png', 'zip', 'rar', '7z'];
 
     if (!archivo) {
       return { valido: true }; // Archivo opcional
@@ -316,7 +311,6 @@ class ComprasService {
       }
 
       return { success: true, data: json.data };
-
     } catch (error) {
       console.error('❌ Error consultarEstadoCompra:', error);
       return {
@@ -342,13 +336,9 @@ class ComprasService {
       console.log('⚠️ ADVERTENCIA: Método deprecated. Usar iniciarPagoMercadoPago');
       console.log('Comprando curso:', cursoId);
 
-      const body = datosEstudiante
-        ? { curso_id: cursoId, estudiante: datosEstudiante }
-        : { curso_id: cursoId };
+      const body = datosEstudiante ? { curso_id: cursoId, estudiante: datosEstudiante } : { curso_id: cursoId };
 
-      const headers = datosEstudiante
-        ? { 'Content-Type': 'application/json' }
-        : this._getHeaders();
+      const headers = datosEstudiante ? { 'Content-Type': 'application/json' } : this._getHeaders();
 
       const response = await fetch(`${API_URL}/compras/curso`, {
         method: 'POST',
@@ -368,7 +358,6 @@ class ComprasService {
           errors: data.errors || []
         };
       }
-
     } catch (error) {
       console.error('Error al comprar curso:', error);
       return {
@@ -391,9 +380,7 @@ class ComprasService {
         estudiante: datosCompra.estudiante
       };
 
-      const headers = datosCompra.estudiante
-        ? { 'Content-Type': 'application/json' }
-        : this._getHeaders();
+      const headers = datosCompra.estudiante ? { 'Content-Type': 'application/json' } : this._getHeaders();
 
       const response = await fetch(`${API_URL}/compras/clase-personalizada`, {
         method: 'POST',
@@ -413,7 +400,6 @@ class ComprasService {
           errors: data.errors || []
         };
       }
-
     } catch (error) {
       console.error('Error al comprar clase:', error);
       return {
@@ -430,19 +416,10 @@ class ComprasService {
       console.log('Comprando paquete de horas:', claseId, cantidadHoras);
 
       const body = datosEstudiante
-        ? {
-            clase_personalizada_id: claseId,
-            cantidad_horas: cantidadHoras,
-            estudiante: datosEstudiante
-          }
-        : {
-            clase_personalizada_id: claseId,
-            cantidad_horas: cantidadHoras
-          };
+        ? { clase_personalizada_id: claseId, cantidad_horas: cantidadHoras, estudiante: datosEstudiante }
+        : { clase_personalizada_id: claseId, cantidad_horas: cantidadHoras };
 
-      const headers = datosEstudiante
-        ? { 'Content-Type': 'application/json' }
-        : this._getHeaders();
+      const headers = datosEstudiante ? { 'Content-Type': 'application/json' } : this._getHeaders();
 
       const response = await fetch(`${API_URL}/paquetes-horas`, {
         method: 'POST',
@@ -462,7 +439,6 @@ class ComprasService {
           errors: data.errors || []
         };
       }
-
     } catch (error) {
       console.error('Error al comprar paquete:', error);
       return {
@@ -557,7 +533,6 @@ class ComprasService {
         data: data.data,
         message: data.message || 'Sesión agendada exitosamente'
       };
-
     } catch (error) {
       console.error('❌ EXCEPCIÓN al agendar sesión:', error);
       console.log('═══════════════════════════════════════════════');
@@ -591,7 +566,6 @@ class ComprasService {
           message: data.message || 'Error al obtener compras'
         };
       }
-
     } catch (error) {
       console.error('Error al listar compras:', error);
       return {
@@ -618,7 +592,6 @@ class ComprasService {
           message: data.message || 'Error al obtener detalle'
         };
       }
-
     } catch (error) {
       console.error('Error al obtener detalle:', error);
       return {
@@ -657,7 +630,6 @@ class ComprasService {
         success: true,
         data: data.data // { compra, sesiones, total_sesiones }
       };
-
     } catch (error) {
       console.error('❌ Error obteniendo paquete:', error);
       return {
@@ -690,7 +662,6 @@ class ComprasService {
           message: data.message || 'Error al obtener sesiones'
         };
       }
-
     } catch (error) {
       console.error('Error al listar sesiones:', error);
       return {
@@ -702,13 +673,69 @@ class ComprasService {
 
   // ==================== UTILIDADES ====================
 
-  // ====== NUEVO (solo UI): moneda por timezone + conversion aproximada ======
-  _getBrowserTimeZone() {
+  _getBrowserLocale() {
+    // Preferimos language, luego languages[0]
     return (
-      localStorage.getItem('timezone') ||
-      Intl.DateTimeFormat().resolvedOptions().timeZone ||
-      'America/Bogota'
+      (typeof navigator !== 'undefined' && navigator.language) ||
+      (typeof navigator !== 'undefined' && Array.isArray(navigator.languages) && navigator.languages[0]) ||
+      'es-CO'
     );
+  }
+
+  _isBadIntlTimezone(tz) {
+    const t = String(tz || '').trim();
+    if (!t) return true;
+
+    const lower = t.toLowerCase();
+    // casos comunes cuando NO hay tz real
+    if (lower === 'utc' || lower === 'etc/utc' || lower === 'etc/gmt') return true;
+
+    return false;
+  }
+
+  // ====== NUEVO (solo UI): timezone del navegador (robusto) ======
+  _getBrowserTimeZone() {
+    // 1) si el usuario guardó timezone explícita, usarla
+    const stored = localStorage.getItem('timezone');
+    if (stored && String(stored).trim()) return stored;
+
+    // 2) intentar Intl
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!this._isBadIntlTimezone(tz)) return tz;
+    } catch (e) {
+      // ignorar
+    }
+
+    // 3) fallback: no tenemos IANA tz confiable; devolvemos vacío para que formatearPrecio use locale
+    return '';
+  }
+
+  _getCurrencyConfigByLocale(locale) {
+    const l = String(locale || '').toLowerCase();
+
+    // Fallback (CO)
+    const fallback = { locale: 'es-CO', currency: 'COP', rateFromCOP: 1 };
+
+    // México
+    if (l.startsWith('es-mx')) return { locale: 'es-MX', currency: 'MXN', rateFromCOP: 0.0046 };
+
+    // España / Europa (es-ES)
+    if (l.startsWith('es-es')) return { locale: 'es-ES', currency: 'EUR', rateFromCOP: 0.00023 };
+
+    // USA
+    if (l.startsWith('en-us')) return { locale: 'en-US', currency: 'USD', rateFromCOP: 0.00025 };
+
+    // Canadá
+    if (l.startsWith('en-ca') || l.startsWith('fr-ca')) return { locale: 'en-CA', currency: 'CAD', rateFromCOP: 0.00034 };
+
+    // Brasil
+    if (l.startsWith('pt-br')) return { locale: 'pt-BR', currency: 'BRL', rateFromCOP: 0.00125 };
+
+    // Reino Unido
+    if (l.startsWith('en-gb')) return { locale: 'en-GB', currency: 'GBP', rateFromCOP: 0.00020 };
+
+    return fallback;
   }
 
   /**
@@ -730,7 +757,6 @@ class ComprasService {
     }
 
     // ---- CENTROAMÉRICA (mezcla, simplificado) ----
-    // Guatemala (GTQ), Honduras (HNL), Nicaragua (NIO), Costa Rica (CRC), El Salvador (USD), Panamá (USD)
     if (tz.includes('guatemala')) return { locale: 'es-GT', currency: 'GTQ', rateFromCOP: 0.0019 };
     if (tz.includes('tegucigalpa')) return { locale: 'es-HN', currency: 'HNL', rateFromCOP: 0.0063 };
     if (tz.includes('managua')) return { locale: 'es-NI', currency: 'NIO', rateFromCOP: 0.0092 };
@@ -739,12 +765,10 @@ class ComprasService {
     if (tz.includes('panama')) return { locale: 'es-PA', currency: 'USD', rateFromCOP: 0.00025 };
 
     // ---- CARIBE (simplificado) ----
-    // República Dominicana (DOP), Puerto Rico (USD), Cuba (CUP) — Cuba es raro por timezone; lo omitimos
     if (tz.includes('santo_domingo')) return { locale: 'es-DO', currency: 'DOP', rateFromCOP: 0.015 };
     if (tz.includes('puerto_rico')) return { locale: 'es-PR', currency: 'USD', rateFromCOP: 0.00025 };
 
     // ---- VENEZUELA (USD simplificado) ----
-    // (Venezuela tiene VES, pero por simplicidad y “poca precisión”, lo pongo USD)
     if (tz.includes('caracas')) return { locale: 'es-VE', currency: 'USD', rateFromCOP: 0.00025 };
 
     // ---- ECUADOR (USD) ----
@@ -785,7 +809,6 @@ class ComprasService {
     if (tz.includes('madrid') || tz.includes('barcelona') || tz.includes('canary') || tz.includes('ceuta') || tz.includes('melilla')) {
       return { locale: 'es-ES', currency: 'EUR', rateFromCOP: 0.00023 };
     }
-    // Algunos otros en Europa (por si timezone viene distinto)
     if (tz.includes('paris') || tz.includes('berlin') || tz.includes('rome') || tz.includes('amsterdam') || tz.includes('lisbon')) {
       return { locale: 'es-ES', currency: 'EUR', rateFromCOP: 0.00023 };
     }
@@ -793,7 +816,7 @@ class ComprasService {
     // ---- REINO UNIDO (GBP) ----
     if (tz.includes('london')) return { locale: 'en-GB', currency: 'GBP', rateFromCOP: 0.00020 };
 
-    // ---- AUSTRALIA / NZ (por si acaso) ----
+    // ---- AUSTRALIA / NZ ----
     if (tz.includes('sydney') || tz.includes('melbourne') || tz.includes('brisbane') || tz.includes('perth')) {
       return { locale: 'en-AU', currency: 'AUD', rateFromCOP: 0.00038 };
     }
@@ -815,17 +838,37 @@ class ComprasService {
   // Formatear precio (ACTUALIZADO: solo visual)
   formatearPrecio(precio) {
     const timezone = this._getBrowserTimeZone();
-    const cfg = this._getCurrencyConfigByTimezone(timezone);
+
+    // Si Intl TZ falló, caemos a locale del navegador
+    const cfg = timezone
+      ? this._getCurrencyConfigByTimezone(timezone)
+      : this._getCurrencyConfigByLocale(this._getBrowserLocale());
 
     const precioConvertido = this._convertFromCOP(precio, cfg.rateFromCOP);
 
     // Mantener el "look" anterior: COP sin decimales; USD/EUR/GBP/CAD/AUD/NZD con 2.
-    const usaDecimales = ['USD', 'EUR', 'GBP', 'CAD', 'AUD', 'NZD', 'PEN', 'BOB', 'BRL', 'MXN', 'UYU', 'GTQ', 'HNL', 'NIO', 'DOP'].includes(cfg.currency);
+    const usaDecimales = [
+      'USD',
+      'EUR',
+      'GBP',
+      'CAD',
+      'AUD',
+      'NZD',
+      'PEN',
+      'BOB',
+      'BRL',
+      'MXN',
+      'UYU',
+      'GTQ',
+      'HNL',
+      'NIO',
+      'DOP'
+    ].includes(cfg.currency);
 
     return new Intl.NumberFormat(cfg.locale, {
       style: 'currency',
       currency: cfg.currency,
-      currencyDisplay: 'code', // ✅ OPCIÓN A: mostrar COP/MXN/EUR/etc [web:35]
+      currencyDisplay: 'code', // ✅ mostrar COP/MXN/EUR/etc
       minimumFractionDigits: usaDecimales ? 2 : 0,
       maximumFractionDigits: usaDecimales ? 2 : 0
     }).format(precioConvertido);
@@ -855,8 +898,6 @@ class ComprasService {
 
   // Convertir fecha local a ISO con zona horaria
   convertirFechaAISO(fechaLocal) {
-    // Formato esperado: "2026-01-07T14:00"
-    // Salida: "2026-01-07T14:00:00-05:00"
     if (!fechaLocal) return null;
     return `${fechaLocal}:00-05:00`;
   }
@@ -867,7 +908,7 @@ class ComprasService {
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   }
 
   // Validar datos de estudiante nuevo
@@ -899,21 +940,21 @@ class ComprasService {
   // Obtener badge de tipo de compra
   obtenerBadgeTipoCompra(tipo) {
     const badges = {
-      'curso': { text: '🎓 Curso', class: 'badge-curso' },
-      'clase_personalizada': { text: '📝 Clase', class: 'badge-clase' },
-      'paquete_horas': { text: '📦 Paquete', class: 'badge-paquete' }
+      curso: { text: '🎓 Curso', class: 'badge-curso' },
+      clase_personalizada: { text: '📝 Clase', class: 'badge-clase' },
+      paquete_horas: { text: '📦 Paquete', class: 'badge-paquete' }
     };
-    return badges[tipo] || badges['curso'];
+    return badges[tipo] || badges.curso;
   }
 
   // Obtener badge de estado de pago
   obtenerBadgeEstadoPago(estado) {
     const badges = {
-      'completado': { text: '✅ Pagado', class: 'badge-pagado' },
-      'pendiente': { text: '⏳ Pendiente', class: 'badge-pendiente' },
-      'fallido': { text: '❌ Fallido', class: 'badge-fallido' }
+      completado: { text: '✅ Pagado', class: 'badge-pagado' },
+      pendiente: { text: '⏳ Pendiente', class: 'badge-pendiente' },
+      fallido: { text: '❌ Fallido', class: 'badge-fallido' }
     };
-    return badges[estado] || badges['pendiente'];
+    return badges[estado] || badges.pendiente;
   }
 }
 
