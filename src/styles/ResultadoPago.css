@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  background: #78c7c7;
 }
 
 .resultado-card {
@@ -116,7 +116,7 @@
 /* Info box */
 .info-box {
   background: #e6fffa;
-  border-left: 4px solid #0987a0;
+  border-left: 4px solid #78c7c7;
   border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -224,24 +224,26 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+  background: #5b9999;
   color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(90, 103, 216, 0.4);
-  background: linear-gradient(135deg, #4c51bf 0%, #553c9a 100%);
+  background: linear-gradient(135deg, #3d7373 0%, #2d5555 100%);
 }
 
 .btn-secondary {
-  background: #0987a0;
-  color: white;
+  background: #f5f0e8;
+  color: rgb(130, 127, 127);
+  border: 1.5px solid #5b9999;
 }
 
 .btn-secondary:hover {
-  background: #086f83;
+  background: linear-gradient(135deg, #5b9999 0%, #3d7373 100%);
   transform: translateY(-2px);
+  color: #f5f0e8;
   box-shadow: 0 6px 20px rgba(9, 135, 160, 0.3);
 }
 
