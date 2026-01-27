@@ -40,6 +40,12 @@ import MisPaquetes from './pages/estudiante/MisPaquetes';
 import MisClasesEstudiante from './pages/estudiante/MisClases.jsx' 
 import MisCursosEstudiante from './pages/estudiante/MisCursos.jsx' 
 
+// ✅ GA4
+import analyticsService from './services/analytics_service.js'
+
+// ✅ Inicializa GA4 una sola vez
+analyticsService.init()
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
