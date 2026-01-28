@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth_context';
 import estudianteClasesService from '../../services/estudiante_clases_service';
+import { Header } from '../../components/header';
 import { Footer } from '../../components/footer';
 import '../../styles/estudiante-css/mis_clases.css';
 
@@ -85,6 +86,8 @@ const MisClasesEstudiante = () => {
 
   return (
     <>
+      <Header />
+
       <div className="mis-clases-container">
         {/* Header */}
         <div className="mis-clases-header">
@@ -270,6 +273,7 @@ const MisClasesEstudiante = () => {
           </>
         )}
       </div>
+
       <Footer />
     </>
   );

@@ -4,6 +4,8 @@ import CalendarioSemanal from '../../components/CalendarioSemanal';
 import ModalFranja from '../../components/ModalFranja';
 import franjasService from '../../services/franjas_service';
 import authService from '../../services/auth_service';
+import { Header } from '../../components/header';
+import { Footer } from '../../components/footer';
 import '../../styles/profesor-css/FranjasHorarias.css';
 
 const FranjasHorariasProfesor = () => {
@@ -12,7 +14,7 @@ const FranjasHorariasProfesor = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [profesorId, setProfesorId] = useState(null);
-  
+
   // Estados del modal
   const [modalAbierto, setModalAbierto] = useState(false);
   const [franjaEditar, setFranjaEditar] = useState(null);
@@ -27,6 +29,7 @@ const FranjasHorariasProfesor = () => {
     } else {
       setError('No se pudo obtener la información del usuario');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Cargar franjas del profesor actual
@@ -34,9 +37,9 @@ const FranjasHorariasProfesor = () => {
     try {
       setLoading(true);
       setError('');
-      
+
       const resultado = await franjasService.listarFranjasProfesor(id);
-      
+
       if (resultado.success) {
         setFranjasPorDia(resultado.data.franjasPorDia || {});
         setTodasLasFranjas(resultado.data.franjas || []);
@@ -80,7 +83,7 @@ const FranjasHorariasProfesor = () => {
     try {
       setLoading(true);
       const resultado = await franjasService.eliminarFranja(franja.id);
-      
+
       if (resultado.success) {
         // Recargar franjas
         await cargarFranjasProfesor(profesorId);
@@ -105,49 +108,55 @@ const FranjasHorariasProfesor = () => {
   };
 
   return (
-    <div className="franjas-horarias-container">
-      <div className="franjas-header">
-        <h1>Mi Disponibilidad Horaria</h1>
-        <p className="subtitulo">Gestiona tus franjas horarias disponibles para dar clases</p>
-      </div>
+    <div className="page">
+      <Header />
 
-      {/* Mensajes de error */}
-      {error && (
-        <div className="mensaje-error">
-          {error}
-        </div>
-      )}
+      <main className="main">
+        <div className="franjas-horarias-container">
+          <div className="franjas-header">
+            <h1>Mi Disponibilidad Horaria</h1>
+            <p className="subtitulo">
+              Gestiona tus franjas horarias disponibles para dar clases
+            </p>
+          </div>
 
-      {/* Indicador de carga */}
-      {loading && (
-        <div className="loading-spinner">
-          <div className="spinner"></div>
-          <p>Cargando...</p>
-        </div>
-      )}
+          {/* Mensajes de error */}
+          {error && <div className="mensaje-error">{error}</div>}
 
-      {/* Calendario semanal */}
-      {!loading && profesorId && (
-        <div className="calendario-section">
-          <CalendarioSemanal
-            franjasPorDia={franjasPorDia}
-            onAgregarFranja={handleAgregarFranja}
-            onEditarFranja={handleEditarFranja}
-            onEliminarFranja={handleEliminarFranja}
+          {/* Indicador de carga */}
+          {loading && (
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+              <p>Cargando...</p>
+            </div>
+          )}
+
+          {/* Calendario semanal */}
+          {!loading && profesorId && (
+            <div className="calendario-section">
+              <CalendarioSemanal
+                franjasPorDia={franjasPorDia}
+                onAgregarFranja={handleAgregarFranja}
+                onEditarFranja={handleEditarFranja}
+                onEliminarFranja={handleEliminarFranja}
+              />
+            </div>
+          )}
+
+          {/* Modal para crear/editar franja */}
+          <ModalFranja
+            isOpen={modalAbierto}
+            onClose={() => setModalAbierto(false)}
+            franjaEditar={franjaEditar}
+            diaSeleccionado={diaSeleccionado}
+            profesorId={profesorId}
+            todasLasFranjas={todasLasFranjas}
+            onFranjaSaved={handleFranjaSaved}
           />
         </div>
-      )}
+      </main>
 
-      {/* Modal para crear/editar franja */}
-      <ModalFranja
-        isOpen={modalAbierto}
-        onClose={() => setModalAbierto(false)}
-        franjaEditar={franjaEditar}
-        diaSeleccionado={diaSeleccionado}
-        profesorId={profesorId}
-        todasLasFranjas={todasLasFranjas}
-        onFranjaSaved={handleFranjaSaved}
-      />
+      <Footer />
     </div>
   );
 };

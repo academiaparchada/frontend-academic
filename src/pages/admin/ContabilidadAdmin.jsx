@@ -5,6 +5,9 @@ import adminMetricasService from '../../services/admin_metricas_service';
 import adminComprasService from '../../services/admin_compras_service';
 import ingresosAdicionalesAdminService from '../../services/ingresos_adicionales_admin_service';
 
+import { Header } from '../../components/header';
+import { Footer } from '../../components/footer';
+
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -335,274 +338,282 @@ const ContabilidadAdmin = () => {
   };
 
   return (
-    <div className="contabilidad-admin-container">
-      <div className="contabilidad-header">
-        <div>
-          <h1>Contabilidad</h1>
-          <p className="subtitulo">Consulta ingresos, pagos a profesores e ingresos adicionales por rango de fechas</p>
-        </div>
-      </div>
+    <div className="page">
+      <Header />
 
-      <div className="contabilidad-filtros">
-        <div className="filtro">
-          <label>Fecha inicio</label>
-          <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} disabled={loading} />
-        </div>
-
-        <div className="filtro">
-          <label>Fecha fin</label>
-          <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} disabled={loading} />
-        </div>
-
-        <div className="acciones">
-          <button className="btn-consultar" onClick={consultar} disabled={loading}>
-            {loading ? 'Consultando...' : 'Consultar'}
-          </button>
-          <button className="btn-limpiar" onClick={limpiar} disabled={loading}>
-            Limpiar
-          </button>
-        </div>
-      </div>
-
-      {error && <div className="mensaje-error">{error}</div>}
-
-      {/* NUEVO: registrar ingreso adicional */}
-      <div className="tabla-container">
-        <div className="tabla-header">
-          <h3>Registrar ingreso adicional</h3>
-          <small>Registra ingresos manuales (no provenientes de compras/pagos).</small>
-        </div>
-
-        {iaMsg.texto ? (
-          <div className={iaMsg.tipo === 'exito' ? 'mensaje-exito' : 'mensaje-error'}>
-            {iaMsg.texto}
-          </div>
-        ) : null}
-
-        <form onSubmit={crearIngresoAdicional} className="contabilidad-filtros" style={{ marginTop: 10 }}>
-          <div className="filtro" style={{ minWidth: 260 }}>
-            <label>Descripción *</label>
-            <input
-              type="text"
-              value={iaDescripcion}
-              onChange={(e) => setIaDescripcion(e.target.value)}
-              placeholder="Ej: Pago en efectivo (evento)"
-              disabled={iaLoading}
-            />
-          </div>
-
-          <div className="filtro" style={{ minWidth: 180 }}>
-            <label>Monto (COP) *</label>
-            <input
-              type="number"
-              value={iaMonto}
-              onChange={(e) => setIaMonto(e.target.value)}
-              min="0"
-              step="1"
-              placeholder="50000"
-              disabled={iaLoading}
-            />
-          </div>
-
-          <div className="filtro" style={{ minWidth: 240 }}>
-            <label>Fecha ingreso *</label>
-            <input
-              type="datetime-local"
-              value={iaFecha}
-              onChange={(e) => setIaFecha(e.target.value)}
-              disabled={iaLoading}
-            />
-          </div>
-
-          <div className="acciones">
-            <button className="btn-consultar" type="submit" disabled={iaLoading}>
-              {iaLoading ? 'Guardando...' : 'Registrar'}
-            </button>
-          </div>
-        </form>
-
-        <small className="subtitulo" style={{ display: 'block', marginTop: 8 }}>
-          Se enviará la fecha en formato ISO (UTC) al backend.
-        </small>
-      </div>
-
-      {metricas && (
-        <div className="contabilidad-chart-container">
-          <div className="contabilidad-chart-header">
-            <h3>Ingresos por día</h3>
-            <small>Rango: {metricas?.rango?.fechaInicio} → {metricas?.rango?.fechaFin}</small>
-          </div>
-
-          {serie.length === 0 ? (
-            <div className="contabilidad-chart-empty">No hay datos para graficar en este rango.</div>
-          ) : (
-            <div className="contabilidad-chart">
-              <Line data={chartData} options={chartOptions} />
-            </div>
-          )}
-        </div>
-      )}
-
-      {data && (
-        <>
-          <div className="kpis-grid">
-            <div className="kpi-card">
-              <span className="kpi-label">Ingresos totales</span>
-              <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.ingresos_totales)}</span>
-            </div>
-
-            <div className="kpi-card">
-              <span className="kpi-label">Pagos a profesores</span>
-              <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.pagos_profesores_total)}</span>
-            </div>
-
-            <div className="kpi-card">
-              <span className="kpi-label">Ingresos adicionales</span>
-              <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.ingresos_adicionales)}</span>
-            </div>
-
-            <div className="kpi-card kpi-neto">
-              <span className="kpi-label">Neto</span>
-              <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.neto)}</span>
+      <main className="main">
+        <div className="contabilidad-admin-container">
+          <div className="contabilidad-header">
+            <div>
+              <h1>Contabilidad</h1>
+              <p className="subtitulo">Consulta ingresos, pagos a profesores e ingresos adicionales por rango de fechas</p>
             </div>
           </div>
 
+          <div className="contabilidad-filtros">
+            <div className="filtro">
+              <label>Fecha inicio</label>
+              <input type="date" value={fechaInicio} onChange={(e) => setFechaInicio(e.target.value)} disabled={loading} />
+            </div>
+
+            <div className="filtro">
+              <label>Fecha fin</label>
+              <input type="date" value={fechaFin} onChange={(e) => setFechaFin(e.target.value)} disabled={loading} />
+            </div>
+
+            <div className="acciones">
+              <button className="btn-consultar" onClick={consultar} disabled={loading}>
+                {loading ? 'Consultando...' : 'Consultar'}
+              </button>
+              <button className="btn-limpiar" onClick={limpiar} disabled={loading}>
+                Limpiar
+              </button>
+            </div>
+          </div>
+
+          {error && <div className="mensaje-error">{error}</div>}
+
+          {/* NUEVO: registrar ingreso adicional */}
           <div className="tabla-container">
             <div className="tabla-header">
-              <h3>Pagos por profesor</h3>
-              <small>Rango: {data?.rango?.fechaInicio} → {data?.rango?.fechaFin}</small>
+              <h3>Registrar ingreso adicional</h3>
+              <small>Registra ingresos manuales (no provenientes de compras/pagos).</small>
             </div>
 
-            <table className="tabla-pagos">
-              <thead>
-                <tr>
-                  <th>Profesor</th>
-                  <th>Email</th>
-                  <th className="text-right">Total pago</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pagosOrdenados.length === 0 ? (
-                  <tr>
-                    <td colSpan="3" className="text-center">No hay pagos en este rango.</td>
-                  </tr>
-                ) : (
-                  pagosOrdenados.map((p) => (
-                    <tr key={p.profesor_id}>
-                      <td>{`${p.nombre || ''} ${p.apellido || ''}`.trim() || 'N/A'}</td>
-                      <td>{p.email || 'N/A'}</td>
-                      <td className="text-right">
-                        <strong>{contabilidadAdminService.formatearPrecio(p.total_pago_profesor)}</strong>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+            {iaMsg.texto ? (
+              <div className={iaMsg.tipo === 'exito' ? 'mensaje-exito' : 'mensaje-error'}>
+                {iaMsg.texto}
+              </div>
+            ) : null}
 
-          {/* Compras dentro de Contabilidad */}
-          <div className="compras-container">
-            <div className="compras-header">
-              <h3>Compras</h3>
-              <small>Rango: {fechaInicio} → {fechaFin}</small>
-            </div>
-
-            <div className="compras-filtros">
-              <div className="compras-filtro">
-                <label>Estado pago</label>
-                <select value={comprasEstado} onChange={(e) => setComprasEstado(e.target.value)} disabled={comprasLoading}>
-                  <option value="">Todos</option>
-                  <option value="completado">Completado</option>
-                  <option value="pendiente">Pendiente</option>
-                  <option value="fallido">Fallido</option>
-                </select>
+            <form onSubmit={crearIngresoAdicional} className="contabilidad-filtros" style={{ marginTop: 10 }}>
+              <div className="filtro" style={{ minWidth: 260 }}>
+                <label>Descripción *</label>
+                <input
+                  type="text"
+                  value={iaDescripcion}
+                  onChange={(e) => setIaDescripcion(e.target.value)}
+                  placeholder="Ej: Pago en efectivo (evento)"
+                  disabled={iaLoading}
+                />
               </div>
 
-              <div className="compras-filtro">
-                <label>Tipo compra</label>
-                <select value={comprasTipo} onChange={(e) => setComprasTipo(e.target.value)} disabled={comprasLoading}>
-                  <option value="">Todos</option>
-                  <option value="curso">Curso</option>
-                  <option value="clase_personalizada">Clase personalizada</option>
-                  <option value="paquete_horas">Paquete horas</option>
-                </select>
+              <div className="filtro" style={{ minWidth: 180 }}>
+                <label>Monto (COP) *</label>
+                <input
+                  type="number"
+                  value={iaMonto}
+                  onChange={(e) => setIaMonto(e.target.value)}
+                  min="0"
+                  step="1"
+                  placeholder="50000"
+                  disabled={iaLoading}
+                />
               </div>
 
-              <div className="compras-acciones">
-                <button className="btn-consultar" onClick={aplicarFiltrosCompras} disabled={comprasLoading}>
-                  {comprasLoading ? 'Cargando...' : 'Aplicar'}
+              <div className="filtro" style={{ minWidth: 240 }}>
+                <label>Fecha ingreso *</label>
+                <input
+                  type="datetime-local"
+                  value={iaFecha}
+                  onChange={(e) => setIaFecha(e.target.value)}
+                  disabled={iaLoading}
+                />
+              </div>
+
+              <div className="acciones">
+                <button className="btn-consultar" type="submit" disabled={iaLoading}>
+                  {iaLoading ? 'Guardando...' : 'Registrar'}
                 </button>
               </div>
-            </div>
+            </form>
 
-            {comprasError ? <div className="compras-error">{comprasError}</div> : null}
-
-            <div className="compras-table-wrap">
-              <table className="compras-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Tipo</th>
-                    <th>Estado</th>
-                    <th className="text-right">Monto</th>
-                    <th>Fecha</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {comprasLoading ? (
-                    <tr><td colSpan="5" className="text-center">Cargando...</td></tr>
-                  ) : comprasData.items.length === 0 ? (
-                    <tr><td colSpan="5" className="text-center">No hay compras para los filtros.</td></tr>
-                  ) : (
-                    comprasData.items.map((c) => (
-                      <tr key={c.id || c.compra_id || JSON.stringify(c)}>
-                        <td>{c.id || c.compra_id || '—'}</td>
-                        <td>{c.tipo_compra || c.tipo || '—'}</td>
-                        <td>{c.estado_pago || c.estado || '—'}</td>
-                        <td className="text-right">
-                          <strong>{contabilidadAdminService.formatearPrecio(c.monto_total ?? c.monto ?? 0)}</strong>
-                        </td>
-                        <td>{(c.fecha_compra || c.created_at || c.createdAt || '').toString().slice(0, 10) || '—'}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="compras-paginacion">
-              <button className="btn-limpiar" onClick={prevPage} disabled={comprasLoading || comprasPage <= 1}>
-                Anterior
-              </button>
-
-              <span className="compras-pageinfo">
-                Página {comprasPage} de {comprasData.totalPages} · Total {comprasData.total}
-              </span>
-
-              <button className="btn-limpiar" onClick={nextPage} disabled={comprasLoading || comprasPage >= comprasData.totalPages}>
-                Siguiente
-              </button>
-
-              <select
-                className="compras-limit"
-                value={comprasLimit}
-                onChange={async (e) => {
-                  const v = Number(e.target.value);
-                  setComprasLimit(v);
-                  setComprasPage(1);
-                  await cargarCompras({ page: 1 });
-                }}
-                disabled={comprasLoading}
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-            </div>
+            <small className="subtitulo" style={{ display: 'block', marginTop: 8 }}>
+              Se enviará la fecha en formato ISO (UTC) al backend.
+            </small>
           </div>
-        </>
-      )}
+
+          {metricas && (
+            <div className="contabilidad-chart-container">
+              <div className="contabilidad-chart-header">
+                <h3>Ingresos por día</h3>
+                <small>Rango: {metricas?.rango?.fechaInicio} → {metricas?.rango?.fechaFin}</small>
+              </div>
+
+              {serie.length === 0 ? (
+                <div className="contabilidad-chart-empty">No hay datos para graficar en este rango.</div>
+              ) : (
+                <div className="contabilidad-chart">
+                  <Line data={chartData} options={chartOptions} />
+                </div>
+              )}
+            </div>
+          )}
+
+          {data && (
+            <>
+              <div className="kpis-grid">
+                <div className="kpi-card">
+                  <span className="kpi-label">Ingresos totales</span>
+                  <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.ingresos_totales)}</span>
+                </div>
+
+                <div className="kpi-card">
+                  <span className="kpi-label">Pagos a profesores</span>
+                  <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.pagos_profesores_total)}</span>
+                </div>
+
+                <div className="kpi-card">
+                  <span className="kpi-label">Ingresos adicionales</span>
+                  <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.ingresos_adicionales)}</span>
+                </div>
+
+                <div className="kpi-card kpi-neto">
+                  <span className="kpi-label">Neto</span>
+                  <span className="kpi-value">{contabilidadAdminService.formatearPrecio(data.neto)}</span>
+                </div>
+              </div>
+
+              <div className="tabla-container">
+                <div className="tabla-header">
+                  <h3>Pagos por profesor</h3>
+                  <small>Rango: {data?.rango?.fechaInicio} → {data?.rango?.fechaFin}</small>
+                </div>
+
+                <table className="tabla-pagos">
+                  <thead>
+                    <tr>
+                      <th>Profesor</th>
+                      <th>Email</th>
+                      <th className="text-right">Total pago</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pagosOrdenados.length === 0 ? (
+                      <tr>
+                        <td colSpan="3" className="text-center">No hay pagos en este rango.</td>
+                      </tr>
+                    ) : (
+                      pagosOrdenados.map((p) => (
+                        <tr key={p.profesor_id}>
+                          <td>{`${p.nombre || ''} ${p.apellido || ''}`.trim() || 'N/A'}</td>
+                          <td>{p.email || 'N/A'}</td>
+                          <td className="text-right">
+                            <strong>{contabilidadAdminService.formatearPrecio(p.total_pago_profesor)}</strong>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Compras dentro de Contabilidad */}
+              <div className="compras-container">
+                <div className="compras-header">
+                  <h3>Compras</h3>
+                  <small>Rango: {fechaInicio} → {fechaFin}</small>
+                </div>
+
+                <div className="compras-filtros">
+                  <div className="compras-filtro">
+                    <label>Estado pago</label>
+                    <select value={comprasEstado} onChange={(e) => setComprasEstado(e.target.value)} disabled={comprasLoading}>
+                      <option value="">Todos</option>
+                      <option value="completado">Completado</option>
+                      <option value="pendiente">Pendiente</option>
+                      <option value="fallido">Fallido</option>
+                    </select>
+                  </div>
+
+                  <div className="compras-filtro">
+                    <label>Tipo compra</label>
+                    <select value={comprasTipo} onChange={(e) => setComprasTipo(e.target.value)} disabled={comprasLoading}>
+                      <option value="">Todos</option>
+                      <option value="curso">Curso</option>
+                      <option value="clase_personalizada">Clase personalizada</option>
+                      <option value="paquete_horas">Paquete horas</option>
+                    </select>
+                  </div>
+
+                  <div className="compras-acciones">
+                    <button className="btn-consultar" onClick={aplicarFiltrosCompras} disabled={comprasLoading}>
+                      {comprasLoading ? 'Cargando...' : 'Aplicar'}
+                    </button>
+                  </div>
+                </div>
+
+                {comprasError ? <div className="compras-error">{comprasError}</div> : null}
+
+                <div className="compras-table-wrap">
+                  <table className="compras-table">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th className="text-right">Monto</th>
+                        <th>Fecha</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {comprasLoading ? (
+                        <tr><td colSpan="5" className="text-center">Cargando...</td></tr>
+                      ) : comprasData.items.length === 0 ? (
+                        <tr><td colSpan="5" className="text-center">No hay compras para los filtros.</td></tr>
+                      ) : (
+                        comprasData.items.map((c) => (
+                          <tr key={c.id || c.compra_id || JSON.stringify(c)}>
+                            <td>{c.id || c.compra_id || '—'}</td>
+                            <td>{c.tipo_compra || c.tipo || '—'}</td>
+                            <td>{c.estado_pago || c.estado || '—'}</td>
+                            <td className="text-right">
+                              <strong>{contabilidadAdminService.formatearPrecio(c.monto_total ?? c.monto ?? 0)}</strong>
+                            </td>
+                            <td>{(c.fecha_compra || c.created_at || c.createdAt || '').toString().slice(0, 10) || '—'}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="compras-paginacion">
+                  <button className="btn-limpiar" onClick={prevPage} disabled={comprasLoading || comprasPage <= 1}>
+                    Anterior
+                  </button>
+
+                  <span className="compras-pageinfo">
+                    Página {comprasPage} de {comprasData.totalPages} · Total {comprasData.total}
+                  </span>
+
+                  <button className="btn-limpiar" onClick={nextPage} disabled={comprasLoading || comprasPage >= comprasData.totalPages}>
+                    Siguiente
+                  </button>
+
+                  <select
+                    className="compras-limit"
+                    value={comprasLimit}
+                    onChange={async (e) => {
+                      const v = Number(e.target.value);
+                      setComprasLimit(v);
+                      setComprasPage(1);
+                      await cargarCompras({ page: 1 });
+                    }}
+                    disabled={comprasLoading}
+                  >
+                    <option value={10}>10</option>
+                    <option value={20}>20</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </main>
+
+      <Footer />
     </div>
   );
 };

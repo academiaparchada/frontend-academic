@@ -21,6 +21,20 @@ export function Header() {
   };
 
   const handleHome = () => {
+    // ✅ Si está logueado, enviar a su dashboard según rol
+    if (is_authenticated) {
+      const rol = user?.rol;
+
+      if (rol === 'administrador') navigate('/admin/dashboard');
+      else if (rol === 'profesor') navigate('/profesor/dashboard');
+      else if (rol === 'estudiante') navigate('/estudiante/dashboard');
+      else navigate('/');
+
+      closeMenu();
+      return;
+    }
+
+    // ✅ Si no está logueado, se queda igual (home público)
     navigate('/');
     closeMenu();
   };

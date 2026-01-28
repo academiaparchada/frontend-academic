@@ -102,6 +102,8 @@ const DetalleCompra = () => {
   return (
     <>
       <div className="page">
+        <Header />
+
         <main className="main">
           <div className="detalle-compra-container">
             <div className="detalle-header">
@@ -205,6 +207,7 @@ const DetalleCompra = () => {
             </div>
           </div>
         </main>
+
         <Footer />
 
         {/* Modal de Material de Estudio */}
