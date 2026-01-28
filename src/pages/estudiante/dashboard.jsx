@@ -122,7 +122,6 @@ export const EstudianteDashboard = () => {
           <div className="dashboard_card">
             <div className="card_icon">🎓</div>
             <h2 className="card_title">Explorar Cursos</h2>
-            <p className="card_description">Cursos Comprados</p>
             <button
               className="btn_card"
               onClick={() => navigate('/cursos')}
@@ -135,7 +134,6 @@ export const EstudianteDashboard = () => {
           <div className="dashboard_card">
             <div className="card_icon">📦</div>
             <h2 className="card_title">Mis Compras</h2>
-            <p className="card_description">Compras Realizadas</p>
             <button
               className="btn_card"
               onClick={() => navigate('/estudiante/mis-compras')}
@@ -148,7 +146,6 @@ export const EstudianteDashboard = () => {
           <div className="dashboard_card">
             <div className="card_icon">📝</div>
             <h2 className="card_title">Clases Personalizadas</h2>
-            <p className="card_description">Clases Compradas</p>
             <button
               className="btn_card"
               onClick={() => navigate('/clases-personalizadas')}
@@ -161,7 +158,6 @@ export const EstudianteDashboard = () => {
           <div className="dashboard_card">
             <div className="card_icon">⏱️</div>
             <h2 className="card_title">Paquetes de Horas</h2>
-            <p className="card_description">Horas Disponibles</p>
             <button
               className="btn_card"
               onClick={() => navigate('/estudiante/mis-paquetes')}
@@ -174,7 +170,6 @@ export const EstudianteDashboard = () => {
           <div className="dashboard_card">
             <div className="card_icon">🎥</div>
             <h2 className="card_title">Mis Clases</h2>
-            <p className="card_description">Ver fecha/hora y Meet</p>
             <button
               className="btn_card"
               onClick={() => navigate('/estudiante/mis-clases')}
@@ -187,7 +182,6 @@ export const EstudianteDashboard = () => {
           <div className="dashboard_card">
             <div className="card_icon">📚</div>
             <h2 className="card_title">Mis Cursos</h2>
-            <p className="card_description">Cursos Activos</p>
             <button
               className="btn_card"
               onClick={() => navigate('/estudiante/mis-cursos')}

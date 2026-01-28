@@ -69,7 +69,6 @@ export const ProfesorDashboard = () => {
             <div className="dashboard_card" onClick={() => navigate('/profesor/mis-clases')}>
               <div className="card_icon">📝</div>
               <h2 className="card_title">Mis Clases</h2>
-              <p className="card_description">Clases Asignadas</p>
               <button className="btn_card">Ver Clases</button>
             </div>
 
@@ -77,7 +76,6 @@ export const ProfesorDashboard = () => {
             <div className="dashboard_card" onClick={() => navigate('/profesor/mis-cursos')}>
               <div className="card_icon">🎓</div>
               <h2 className="card_title">Mis Cursos</h2>
-              <p className="card_description">Cursos Asignados</p>
               <button className="btn_card">Ver Cursos</button>
             </div>
 
@@ -85,7 +83,6 @@ export const ProfesorDashboard = () => {
             <div className="dashboard_card" onClick={() => navigate('/profesor/franjas-horarias')}>
               <div className="card_icon">🕐</div>
               <h2 className="card_title">Mis Horarios</h2>
-              <p className="card_description">Franjas Registradas</p>
               <button className="btn_card">Gestionar Horarios</button>
             </div>
           </div>
