@@ -1,4 +1,3 @@
-// src/pages/admin/ClasesPersonalizadasAdmin.jsx
 import React, { useState, useEffect } from 'react';
 import ModalClasePersonalizada from '../../components/ModalClasePersonalizada';
 import clasesService from '../../services/clases_personalizadas_service';
@@ -26,33 +25,64 @@ const ClasesPersonalizadasAdmin = () => {
   useEffect(() => {
     cargarAsignaturas();
     cargarClases();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Recargar clases cuando cambia la página o el filtro
   useEffect(() => {
     cargarClases();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, filtroAsignatura]);
 
-  // Cargar asignaturas disponibles
+  // Cargar asignaturas disponibles (TRAER TODAS usando totalPages)
   const cargarAsignaturas = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://academiaparchada.onrender.com/api/asignaturas', {
-        headers: {
-          'Authorization': `Bearer ${token}`
+
+      const baseUrl = 'https://academiaparchada.onrender.com/api/asignaturas';
+
+      const limitAsignaturas = 100; // grande para minimizar requests
+      let pageAsignaturas = 1;
+
+      let todas = [];
+      let totalPages = 1;
+
+      do {
+        const url = `${baseUrl}?page=${pageAsignaturas}&limit=${limitAsignaturas}`;
+
+        const response = await fetch(url, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+
+        if (!(response.ok && data?.success)) {
+          console.error('Error al cargar asignaturas:', data);
+          setAsignaturas([]);
+          return;
         }
+
+        const chunk = Array.isArray(data.data?.asignaturas) ? data.data.asignaturas : [];
+        todas = todas.concat(chunk);
+
+        // Según tu backend: data.data.totalPages
+        totalPages = Number(data.data?.totalPages || 1);
+
+        pageAsignaturas += 1;
+      } while (pageAsignaturas <= totalPages);
+
+      // Quitar duplicados por id (por seguridad)
+      const map = new Map();
+      todas.forEach((a) => {
+        if (a?.id) map.set(a.id, a);
       });
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        const listaAsignaturas = Array.isArray(data.data?.asignaturas)
-          ? data.data.asignaturas
-          : [];
-        setAsignaturas(listaAsignaturas);
-      }
+      setAsignaturas(Array.from(map.values()));
     } catch (err) {
       console.error('Error al cargar asignaturas:', err);
+      setAsignaturas([]);
     }
   };
 
