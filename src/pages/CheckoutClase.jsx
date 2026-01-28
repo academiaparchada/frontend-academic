@@ -524,13 +524,17 @@ const CheckoutClase = () => {
 
   return (
     <div className="checkout-container">
-      <div className="checkout-header">
-        <button className="btn-volver" onClick={() => navigate(-1)}>
-          ← Volver
-        </button>
-        <h1>Comprar Clase Personalizada</h1>
-      </div>
+      <div className="mis-clases-header">
+        <div>
+          <h1>Comprar Clase Personalizada</h1>
+        </div>
 
+        <div className="header-buttons">
+          <button className="btn-volver" onClick={() => navigate(-1)}>
+            ← Volver
+          </button>
+        </div>
+      </div>
 
 
       <div className="checkout-content">
@@ -539,6 +543,13 @@ const CheckoutClase = () => {
           
           <div className="curso-info-checkout">
             <h3>Clase de {clase.asignatura?.nombre}</h3>
+
+            {(clase.descripcion_asignatura || clase.asignatura?.descripcion) && (
+              <div className="descripcion-completa-checkout">
+                <h4>Descripción</h4>
+                <p>{clase.descripcion_asignatura || clase.asignatura?.descripcion}</p>
+              </div>
+          )}
             
             <div className="detalles-grid">
               <div className="detalle-item">
@@ -551,13 +562,6 @@ const CheckoutClase = () => {
               <div className="detalle-item">
                 <span className="detalle-label">👥 Tipo:</span>
                 <span className="detalle-valor">Individual</span>
-              </div>
-
-
-
-              <div className="detalle-item">
-                <span className="detalle-label">🎯 Modalidad:</span>
-                <span className="detalle-valor">Virtual</span>
               </div>
             </div>
 

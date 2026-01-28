@@ -106,11 +106,16 @@ const DetalleCompra = () => {
 
         <main className="main">
           <div className="detalle-compra-container">
-            <div className="detalle-header">
-              <button className="btn-volver" onClick={() => navigate('/estudiante/mis-compras')}>
-                ← Volver
-              </button>
-              <h1>Detalle de Compra</h1>
+            <div className="mis-clases-header">
+              <div>
+                <h1>Detalle de Compra</h1>
+              </div>
+
+              <div className="header-buttons">
+                <button className="btn-volver" onClick={() => navigate(-1)}>
+                  ← Volver
+                </button>
+              </div>
             </div>
 
             <div className="detalle-card">

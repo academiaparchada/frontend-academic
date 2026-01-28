@@ -23,7 +23,7 @@ const MisCursosEstudiante = () => {
   const [bloqueado, setBloqueado] = useState(false);
   const [error, setError] = useState('');
 
-  const titulo = useMemo(() => 'Mis cursos', []);
+  const titulo = useMemo(() => 'Mis Cursos', []);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -107,7 +107,7 @@ const MisCursosEstudiante = () => {
 
           <div className="header-buttons">
             <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
-              Volver
+              ← Volver
             </button>
 
             <button className="btn-accion-principal" onClick={() => navigate('/cursos')}>
@@ -115,6 +115,8 @@ const MisCursosEstudiante = () => {
             </button>
           </div>
         </div>
+
+        
 
         {/* Loading */}
         {loading && (

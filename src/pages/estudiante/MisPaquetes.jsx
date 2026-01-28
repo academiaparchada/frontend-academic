@@ -103,27 +103,22 @@ const MisPaquetes = () => {
   return (
     <div className="page">
       <Header />
-
       <main className="main">
           <div className="mis-paquetes-container">
             {/* Header */}
-            <div className="mis-paquetes-header">
+            <div className="mis-clases-header">
               <div>
-                <h1>⏱️ Mis Paquetes de Horas</h1>
+                <h1>Mis Paquetes de Horas</h1>
                 <p>Gestiona y agenda tus clases personalizadas</p>
               </div>
+
               <div className="header-buttons">
-                <button 
-                  className="btn-comprar-paquete"
-                  onClick={handleComprarPaquete}
-                >
-                  + Comprar Nuevo Paquete
+                <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
+                  ← Volver
                 </button>
-                <button 
-                  className="btn-volver" 
-                  onClick={() => navigate('/estudiante/dashboard')}
-                >
-                  ← Volver al Dashboard
+
+                <button className="btn-accion-principal" onClick={handleComprarPaquete}>
+                  + Comprar Nuevo Paquete
                 </button>
               </div>
             </div>

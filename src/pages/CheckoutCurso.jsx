@@ -485,13 +485,17 @@ const CheckoutCurso = () => {
 
   return (
     <div className="checkout-container">
-      <div className="checkout-header">
-        <button className="btn-volver" onClick={() => navigate(-1)}>
-          ← Volver
-        </button>
-        <h1>Comprar Curso</h1>
-      </div>
+      <div className="mis-clases-header">
+        <div>
+          <h1>Comprar Curso</h1>
+        </div>
 
+        <div className="header-buttons">
+          <button className="btn-volver" onClick={() => navigate(-1)}>
+            ← Volver
+          </button>
+        </div>
+      </div>
 
       <div className="checkout-content">
         <div className="checkout-resumen">

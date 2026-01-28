@@ -98,7 +98,7 @@ const MisClasesEstudiante = () => {
 
           <div className="header-buttons">
             <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
-              Volver
+              ← Volver
             </button>
 
             <button className="btn-accion-principal" onClick={() => navigate('/clases-personalizadas')}>

@@ -5,6 +5,7 @@
   margin: 0 auto;
   padding: 2rem 1rem;
   min-height: calc(100vh - 200px);
+  background: #f5f0e8;
 }
 
 .dashboard_header {

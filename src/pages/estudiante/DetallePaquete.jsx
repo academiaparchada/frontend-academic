@@ -436,14 +436,16 @@ const DetallePaquete = () => {
 
         <main className="main">
           <div className="detalle-paquete-container">
-            <div className="detalle-header">
-              <button
-                className="btn-volver"
-                onClick={() => navigate('/estudiante/mis-paquetes')}
-              >
-                ← Volver
-              </button>
-              <h1>Detalle del Paquete</h1>
+            <div className="mis-clases-header">
+              <div>
+                <h1>Detalle del Paquete</h1>
+              </div>
+
+              <div className="header-buttons">
+                <button className="btn-volver" onClick={() => navigate(-1)}>
+                  ← Volver
+                </button>
+              </div>
             </div>
 
             <div className="paquete-info-principal">
@@ -505,7 +507,7 @@ const DetallePaquete = () => {
                   <div className="info-row">
                     <span className="icon">💰</span>
                     <div>
-                      <span className="label">Monto Total</span>
+                      <span className="label">Monto Total: </span>
                       <strong>
                         {comprasService.formatearPrecio(
                           paquete.compra.monto_total
@@ -517,7 +519,7 @@ const DetallePaquete = () => {
                   <div className="info-row">
                     <span className="icon">📅</span>
                     <div>
-                      <span className="label">Fecha de Compra</span>
+                      <span className="label">Fecha de Compra: </span>
                       <strong>
                         {comprasService.formatearFecha(
                           paquete.compra.fecha_compra
@@ -529,7 +531,7 @@ const DetallePaquete = () => {
                   <div className="info-row">
                     <span className="icon">✅</span>
                     <div>
-                      <span className="label">Estado</span>
+                      <span className="label">Estado: </span>
                       <span className={`badge badge-${paquete.compra.estado_pago}`}>
                         {paquete.compra.estado_pago === 'completado'
                           ? 'Pagado'

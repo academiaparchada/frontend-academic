@@ -91,14 +91,17 @@ const MisCompras = () => {
       <main className="main">
         <>
           <div className="mis-compras-container">
-            <div className="mis-compras-header">
+            <div className="mis-clases-header">
               <div>
                 <h1>Mis Compras</h1>
                 <p>Historial completo de tus adquisiciones</p>
               </div>
-              <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
-                ← Volver al Dashboard
-              </button>
+
+              <div className="header-buttons">
+                <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
+                  ← Volver
+                </button>
+              </div>
             </div>
 
             {error && (

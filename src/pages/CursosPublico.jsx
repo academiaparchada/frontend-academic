@@ -87,10 +87,18 @@ const CursosPublico = () => {
     <>
       <Header />
       <div className="cursos-publico-container">
-        <header className="cursos-publico-header">
-          <h1>Nuestros Cursos</h1>
-          <p>Encuentra el curso perfecto para ti y comienza a aprender hoy</p>
-        </header>
+        <div className="mis-cursos-header">
+          <div>
+            <h1>Nuestros Cursos</h1>
+            <p>Encuentra el curso perfecto para ti y comienza a aprender hoy</p>
+          </div>
+
+          <div className="header-buttons">
+            <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
+              ← Volver
+            </button>
+          </div>
+        </div>
 
         <div className="filtros-publico">
           <button

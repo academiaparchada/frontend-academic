@@ -313,13 +313,17 @@ const CheckoutPaquete = () => {
 
   return (
     <div className="checkout-container">
-      <div className="checkout-header">
-        <button className="btn-volver" onClick={() => navigate(-1)}>
-          ← Volver
-        </button>
-        <h1>Comprar Paquete de Horas</h1>
-      </div>
+      <div className="mis-clases-header">
+        <div>
+          <h1>Comprar Paquete de Horas</h1>
+        </div>
 
+        <div className="header-buttons">
+          <button className="btn-volver" onClick={() => navigate(-1)}>
+            ← Volver
+          </button>
+        </div>
+      </div>
 
       <div className="checkout-content">
         <div className="checkout-resumen">
@@ -328,6 +332,13 @@ const CheckoutPaquete = () => {
 
           <div className="curso-info-checkout">
             <h3>Paquete de {clase.asignatura?.nombre}</h3>
+
+            {(clase.descripcion_asignatura || clase.asignatura?.descripcion) && (
+              <div className="descripcion-completa-checkout">
+                <h4>Descripción</h4>
+                <p>{clase.descripcion_asignatura || clase.asignatura?.descripcion}</p>
+              </div>
+          )}
 
 
             <div className="info-box">

@@ -15,6 +15,14 @@ const ClasesPersonalizadasPublico = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Función para truncar texto con límite de caracteres
+  const truncarTexto = (texto, limite = 150) => {
+    if (!texto) return '';
+    const textoLimpio = String(texto).trim();
+    if (textoLimpio.length <= limite) return textoLimpio;
+    return textoLimpio.substring(0, limite).trim() + '...';
+  };
+
   useEffect(() => {
     cargarClases();
     cargarCategorias();
@@ -153,11 +161,20 @@ const ClasesPersonalizadasPublico = () => {
     <>
       <Header />
       <div className="clases-publico-container">
-        <header className="clases-header">
-          <h1>Clases Personalizadas</h1>
-          <p>Clases individuales adaptadas a tus necesidades</p>
-        </header>
+            <div className="mis-clases-header">
+              <div>
+                <h1>Clases Personalizadas</h1>
+                <p>Clases individuales adaptadas a tus necesidades</p>
+              </div>
 
+              <div className="header-buttons">
+                <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
+                  ← Volver
+                </button>
+              </div>
+            </div>
+
+        
         {clasesPorCategoria.map((seccion) => (
           <section key={seccion.id || seccion.nombre} className="categoria-seccion">
             <div className="categoria-header">
@@ -192,9 +209,12 @@ const ClasesPersonalizadasPublico = () => {
 
                     <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
 
-                    {descripcionAsignatura ? (
-                      <p>{descripcionAsignatura}</p>
-                    ) : null}
+                    {/* ✅ CAMBIO: Reemplazar "Modalidad: Virtual" por descripción truncada */}
+                    {descripcionAsignatura && (
+                      <div className="info-item descripcion-preview">
+                        <span>{truncarTexto(descripcionAsignatura, 190)}</span>
+                      </div>
+                    )}
 
                     <div className="clase-info">
                       <div className="info-item">
@@ -205,11 +225,6 @@ const ClasesPersonalizadasPublico = () => {
                       <div className="info-item">
                         <span className="icon">👥</span>
                         <span>Individual</span>
-                      </div>
-
-                      <div className="info-item">
-                        <span className="icon">🎯</span>
-                        <span>Virtual</span>
                       </div>
                     </div>
 
