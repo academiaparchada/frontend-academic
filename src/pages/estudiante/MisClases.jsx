@@ -156,6 +156,8 @@ const MisClasesEstudiante = () => {
                       ? `${s.profesor.nombre || ''} ${s.profesor.apellido || ''}`.trim()
                       : 'Profesor por asignar';
 
+                    const profesorEmail = s?.profesor?.email || 'No disponible';
+
                     const meetValido = estudianteClasesService.esUrlValida(s?.link_meet);
                     const estado = s?.estado || 'Pendiente';
                     const asignatura = s?.clasepersonalizada?.asignatura?.nombre;
@@ -179,6 +181,11 @@ const MisClasesEstudiante = () => {
                               <div className="session-row">
                                 <span className="label">Profesor</span>
                                 <span className="value">{profesor}</span>
+                              </div>
+
+                              <div className="session-row">
+                                <span className="label">Email profesor</span>
+                                <span className="value">{profesorEmail}</span>
                               </div>
 
                               <div className="session-row">
