@@ -39,6 +39,8 @@ import SesionesPendientes from './pages/admin/sesiones_pendientes.jsx'
 import MisPaquetes from './pages/estudiante/MisPaquetes';
 import MisClasesEstudiante from './pages/estudiante/MisClases.jsx' 
 import MisCursosEstudiante from './pages/estudiante/MisCursos.jsx' 
+import { About } from './pages/about.jsx'
+
 
 // ✅ GA4
 import analyticsService from './services/analytics_service.js'
@@ -63,6 +65,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/terms-and-policies" element={<TermsAndPolicies />} />
           <Route path="/auth/google/callback" element={<GoogleCallback />} />
+           {/* ✅ About */}
+          <Route path="/about" element={<About />} />
 
           {/* Dashboards */}
           <Route path="/estudiante/dashboard" element={<EstudianteDashboard />} />

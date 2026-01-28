@@ -1,7 +1,14 @@
 // src/components/footer.jsx
+import { useNavigate } from 'react-router-dom';
 import '../styles/footer.css';
 
 export function Footer() {
+  const navigate = useNavigate();
+
+  const handleSobreNosotros = () => {
+    navigate('/about');
+  };
+
   return (
     <footer className="footer">
       <div className="footer_border" />
@@ -12,11 +19,17 @@ export function Footer() {
         </div>
 
         <div className="footer_block">
-          <h3 className="footer_title">Quienes somos:</h3>
-          <p className="footer_text">
-            Empresa de enseñanza<br />
-            con metodologías innovadoras<br />
-            de fácil aprendizaje
+          <p
+            className="footer_title"
+            onClick={handleSobreNosotros}
+            role="button"
+            tabIndex={0}
+            style={{ cursor: 'pointer' }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') handleSobreNosotros();
+            }}
+          >
+            Sobre Nosotros
           </p>
         </div>
 

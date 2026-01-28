@@ -25,6 +25,11 @@ export function Header() {
     closeMenu();
   };
 
+  const handleSobreNosotros = () => {
+    navigate('/about');
+    closeMenu();
+  };
+
   const handleMiPerfil = () => {
     const rol = user?.rol;
 
@@ -144,6 +149,9 @@ export function Header() {
         </button>
         <button className="header__link" onClick={handleClases}>
           CLASES
+        </button>
+        <button className="header__link" onClick={handleSobreNosotros}>
+          SOBRE NOSOTROS
         </button>
       </nav>
 

@@ -232,6 +232,11 @@
     overflow-y: auto;
   }
 
+  /* ✅ Ajuste: asegurar que los links del nav no queden tapados */
+  .header__nav {
+    z-index: 1001;
+  }
+
   /* Cuando el menú está abierto */
   .header__nav.active,
   .header__actions.active {
