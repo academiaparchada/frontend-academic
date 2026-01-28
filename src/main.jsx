@@ -40,6 +40,7 @@ import MisPaquetes from './pages/estudiante/MisPaquetes';
 import MisClasesEstudiante from './pages/estudiante/MisClases.jsx' 
 import MisCursosEstudiante from './pages/estudiante/MisCursos.jsx' 
 import { About } from './pages/about.jsx'
+import MiPerfilEstudiante from './pages/estudiante/MiPerfilEstudiante.jsx'
 
 
 // ✅ GA4
@@ -104,6 +105,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/estudiante/mis-paquetes" element={<MisPaquetes />} />
           <Route path="/estudiante/mis-clases" element={<MisClasesEstudiante />} /> 
           <Route path="/estudiante/mis-cursos" element={<MisCursosEstudiante />} />
+          <Route path="/estudiante/mi-perfil" element={<MiPerfilEstudiante />} />
 
           {/* Página principal (App) */}
           <Route path="/" element={<App />} />

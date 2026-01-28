@@ -47,9 +47,9 @@ export function Header() {
   const handleMiPerfil = () => {
     const rol = user?.rol;
 
-    if (rol === 'admin') navigate('/admin/dashboard');
+    if (rol === 'administrador') navigate('/admin/dashboard');
     else if (rol === 'profesor') navigate('/profesor/mi-perfil');
-    else if (rol === 'estudiante') navigate('/estudiante/dashboard');
+    else if (rol === 'estudiante') navigate('/estudiante/mi-perfil');
     else navigate('/');
 
     closeMenu();
