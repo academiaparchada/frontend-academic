@@ -252,7 +252,9 @@ const MisClases = () => {
 
                   <div className="info-row">
                     <strong>📚 Asignatura:</strong>
-                    <span>{sesion.asignatura?.nombre || 'No especificada'}</span>
+                    <span>
+                      {sesion.clase_personalizada?.asignatura?.nombre || 'No especificada'}
+                    </span>
                   </div>
 
                   {sesion.descripcion_estudiante && (
@@ -374,21 +376,23 @@ const MisClases = () => {
                 <div className="info-row">
                   <strong>👤 Estudiante:</strong>
                   <span>
-                    {sesion.estudiante?.nombre || 'N/A'}{' '}
-                    {sesion.estudiante?.apellido || ''}
+                    {sesion.compra?.estudiante?.nombre || 'N/A'}{' '}
+                    {sesion.compra?.estudiante?.apellido || ''}
                   </span>
                 </div>
 
-                {sesion.estudiante?.email && (
+                {sesion.compra?.estudiante?.email && (
                   <div className="info-row">
                     <strong>📧 Email:</strong>
-                    <span>{sesion.estudiante.email}</span>
+                    <span>{sesion.compra.estudiante.email}</span>
                   </div>
                 )}
 
                 <div className="info-row">
                   <strong>📚 Asignatura:</strong>
-                  <span>{sesion.asignatura?.nombre || 'No especificada'}</span>
+                  <span>
+                    {sesion.compra?.clase_personalizada?.asignatura?.nombre || 'No especificada'}
+                  </span>
                 </div>
 
                 {sesion.descripcion_estudiante && (
@@ -440,7 +444,7 @@ const MisClases = () => {
                 {/* Mensaje de ayuda cuando no hay error */}
                 {!error && !linkActual.trim() && (
                   <div className="help-message">
-                    💡 Ejemplo: https://meet.google.com/abc-defg-hij
+                    💡 Ejemplo: [https://meet.google.com/abc-defg-hij](https://meet.google.com/abc-defg-hij)
                   </div>
                 )}
 
