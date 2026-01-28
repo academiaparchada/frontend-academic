@@ -21,7 +21,6 @@ export function Header() {
   };
 
   const handleHome = () => {
-    // ✅ Si está logueado, enviar a su dashboard según rol
     if (is_authenticated) {
       const rol = user?.rol;
 
@@ -34,7 +33,6 @@ export function Header() {
       return;
     }
 
-    // ✅ Si no está logueado, se queda igual (home público)
     navigate('/');
     closeMenu();
   };
@@ -61,7 +59,6 @@ export function Header() {
     closeMenu();
   };
 
-  // ✅ Nuevo: en Home hace scroll, en otras rutas navega con query para que Home scrollee
   const goToHomeSection = (sectionId) => {
     if (location.pathname === '/') {
       const el = document.getElementById(sectionId);
@@ -79,17 +76,14 @@ export function Header() {
   const handleCursos = () => goToHomeSection('home-cursos');
   const handleClases = () => goToHomeSection('home-clases');
 
-  // Función para toggle del menú
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
-  // Cerrar menú
   const closeMenu = () => {
     setMenuOpen(false);
   };
 
-  // Prevenir scroll del body cuando el menú está abierto
   useEffect(() => {
     if (menuOpen) {
       document.body.classList.add('menu-open');
@@ -97,13 +91,11 @@ export function Header() {
       document.body.classList.remove('menu-open');
     }
 
-    // Cleanup
     return () => {
       document.body.classList.remove('menu-open');
     };
   }, [menuOpen]);
 
-  // Cerrar menú con tecla Escape
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && menuOpen) {
@@ -115,7 +107,6 @@ export function Header() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [menuOpen]);
 
-  // Cerrar menú al cambiar de ruta
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
@@ -156,8 +147,8 @@ export function Header() {
         aria-hidden="true"
       />
 
-      {/* Navegación */}
-      <nav className={`header__nav ${menuOpen ? 'active' : ''}`}>
+      {/* Desktop NAV (se mantiene igual) */}
+      <nav className="header__nav header__nav--desktop">
         <button className="header__link" onClick={handleCursos}>
           CURSOS
         </button>
@@ -169,8 +160,8 @@ export function Header() {
         </button>
       </nav>
 
-      {/* Acciones */}
-      <div className={`header__actions ${menuOpen ? 'active' : ''}`}>
+      {/* Desktop ACTIONS (se mantiene igual) */}
+      <div className="header__actions header__actions--desktop">
         {!loading && !is_authenticated && (
           <>
             <button
@@ -204,6 +195,57 @@ export function Header() {
             </button>
           </>
         )}
+      </div>
+
+      {/* ✅ Mobile menu (UN SOLO drawer con todo) */}
+      <div className={`header__mobileMenu ${menuOpen ? 'active' : ''}`}>
+        <nav className="header__mobileNav">
+          <button className="header__link" onClick={handleCursos}>
+            CURSOS
+          </button>
+          <button className="header__link" onClick={handleClases}>
+            CLASES
+          </button>
+          <button className="header__link" onClick={handleSobreNosotros}>
+            SOBRE NOSOTROS
+          </button>
+        </nav>
+
+        <div className="header__mobileActions">
+          {!loading && !is_authenticated && (
+            <>
+              <button
+                className="header__btn header__btn--outline"
+                onClick={handleLogin}
+              >
+                INICIAR SESIÓN
+              </button>
+              <button
+                className="header__btn header__btn--solid"
+                onClick={handleRegister}
+              >
+                REGISTRARSE
+              </button>
+            </>
+          )}
+
+          {!loading && is_authenticated && (
+            <>
+              <button
+                className="header__btn header__btn--outline"
+                onClick={handleMiPerfil}
+              >
+                MI PERFIL
+              </button>
+              <button
+                className="header__btn header__btn--solid"
+                onClick={handleLogout}
+              >
+                CERRAR SESIÓN
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
