@@ -105,6 +105,54 @@ class ClasesPersonalizadasService {
     }
   }
 
+  // NUEVO: traer todas las clases (itera pages hasta total_pages/totalPages o hasta que el chunk sea menor al limit)
+  async listarTodasClases(asignaturaId = null) {
+    try {
+      const limit = 100;
+      let page = 1;
+      let all = [];
+      let keepGoing = true;
+
+      while (keepGoing) {
+        const res = await this.listarClases(page, limit, asignaturaId);
+
+        if (!res.success) {
+          return res;
+        }
+
+        const chunk = Array.isArray(res.data?.clases) ? res.data.clases : [];
+        all = all.concat(chunk);
+
+        const totalPages =
+          res.data?.pagination?.total_pages ??
+          res.data?.pagination?.totalPages ??
+          null;
+
+        if (typeof totalPages === 'number') {
+          keepGoing = page < totalPages;
+        } else {
+          keepGoing = chunk.length >= limit;
+        }
+
+        page += 1;
+      }
+
+      // Dedupe por id (por seguridad)
+      const map = new Map();
+      all.forEach((c) => {
+        if (c?.id) map.set(c.id, c);
+      });
+
+      return { success: true, data: { clases: Array.from(map.values()) } };
+    } catch (error) {
+      console.error('Error al listar todas las clases:', error);
+      return {
+        success: false,
+        message: 'Error de conexión. Intenta de nuevo más tarde.'
+      };
+    }
+  }
+
   // Obtener una clase por ID
   async obtenerClase(claseId) {
     try {

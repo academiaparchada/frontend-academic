@@ -1,4 +1,3 @@
-// src/pages/ClasesPersonalizadasPublico.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
@@ -15,6 +14,10 @@ const ClasesPersonalizadasPublico = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // búsqueda + filtro por sección
+  const [busqueda, setBusqueda] = useState('');
+  const [seccionSeleccionada, setSeccionSeleccionada] = useState('todas'); // 'todas' | categoriaId | 'sin_categoria'
+
   // Función para truncar texto con límite de caracteres
   const truncarTexto = (texto, limite = 150) => {
     if (!texto) return '';
@@ -26,6 +29,7 @@ const ClasesPersonalizadasPublico = () => {
   useEffect(() => {
     cargarClases();
     cargarCategorias();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const cargarCategorias = async () => {
@@ -51,16 +55,12 @@ const ClasesPersonalizadasPublico = () => {
       setLoading(true);
       setError(null);
 
-      const resultado = await clasesPersonalizadasService.listarClases();
-
-      console.log('Resultado completo:', resultado);
+      const resultado = await clasesPersonalizadasService.listarTodasClases();
 
       if (resultado.success) {
         setClases(resultado.data.clases || []);
-        console.log('Clases cargadas:', resultado.data.clases);
       } else {
         setError(resultado.message || 'Error al cargar las clases');
-        console.error('Error en la respuesta:', resultado.message);
       }
     } catch (err) {
       console.error('Error al cargar clases:', err);
@@ -78,6 +78,99 @@ const ClasesPersonalizadasPublico = () => {
     navigate(`/checkout/paquete/${clase.id}`);
   };
 
+  // NUEVO: normalización para búsqueda (quita tildes/acentos, etc.)
+  const normalizar = (str) => {
+    return String(str || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // diacríticos [web:53]
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // NUEVO: Levenshtein (para tolerar errores de tipeo) [web:52]
+  const levenshtein = (a, b) => {
+    if (a === b) return 0;
+    if (!a) return b.length;
+    if (!b) return a.length;
+
+    const m = a.length;
+    const n = b.length;
+    const dp = new Array(n + 1);
+
+    for (let j = 0; j <= n; j++) dp[j] = j;
+
+    for (let i = 1; i <= m; i++) {
+      let prev = dp[0];
+      dp[0] = i;
+      for (let j = 1; j <= n; j++) {
+        const temp = dp[j];
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        dp[j] = Math.min(
+          dp[j] + 1,        // delete
+          dp[j - 1] + 1,    // insert
+          prev + cost       // replace
+        );
+        prev = temp;
+      }
+    }
+    return dp[n];
+  };
+
+  // NUEVO: matching mejorado
+  const coincideBusqueda = (query, target) => {
+    const q = normalizar(query);
+    if (!q) return true;
+
+    const t = normalizar(target);
+    if (!t) return false;
+
+    // 1) match rápido por substring
+    if (t.includes(q)) return true;
+
+    // 2) match por tokens (cada token del query debe “encontrarse” en algún token del target)
+    const qTokens = q.split(' ').filter(Boolean);
+    const tTokens = t.split(' ').filter(Boolean);
+
+    return qTokens.every((qt) => {
+      // si el token es muy corto, exigir substring exacto (evita falsos positivos con 1-2 letras)
+      if (qt.length <= 2) {
+        return tTokens.some((tt) => tt.includes(qt));
+      }
+
+      // umbral dinámico: tolera 1-2 errores dependiendo del tamaño del token
+      const maxDist = qt.length <= 5 ? 1 : 2;
+
+      return tTokens.some((tt) => {
+        if (tt.includes(qt)) return true; // "organ" en "organica"
+        const dist = levenshtein(qt, tt);
+        return dist <= maxDist;
+      });
+    });
+  };
+
+  // lista de clases filtradas (por nombre + por sección)
+  const clasesFiltradas = useMemo(() => {
+    const getCategoriaId = (clase) =>
+      clase?.categoria?.id || clase?.categoria_id || null;
+
+    return (clases || []).filter((clase) => {
+      const nombreAsignatura = String(clase?.asignatura?.nombre || '');
+
+      const pasaBusqueda = coincideBusqueda(busqueda, nombreAsignatura);
+
+      const catId = getCategoriaId(clase);
+      const key = catId || 'sin_categoria';
+
+      const pasaSeccion =
+        seccionSeleccionada === 'todas' || key === seccionSeleccionada;
+
+      return pasaBusqueda && pasaSeccion;
+    });
+  }, [clases, busqueda, seccionSeleccionada]);
+
+  // Construir secciones (categorías) a partir de clasesFiltradas
   const clasesPorCategoria = useMemo(() => {
     const map = new Map();
 
@@ -87,7 +180,7 @@ const ClasesPersonalizadasPublico = () => {
     const getCategoriaNombre = (clase) =>
       clase?.categoria?.nombre || null;
 
-    clases.forEach((clase) => {
+    clasesFiltradas.forEach((clase) => {
       const catId = getCategoriaId(clase);
       const catNombreDirecto = getCategoriaNombre(clase);
 
@@ -122,6 +215,40 @@ const ClasesPersonalizadasPublico = () => {
     });
 
     return secciones;
+  }, [clasesFiltradas, categorias]);
+
+  // opciones del select (solo secciones que realmente existen en las clases cargadas)
+  const opcionesSeccion = useMemo(() => {
+    const getCategoriaId = (clase) =>
+      clase?.categoria?.id || clase?.categoria_id || null;
+
+    const categoriasById = new Map((categorias || []).map((c) => [c.id, c.nombre]));
+
+    const keys = new Set();
+    (clases || []).forEach((clase) => {
+      const catId = getCategoriaId(clase);
+      keys.add(catId || 'sin_categoria');
+    });
+
+    const opts = [];
+
+    (categorias || []).forEach((c) => {
+      if (keys.has(c.id)) {
+        opts.push({ value: c.id, label: c.nombre });
+      }
+    });
+
+    if (keys.has('sin_categoria')) {
+      opts.push({ value: 'sin_categoria', label: 'Otras' });
+    }
+
+    keys.forEach((k) => {
+      if (k !== 'sin_categoria' && !categoriasById.has(k) && !opts.some(o => o.value === k)) {
+        opts.push({ value: k, label: 'Otras' });
+      }
+    });
+
+    return opts;
   }, [clases, categorias]);
 
   if (loading) {
@@ -161,20 +288,45 @@ const ClasesPersonalizadasPublico = () => {
     <>
       <Header />
       <div className="clases-publico-container">
-            <div className="mis-clases-header">
-              <div>
-                <h1>Clases Personalizadas</h1>
-                <p>Clases individuales adaptadas a tus necesidades</p>
-              </div>
+        <div className="mis-clases-header">
+          <div>
+            <h1>Clases Personalizadas</h1>
+            <p>Clases individuales adaptadas a tus necesidades</p>
 
-              <div className="header-buttons">
-                <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
-                  ← Volver
-                </button>
-              </div>
+            <div className="clases-filtros-publico">
+              <input
+                type="text"
+                className="clases-buscador-input"
+                placeholder="Buscar por nombre de asignatura..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+
+              <select
+                className="clases-seccion-select"
+                value={seccionSeleccionada}
+                onChange={(e) => setSeccionSeleccionada(e.target.value)}
+                disabled={loadingCategorias}
+              >
+                <option value="todas">
+                  {loadingCategorias ? 'Cargando secciones...' : 'Todas las secciones'}
+                </option>
+                {opcionesSeccion.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             </div>
+          </div>
 
-        
+          <div className="header-buttons">
+            <button className="btn-volver" onClick={() => navigate('/estudiante/dashboard')}>
+              ← Volver
+            </button>
+          </div>
+        </div>
+
         {clasesPorCategoria.map((seccion) => (
           <section key={seccion.id || seccion.nombre} className="categoria-seccion">
             <div className="categoria-header">
@@ -190,7 +342,6 @@ const ClasesPersonalizadasPublico = () => {
 
                 return (
                   <div key={clase.id} className="clase-card">
-                    {/* IMAGEN / FALLBACK */}
                     {clase.imagen_url ? (
                       <div className="clase-imagen">
                         <img
@@ -198,7 +349,6 @@ const ClasesPersonalizadasPublico = () => {
                           alt={`Imagen de ${clase.asignatura?.nombre || 'clase personalizada'}`}
                           loading="lazy"
                           onError={(e) => {
-                            // si falla la carga, ocultar imagen y dejar que el layout siga normal
                             e.currentTarget.style.display = 'none';
                           }}
                         />
@@ -209,7 +359,6 @@ const ClasesPersonalizadasPublico = () => {
 
                     <h3>{clase.asignatura?.nombre || 'Asignatura'}</h3>
 
-                    {/* ✅ CAMBIO: Reemplazar "Modalidad: Virtual" por descripción truncada */}
                     {descripcionAsignatura && (
                       <div className="info-item descripcion-preview">
                         <span>{truncarTexto(descripcionAsignatura, 190)}</span>
@@ -260,10 +409,10 @@ const ClasesPersonalizadasPublico = () => {
           </section>
         ))}
 
-        {clases.length === 0 && (
+        {clasesFiltradas.length === 0 && (
           <div className="sin-clases">
             <h3>📝 No hay clases disponibles</h3>
-            <p>Pronto agregaremos nuevas materias</p>
+            <p>Prueba con otra búsqueda o cambia la sección.</p>
           </div>
         )}
       </div>

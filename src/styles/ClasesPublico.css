@@ -332,3 +332,54 @@
   padding-left: 0.25rem;
   border-left: 4px solid #667eea;
 }
+/* ===================================== */
+/* NUEVO: Buscador + filtro por sección  */
+/* ===================================== */
+
+.clases-filtros-publico {
+  margin-top: 1rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.clases-buscador-input,
+.clases-seccion-select {
+  background: white;
+  border: 2px solid rgba(45, 85, 85, 0.18);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: #2d3748;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.clases-buscador-input {
+  min-width: 260px;
+  flex: 1;
+}
+
+.clases-seccion-select {
+  min-width: 240px;
+}
+
+.clases-buscador-input:focus,
+.clases-seccion-select:focus {
+  border-color: #5b9999;
+  box-shadow: 0 4px 15px rgba(12, 71, 76, 0.15);
+}
+
+.clases-seccion-select:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .clases-buscador-input,
+  .clases-seccion-select {
+    width: 100%;
+    min-width: 100%;
+  }
+}
