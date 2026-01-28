@@ -66,8 +66,8 @@ export const About = () => {
                 </p>
                 <p>
                   📧 Correo:{' '}
-                  <a href="mailto:academia.parchada@gmail.com">
-                    academia.parchada@gmail.com
+                  <a href="mailto:soporte@parcheacademico.com">
+                    soporte@parcheacademico.com
                   </a>
                 </p>
               </div>
@@ -84,7 +84,7 @@ export const About = () => {
 
                 <a
                   className="btn-comprar-paquete"
-                  href="mailto:academia.parchada@gmail.com"
+                  href="mailto:soporte@parcheacademico.com"
                 >
                   Escribir por correo
                 </a>
