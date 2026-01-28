@@ -108,9 +108,6 @@ export const ProfesorDashboard = () => {
                 <span className="info_value">{user?.rol}</span>
               </div>
             </div>
-            <button className="btn-editar-perfil" onClick={() => navigate('/profesor/mi-perfil')}>
-              ⚙️ Editar Perfil
-            </button>
           </div>
         </div>
       </main>
