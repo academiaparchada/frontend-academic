@@ -1,4 +1,3 @@
-// src/pages/estudiante/DetallePaquete.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import comprasService from '../../services/compras_service';
@@ -8,7 +7,7 @@ import { getBrowserTimeZone } from '../../utils/timezone';
 import '../../styles/estudiante-css/DetallePaquete.css';
 
 const API_URL =
-  import.meta.env.VITE_API_URL || 'https://academiaparchada.onrender.com/api';
+  import.meta.env.VITE_API_URL || 'https://api.parcheacademico.com/api';
 
 const DetallePaquete = () => {
   const { compraId } = useParams();
@@ -57,10 +56,7 @@ const DetallePaquete = () => {
         console.log('✅ Datos del paquete recibidos:', resultado.data);
         setPaquete(resultado.data);
         setSesiones(resultado.data.sesiones || []);
-        console.log(
-          '📊 Sesiones cargadas:',
-          resultado.data.sesiones?.length || 0
-        );
+        console.log('📊 Sesiones cargadas:', resultado.data.sesiones?.length || 0);
         console.log('📦 Paquete:', resultado.data.compra);
       } else {
         setError(resultado.message || 'Error al cargar el paquete');
@@ -83,6 +79,17 @@ const DetallePaquete = () => {
 
     // Si cambia la fecha, limpiar franjas y selección
     if (name === 'fecha') {
+      setFranjas([]);
+      setErrorFranjas('');
+      setFranjaSeleccionadaIso('');
+      setNuevaSesion((prev) => ({
+        ...prev,
+        fecha_hora: ''
+      }));
+    }
+
+    // Si cambia duración, también limpiamos selección actual (la franja ya no es válida)
+    if (name === 'duracion_horas') {
       setFranjas([]);
       setErrorFranjas('');
       setFranjaSeleccionadaIso('');
@@ -116,11 +123,7 @@ const DetallePaquete = () => {
 
     setNuevaSesion((prev) => ({ ...prev, archivo: file }));
     setErrores((prev) => ({ ...prev, archivo: '' }));
-    console.log(
-      '📎 Archivo seleccionado:',
-      file.name,
-      comprasService.formatearTamanoArchivo(file.size)
-    );
+    console.log('📎 Archivo seleccionado:', file.name, comprasService.formatearTamanoArchivo(file.size));
   };
 
   const handleRemoveFile = () => {
@@ -138,28 +141,21 @@ const DetallePaquete = () => {
     console.log(' → Horas disponibles:', horasDisponibles);
     console.log(' → Duración solicitada:', nuevaSesion.duracion_horas);
 
-    // Ahora validamos que haya seleccionado una franja (fecha_hora ISO)
     if (!nuevaSesion.fecha_hora) {
-      nuevosErrores.fecha_hora =
-        'Debes seleccionar un horario disponible para agendar la clase';
+      nuevosErrores.fecha_hora = 'Debes seleccionar un horario disponible para agendar la clase';
     }
 
     if (nuevaSesion.duracion_horas < 1) {
       nuevosErrores.duracion_horas = 'La duración debe ser al menos 1 hora';
     } else if (nuevaSesion.duracion_horas > 8) {
-      nuevosErrores.duracion_horas =
-        'La duración no puede ser mayor a 8 horas';
+      nuevosErrores.duracion_horas = 'La duración no puede ser mayor a 8 horas';
     } else if (nuevaSesion.duracion_horas > horasDisponibles) {
       nuevosErrores.duracion_horas = `Solo tienes ${horasDisponibles} hora(s) disponible(s)`;
       console.log('⚠️ ERROR: Duración excede horas disponibles');
     }
 
-    if (
-      !nuevaSesion.descripcion_estudiante ||
-      nuevaSesion.descripcion_estudiante.trim().length < 10
-    ) {
-      nuevosErrores.descripcion_estudiante =
-        'Describe qué necesitas (mínimo 10 caracteres)';
+    if (!nuevaSesion.descripcion_estudiante || nuevaSesion.descripcion_estudiante.trim().length < 10) {
+      nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
     }
 
     if (nuevaSesion.archivo) {
@@ -195,9 +191,7 @@ const DetallePaquete = () => {
       const duracion = nuevaSesion.duracion_horas || 1;
       const timezone = getBrowserTimeZone();
 
-      const url = `${API_URL}/disponibilidad/franjas?fecha=${
-        nuevaSesion.fecha
-      }&asignatura_id=${asignaturaId}&duracion_horas=${duracion}&timezone=${encodeURIComponent(
+      const url = `${API_URL}/disponibilidad/franjas?fecha=${nuevaSesion.fecha}&asignatura_id=${asignaturaId}&duracion_horas=${duracion}&timezone=${encodeURIComponent(
         timezone
       )}`;
 
@@ -205,9 +199,7 @@ const DetallePaquete = () => {
       const json = await response.json();
 
       if (!response.ok || !json.success) {
-        setErrorFranjas(
-          json.message || 'Error al consultar disponibilidad de horarios'
-        );
+        setErrorFranjas(json.message || 'Error al consultar disponibilidad de horarios');
         return;
       }
 
@@ -218,19 +210,26 @@ const DetallePaquete = () => {
 
       if (franjasDisponibles.length === 0) {
         setErrorFranjas(
-          data.mensaje ||
-            'No hay horarios disponibles para esta fecha. Intenta con otra fecha.'
+          data.mensaje || 'No hay horarios disponibles para esta fecha. Intenta con otra fecha.'
         );
       }
     } catch (err) {
       console.error('❌ Error consultando franjas:', err);
-      setErrorFranjas(
-        'Error al consultar disponibilidad. Intenta nuevamente.'
-      );
+      setErrorFranjas('Error al consultar disponibilidad. Intenta nuevamente.');
     } finally {
       setLoadingFranjas(false);
     }
   };
+
+  // ✅ NUEVO: consultar automáticamente cuando cambie fecha o duración, mientras el modal esté abierto
+  useEffect(() => {
+    if (!modalAbierto) return;
+    if (!paquete) return;
+    if (!nuevaSesion.fecha) return;
+
+    consultarFranjas();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalAbierto, paquete, nuevaSesion.fecha, nuevaSesion.duracion_horas]);
 
   const handleSeleccionFranja = (franja) => {
     setFranjaSeleccionadaIso(franja.fecha_hora_inicio_iso);
@@ -269,14 +268,10 @@ const DetallePaquete = () => {
         });
       }
 
-      // ✅ FIX: si ya viene ISO del endpoint (Z o con offset), NO volver a convertir
       const valorFecha = String(nuevaSesion.fecha_hora || '');
-      const yaEsISOConZona =
-        valorFecha.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(valorFecha);
+      const yaEsISOConZona = valorFecha.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(valorFecha);
 
-      const fechaISO = yaEsISOConZona
-        ? nuevaSesion.fecha_hora
-        : comprasService.convertirFechaAISO(nuevaSesion.fecha_hora);
+      const fechaISO = yaEsISOConZona ? nuevaSesion.fecha_hora : comprasService.convertirFechaAISO(nuevaSesion.fecha_hora);
 
       console.log('📋 DATOS A ENVIAR:');
       console.log(' → Compra ID:', compraId);
@@ -284,10 +279,7 @@ const DetallePaquete = () => {
       console.log(' → Fecha ISO 8601:', fechaISO);
       console.log(' → Duración:', nuevaSesion.duracion_horas, 'hora(s)');
       console.log(' → Descripción:', nuevaSesion.descripcion_estudiante);
-      console.log(
-        ' → Archivo:',
-        nuevaSesion.archivo ? nuevaSesion.archivo.name : 'ninguno'
-      );
+      console.log(' → Archivo:', nuevaSesion.archivo ? nuevaSesion.archivo.name : 'ninguno');
 
       const datosSesion = {
         fecha_hora: fechaISO,
@@ -295,11 +287,7 @@ const DetallePaquete = () => {
         descripcion_estudiante: nuevaSesion.descripcion_estudiante.trim()
       };
 
-      const resultado = await comprasService.agendarSesionPaquete(
-        compraId,
-        datosSesion,
-        nuevaSesion.archivo
-      );
+      const resultado = await comprasService.agendarSesionPaquete(compraId, datosSesion, nuevaSesion.archivo);
 
       setSubiendoArchivo(false);
       console.log('📥 RESPUESTA COMPLETA:', JSON.stringify(resultado, null, 2));
@@ -308,9 +296,7 @@ const DetallePaquete = () => {
         console.log('✅ SESIÓN AGENDADA EXITOSAMENTE');
         setMensaje({
           tipo: 'exito',
-          texto: nuevaSesion.archivo
-            ? '¡Sesión agendada con documento adjunto! 🎉'
-            : '¡Sesión agendada exitosamente! 🎉'
+          texto: nuevaSesion.archivo ? '¡Sesión agendada con documento adjunto! 🎉' : '¡Sesión agendada exitosamente! 🎉'
         });
 
         setNuevaSesion({
@@ -373,6 +359,7 @@ const DetallePaquete = () => {
     setMensaje({ tipo: '', texto: '' });
     setErrores({});
     setFranjas([]);
+    setErrorFranjas('');
     setFranjaSeleccionadaIso('');
     setNuevaSesion({
       fecha_hora: '',
@@ -509,9 +496,7 @@ const DetallePaquete = () => {
                     <div>
                       <span className="label">Monto Total: </span>
                       <strong>
-                        {comprasService.formatearPrecio(
-                          paquete.compra.monto_total
-                        )}
+                        {comprasService.formatearPrecio(paquete.compra.monto_total)}
                       </strong>
                     </div>
                   </div>
@@ -521,9 +506,7 @@ const DetallePaquete = () => {
                     <div>
                       <span className="label">Fecha de Compra: </span>
                       <strong>
-                        {comprasService.formatearFecha(
-                          paquete.compra.fecha_compra
-                        )}
+                        {comprasService.formatearFecha(paquete.compra.fecha_compra)}
                       </strong>
                     </div>
                   </div>
@@ -574,16 +557,12 @@ const DetallePaquete = () => {
                     <div key={sesion.id} className="sesion-card">
                       <div className="sesion-fecha">
                         <span className="fecha-dia">
-                          {new Date(
-                            sesion.fecha_hora
-                          ).toLocaleDateString('es-CO', {
+                          {new Date(sesion.fecha_hora).toLocaleDateString('es-CO', {
                             day: 'numeric'
                           })}
                         </span>
                         <span className="fecha-mes">
-                          {new Date(
-                            sesion.fecha_hora
-                          ).toLocaleDateString('es-CO', {
+                          {new Date(sesion.fecha_hora).toLocaleDateString('es-CO', {
                             month: 'short'
                           })}
                         </span>
@@ -591,11 +570,7 @@ const DetallePaquete = () => {
 
                       <div className="sesion-info">
                         <div className="sesion-header">
-                          <h3>
-                            {comprasService.formatearFechaHora(
-                              sesion.fecha_hora
-                            )}
-                          </h3>
+                          <h3>{comprasService.formatearFechaHora(sesion.fecha_hora)}</h3>
                           <span className={`badge-estado ${sesion.estado}`}>
                             {sesion.estado === 'programada'
                               ? '⏳ Programada'
@@ -629,8 +604,7 @@ const DetallePaquete = () => {
                           <div className="sesion-profesor">
                             <span className="icon">👨‍🏫</span>
                             <span>
-                              {sesion.profesor.nombre}{' '}
-                              {sesion.profesor.apellido}
+                              {sesion.profesor.nombre} {sesion.profesor.apellido}
                             </span>
                             {sesion.profesor.email && (
                               <span className="profesor-contacto">
@@ -667,17 +641,14 @@ const DetallePaquete = () => {
                     </button>
                   </div>
 
-                  <form
-                    onSubmit={handleAgendarSesion}
-                    className="modal-form"
-                  >
+                  <form onSubmit={handleAgendarSesion} className="modal-form">
                     {mensaje.texto && (
                       <div className={`mensaje ${mensaje.tipo}`}>
                         {mensaje.texto}
                       </div>
                     )}
 
-                    {/* Fecha + franjas */}
+                    {/* Fecha */}
                     <div className="form-group">
                       <label>Fecha de la clase *</label>
                       <div className="fecha-disponibilidad">
@@ -689,23 +660,46 @@ const DetallePaquete = () => {
                           min={new Date().toISOString().split('T')[0]}
                           disabled={procesando}
                         />
-                        <button
-                          type="button"
-                          className="btn-secundario-fecha"
-                          onClick={consultarFranjas}
-                          disabled={!nuevaSesion.fecha || procesando}
-                        >
-                          {loadingFranjas
-                            ? 'Consultando...'
-                            : 'Ver horarios disponibles'}
-                        </button>
                       </div>
                     </div>
+
+                    {/* ✅ Duración ahora va justo debajo de la fecha */}
+                    <div className="form-group">
+                      <label>Duración (horas) *</label>
+                      <select
+                        name="duracion_horas"
+                        value={nuevaSesion.duracion_horas}
+                        onChange={handleChangeSesion}
+                        disabled={procesando}
+                        className={errores.duracion_horas ? 'input-error' : ''}
+                      >
+                        {Array.from(
+                          { length: Math.min(horasDisponibles, 8) },
+                          (_, i) => i + 1
+                        ).map((h) => (
+                          <option key={h} value={h}>
+                            {h} hora{h > 1 ? 's' : ''}
+                          </option>
+                        ))}
+                      </select>
+                      {errores.duracion_horas && (
+                        <span className="error">{errores.duracion_horas}</span>
+                      )}
+                      <span className="help-text">
+                        Tienes {horasDisponibles} hora(s) disponible(s)
+                      </span>
+                    </div>
+
+                    {/* Estado de consulta / errores */}
+                    {loadingFranjas && (
+                      <div className="mensaje info">Consultando horarios...</div>
+                    )}
 
                     {errorFranjas && (
                       <div className="mensaje error">{errorFranjas}</div>
                     )}
 
+                    {/* Horarios disponibles */}
                     {franjas.length > 0 && (
                       <div className="form-group">
                         <label>Horarios disponibles *</label>
@@ -714,8 +708,7 @@ const DetallePaquete = () => {
                             <label
                               key={franja.fecha_hora_inicio_iso}
                               className={`franja-item ${
-                                franjaSeleccionadaIso ===
-                                franja.fecha_hora_inicio_iso
+                                franjaSeleccionadaIso === franja.fecha_hora_inicio_iso
                                   ? 'seleccionada'
                                   : ''
                               }`}
@@ -724,10 +717,7 @@ const DetallePaquete = () => {
                                 type="radio"
                                 name="franja"
                                 value={franja.fecha_hora_inicio_iso}
-                                checked={
-                                  franjaSeleccionadaIso ===
-                                  franja.fecha_hora_inicio_iso
-                                }
+                                checked={franjaSeleccionadaIso === franja.fecha_hora_inicio_iso}
                                 onChange={() => handleSeleccionFranja(franja)}
                                 disabled={procesando}
                               />
@@ -756,35 +746,6 @@ const DetallePaquete = () => {
                       </div>
                     )}
 
-                    {/* Duración */}
-                    <div className="form-group">
-                      <label>Duración (horas) *</label>
-                      <select
-                        name="duracion_horas"
-                        value={nuevaSesion.duracion_horas}
-                        onChange={handleChangeSesion}
-                        disabled={procesando}
-                        className={errores.duracion_horas ? 'input-error' : ''}
-                      >
-                        {Array.from(
-                          {
-                            length: Math.min(horasDisponibles, 8)
-                          },
-                          (_, i) => i + 1
-                        ).map((h) => (
-                          <option key={h} value={h}>
-                            {h} hora{h > 1 ? 's' : ''}
-                          </option>
-                        ))}
-                      </select>
-                      {errores.duracion_horas && (
-                        <span className="error">{errores.duracion_horas}</span>
-                      )}
-                      <span className="help-text">
-                        Tienes {horasDisponibles} hora(s) disponible(s)
-                      </span>
-                    </div>
-
                     {/* Descripción */}
                     <div className="form-group">
                       <label>¿Qué necesitas aprender? *</label>
@@ -795,14 +756,10 @@ const DetallePaquete = () => {
                         placeholder="Ej: Necesito ayuda con derivadas parciales..."
                         rows={4}
                         disabled={procesando}
-                        className={
-                          errores.descripcion_estudiante ? 'input-error' : ''
-                        }
+                        className={errores.descripcion_estudiante ? 'input-error' : ''}
                       />
                       {errores.descripcion_estudiante && (
-                        <span className="error">
-                          {errores.descripcion_estudiante}
-                        </span>
+                        <span className="error">{errores.descripcion_estudiante}</span>
                       )}
                     </div>
 
@@ -832,13 +789,9 @@ const DetallePaquete = () => {
                           <div className="file-info">
                             <span className="file-icon">📄</span>
                             <div className="file-details">
-                              <span className="file-name">
-                                {nuevaSesion.archivo.name}
-                              </span>
+                              <span className="file-name">{nuevaSesion.archivo.name}</span>
                               <span className="file-size">
-                                {comprasService.formatearTamanoArchivo(
-                                  nuevaSesion.archivo.size
-                                )}
+                                {comprasService.formatearTamanoArchivo(nuevaSesion.archivo.size)}
                               </span>
                             </div>
                           </div>
@@ -853,9 +806,7 @@ const DetallePaquete = () => {
                         </div>
                       )}
 
-                      {errores.archivo && (
-                        <span className="error">{errores.archivo}</span>
-                      )}
+                      {errores.archivo && <span className="error">{errores.archivo}</span>}
                     </div>
 
                     <div className="modal-acciones">
