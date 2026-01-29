@@ -1,5 +1,3 @@
-// src/pages/estudiante/MisClases.jsx
-
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/auth_context';
@@ -9,6 +7,8 @@ import { Footer } from '../../components/footer';
 import '../../styles/estudiante-css/mis_clases.css';
 
 const DEFAULT_LIMIT = 10;
+
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.parcheacademico.com';
 
 const MisClasesEstudiante = () => {
   const navigate = useNavigate();
@@ -23,6 +23,16 @@ const MisClasesEstudiante = () => {
   const [loading, setLoading] = useState(true);
   const [bloqueado, setBloqueado] = useState(false);
   const [error, setError] = useState('');
+
+  // ✅ Cancelación: estados UI
+  const [modalCancelarAbierto, setModalCancelarAbierto] = useState(false);
+  const [modalCanceladoAbierto, setModalCanceladoAbierto] = useState(false);
+  const [cancelando, setCancelando] = useState(false);
+
+  const [sesionParaCancelar, setSesionParaCancelar] = useState(null);
+  const [motivoCancelacion, setMotivoCancelacion] = useState('');
+  const [errorCancelacion, setErrorCancelacion] = useState('');
+  const [resultadoCancelacion, setResultadoCancelacion] = useState(null);
 
   const titulo = useMemo(() => 'Mis clases personalizadas', []);
 
@@ -42,7 +52,6 @@ const MisClasesEstudiante = () => {
       setError('');
       setBloqueado(false);
 
-      // Si tienes rol en user, lo validamos también en frontend (backend ya valida)
       if (user?.rol && user.rol !== 'estudiante') {
         setBloqueado(true);
         return;
@@ -82,6 +91,93 @@ const MisClasesEstudiante = () => {
     if (e.includes('fall')) return 'badge-fallido';
     if (e.includes('pend')) return 'badge-pendiente';
     return 'badge-estado';
+  };
+
+  const esProgramada = (estado) => String(estado || '').toLowerCase() === 'programada';
+
+  const abrirModalCancelar = (sesion) => {
+    setSesionParaCancelar(sesion);
+    setMotivoCancelacion('');
+    setErrorCancelacion('');
+    setResultadoCancelacion(null);
+    setModalCancelarAbierto(true);
+  };
+
+  const cerrarModalCancelar = () => {
+    if (cancelando) return;
+    setModalCancelarAbierto(false);
+    setSesionParaCancelar(null);
+    setMotivoCancelacion('');
+    setErrorCancelacion('');
+  };
+
+  const cerrarModalCancelado = () => {
+    setModalCanceladoAbierto(false);
+    setResultadoCancelacion(null);
+  };
+
+  const cancelarSesion = async () => {
+    if (!sesionParaCancelar?.id) return;
+
+    try {
+      setCancelando(true);
+      setErrorCancelacion('');
+
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const motivo = (motivoCancelacion || '').trim();
+      const body = motivo ? { motivo } : {};
+
+      const url = `${API_URL}/api/sesiones-cancel/${sesionParaCancelar.id}/cancelar`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+      });
+
+      const json = await response.json().catch(() => null);
+
+      if (!response.ok || !json?.success) {
+        const status = response.status;
+        const msg =
+          json?.message ||
+          (status === 404
+            ? 'Sesión no encontrada.'
+            : status === 403
+            ? 'No autorizado para cancelar esta sesión.'
+            : status === 400
+            ? 'No se puede cancelar esta sesión.'
+            : 'No se pudo cancelar la sesión.');
+
+        setErrorCancelacion(msg);
+
+        // Recomendación: si el backend dice 400 por estado, refrescar listado (posible desync)
+        if (status === 400) {
+          await cargar();
+        }
+        return;
+      }
+
+      setResultadoCancelacion(json.data || null);
+      setModalCancelarAbierto(false);
+      setModalCanceladoAbierto(true);
+
+      // Refrescar para que ya salga como cancelada y desaparezca el botón
+      await cargar();
+    } catch (e) {
+      console.error(e);
+      setErrorCancelacion('Error de conexión. Intenta de nuevo.');
+    } finally {
+      setCancelando(false);
+    }
   };
 
   return (
@@ -162,14 +258,13 @@ const MisClasesEstudiante = () => {
                     const estado = s?.estado || 'Pendiente';
                     const asignatura = s?.clasepersonalizada?.asignatura?.nombre;
 
+                    const mostrarBtnCancelar = esProgramada(estado);
+
                     return (
                       <div key={s.id} className="session-card">
                         <div className="session-card-header">
-                          <span className={`badge ${getBadgeEstadoClass(estado)}`}>
-                            {estado}
-                          </span>
+                          <span className={`badge ${getBadgeEstadoClass(estado)}`}>{estado}</span>
 
-                          {/* ✅ CORRECCIÓN: usar el service (lee localStorage.timezone) */}
                           <span className="session-fecha">
                             {estudianteClasesService.formatearFechaHora(s.fecha_hora)}
                           </span>
@@ -222,10 +317,7 @@ const MisClasesEstudiante = () => {
 
                             <div className="session-actions">
                               {meetValido ? (
-                                <button
-                                  className="btn-unirse"
-                                  onClick={() => window.open(s.link_meet, '_blank')}
-                                >
+                                <button className="btn-unirse" onClick={() => window.open(s.link_meet, '_blank')}>
                                   Unirse
                                 </button>
                               ) : (
@@ -234,14 +326,23 @@ const MisClasesEstudiante = () => {
                                 </button>
                               )}
 
-                              <button
-                                className="btn-volver"
-                                onClick={() => navigate('/estudiante/mis-compras')}
-                              >
+                              <button className="btn-volver" onClick={() => navigate('/estudiante/mis-compras')}>
                                 Ver compras
                               </button>
                             </div>
                           </div>
+
+                          {/* ✅ Botón nuevo abajo de la tarjeta (solo si está programada) */}
+                          {mostrarBtnCancelar && (
+                            <div className="session-cancel-row">
+                              <button
+                                className="btn-cancelar-sesion"
+                                onClick={() => abrirModalCancelar(s)}
+                              >
+                                Cancelar sesión
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         {!!asignatura && (
@@ -265,9 +366,7 @@ const MisClasesEstudiante = () => {
                 ← Anterior
               </button>
 
-              <span className="pagination-info">
-                Página {pagination.page || page}
-              </span>
+              <span className="pagination-info">Página {pagination.page || page}</span>
 
               <button
                 className="btn-paginacion"
@@ -280,6 +379,84 @@ const MisClasesEstudiante = () => {
           </>
         )}
       </div>
+
+      {/* ✅ Modal confirmación cancelar */}
+      {modalCancelarAbierto && (
+        <div className="modal-cancel-overlay" onClick={cerrarModalCancelar}>
+          <div className="modal-cancel-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-cancel-header">
+              <h3>¿Seguro que deseas cancelar?</h3>
+              <button className="modal-cancel-close" onClick={cerrarModalCancelar} disabled={cancelando}>
+                ×
+              </button>
+            </div>
+
+            <p className="modal-cancel-text">
+              Esta acción no podrá revertirse, y recuerda:
+              <strong>Será devuelto solo el 80%</strong> del  valor de la clase, según nuestros terminos y condiciones.
+            </p>
+
+            <div className="modal-cancel-field">
+              <label>Motivo (opcional)</label>
+              <textarea
+                value={motivoCancelacion}
+                onChange={(e) => setMotivoCancelacion(e.target.value)}
+                maxLength={1000}
+                rows={4}
+                placeholder="Ej: Tuve un imprevisto y no podré asistir."
+                disabled={cancelando}
+              />
+              <div className="modal-cancel-hint">{motivoCancelacion.length}/1000</div>
+            </div>
+
+            {!!errorCancelacion && <div className="modal-cancel-error">{errorCancelacion}</div>}
+
+            <div className="modal-cancel-actions">
+              <button className="modal-btn-secondary" onClick={cerrarModalCancelar} disabled={cancelando}>
+                Volver
+              </button>
+              <button className="modal-btn-danger" onClick={cancelarSesion} disabled={cancelando}>
+                {cancelando ? 'Cancelando...' : 'Confirmar cancelación'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Modal éxito */}
+      {modalCanceladoAbierto && (
+        <div className="modal-cancel-overlay" onClick={cerrarModalCancelado}>
+          <div className="modal-cancel-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-cancel-header">
+              <h3>Sesión cancelada</h3>
+              <button className="modal-cancel-close" onClick={cerrarModalCancelado}>
+                ×
+              </button>
+            </div>
+
+            <p className="modal-cancel-text">
+              La sesión fue cancelada exitosamente.
+            </p>
+
+            {!!resultadoCancelacion?.politica_reembolso && (
+              <div className="modal-cancel-reembolso">
+                <div>
+                  <span className="label">Reembolso (estimado)</span>
+                </div>
+                <div className="value">
+                  {resultadoCancelacion.politica_reembolso.porcentaje}% — ${Number(resultadoCancelacion.politica_reembolso.monto_estimado || 0).toLocaleString('es-CO')}
+                </div>
+              </div>
+            )}
+
+            <div className="modal-cancel-actions">
+              <button className="modal-btn-secondary" onClick={cerrarModalCancelado}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>

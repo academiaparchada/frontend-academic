@@ -425,3 +425,177 @@
     width: 100%;
   }
 }
+/* ===== NUEVO: Botón cancelar sesión (en tarjeta) ===== */
+.session-cancel-row {
+  margin-top: 1.25rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-cancelar-sesion {
+  width: 100%;
+  padding: 0.95rem 1rem;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  border: 2px solid rgba(255, 77, 77, 0.75);
+  color: rgba(255, 77, 77, 0.95);
+  background: rgba(255, 77, 77, 0.08);
+  transition: all 0.25s ease;
+}
+
+.btn-cancelar-sesion:hover {
+  background: rgba(255, 77, 77, 0.14);
+  transform: translateY(-1px);
+}
+
+/* ===== NUEVO: Modal cancelación ===== */
+.modal-cancel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 2000;
+}
+
+.modal-cancel-card {
+  width: 100%;
+  max-width: 560px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  padding: 1.25rem 1.25rem 1rem;
+}
+
+.modal-cancel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.modal-cancel-header h3 {
+  margin: 0;
+  color: #2d5555;
+  font-size: 1.25rem;
+}
+
+.modal-cancel-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(45, 85, 85, 0.08);
+  color: #2d5555;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.modal-cancel-text {
+  margin: 0.25rem 0 1rem 0;
+  color: #3d7373;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.modal-cancel-field label {
+  display: block;
+  font-weight: 800;
+  color: #3d7373;
+  margin-bottom: 0.5rem;
+}
+
+.modal-cancel-field textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 2px solid rgba(45, 85, 85, 0.14);
+  padding: 0.85rem;
+  font-weight: 600;
+  color: #2d5555;
+  outline: none;
+  resize: vertical;
+}
+
+.modal-cancel-field textarea:focus {
+  border-color: rgba(12, 71, 76, 0.45);
+}
+
+.modal-cancel-hint {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: rgba(45, 85, 85, 0.75);
+  font-weight: 700;
+  text-align: right;
+}
+
+.modal-cancel-error {
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 77, 77, 0.12);
+  color: rgba(255, 77, 77, 0.95);
+  font-weight: 800;
+}
+
+.modal-cancel-reembolso {
+  margin-top: 0.75rem;
+  padding: 0.9rem;
+  border-radius: 12px;
+  background: rgba(91, 153, 153, 0.12);
+  border: 1px solid rgba(45, 85, 85, 0.12);
+}
+
+.modal-cancel-reembolso .label {
+  font-weight: 800;
+  color: #3d7373;
+}
+
+.modal-cancel-reembolso .value {
+  margin-top: 0.35rem;
+  font-weight: 900;
+  color: #2d5555;
+}
+
+.modal-cancel-actions {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.modal-btn-secondary {
+  background: white;
+  color: #0C474C;
+  border: 2px solid #0C474C;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.modal-btn-secondary:hover {
+  background: #0C474C;
+  color: white;
+}
+
+.modal-btn-danger {
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(180deg, rgba(255, 77, 77, 0.95) 0%, rgba(220, 40, 40, 0.95) 100%);
+  transition: all 0.25s ease;
+}
+
+.modal-btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(220, 40, 40, 0.25);
+}
