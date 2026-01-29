@@ -14,7 +14,7 @@ export const TermsAndPolicies = () => {
             <h1 className="terms_main_title">
               Términos y Condiciones & Política de Privacidad
             </h1>
-            <p className="terms_last_updated">Última actualización: Diciembre 2025</p>
+            <p className="terms_last_updated">Última actualización: Enero 2026</p>
 
             {/* Términos y Condiciones */}
             <section className="terms_section">
