@@ -1,6 +1,11 @@
+// src/pages/CheckoutPaquete.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../components/PasswordInput';
+import { ErrorModal } from '../components/ErrorModal'; // NUEVO
+import { WarningModal } from '../components/WarningModal'; // NUEVO
+import { ConfirmModal } from '../components/ConfirmModal'; // NUEVO
+import { LoadingModal } from '../components/LoadingModal'; // NUEVO
 import comprasService from '../services/compras_service';
 import wompiService from '../services/wompi_service';
 import { openWompiWidget } from '../utils/wompi_widget';
@@ -8,26 +13,20 @@ import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
 import analyticsService from '../services/analytics_service';
 import '../styles/Checkout.css';
 
-
 const CheckoutPaquete = () => {
   const { claseId } = useParams();
   const navigate = useNavigate();
-
 
   const [clase, setClase] = useState(null);
   const [loading, setLoading] = useState(true);
   const [procesando, setProcesando] = useState(false);
   const [procesandoWompi, setProcesandoWompi] = useState(false);
   const [error, setError] = useState('');
-  const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
-
 
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
-
   const [cantidadHoras, setCantidadHoras] = useState(3);
-
 
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
@@ -39,15 +38,28 @@ const CheckoutPaquete = () => {
     confirmarPassword: ''
   });
 
-
   const [errores, setErrores] = useState({});
 
+  // NUEVO: Estados para modals
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [modalData, setModalData] = useState({
+    title: '',
+    message: '',
+    errors: []
+  });
+  const [confirmModalData, setConfirmModalData] = useState({
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   useEffect(() => {
     cargarClase();
   }, [claseId]);
 
-  // ✅ GA4: begin_checkout cuando ya cargó la clase (1 vez por claseId)
   useEffect(() => {
     if (!loading && clase && !error) {
       analyticsService.event('begin_checkout', {
@@ -58,7 +70,6 @@ const CheckoutPaquete = () => {
     }
   }, [loading, clase, error, claseId, cantidadHoras]);
 
-
   const cargarClase = async () => {
     try {
       setLoading(true);
@@ -67,15 +78,12 @@ const CheckoutPaquete = () => {
       );
       const data = await response.json();
 
-
       if (response.ok && data.success) {
         let claseData = null;
-
 
         if (data.data?.clase) claseData = data.data.clase;
         else if (data.data?.clase_personalizada) claseData = data.data.clase_personalizada;
         else if (data.data) claseData = data.data;
-
 
         if (claseData) setClase(claseData);
         else setError('No se pudo cargar la información de la clase');
@@ -90,30 +98,22 @@ const CheckoutPaquete = () => {
     }
   };
 
-
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
     setDatosUsuario((prev) => ({ ...prev, [name]: value }));
-
 
     if (errores[name]) {
       setErrores((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
-
-  // ==========================
-  // ✅ NUEVO: cálculos precio
-  // (sin tocar estilos/markup)
-  // ==========================
+  // Cálculos de precio
   const aplicaDescuento = () => Number(cantidadHoras) >= 2;
-
 
   const calcularSubtotal = () => {
     if (!clase) return 0;
     return Number(clase.precio || 0) * Number(cantidadHoras || 0);
   };
-
 
   const calcularDescuento = () => {
     const subtotal = calcularSubtotal();
@@ -121,40 +121,74 @@ const CheckoutPaquete = () => {
     return subtotal * 0.1;
   };
 
-
   const calcularPrecioTotal = () => {
     const subtotal = calcularSubtotal();
     if (!aplicaDescuento()) return subtotal;
-    return subtotal * 0.9; // (precio_por_hora * cantidad_horas) * 0.9
+    return subtotal * 0.9;
   };
 
-
+  // MODIFICADO: Validar con modal
   const validarFormulario = () => {
     const nuevosErrores = {};
-
+    const validationErrors = [];
 
     if (cantidadHoras < 1 || cantidadHoras > 20) {
       nuevosErrores.cantidad = 'Debes seleccionar entre 1 y 20 horas';
+      validationErrors.push('La cantidad de horas debe estar entre 1 y 20');
     }
-
 
     if (esNuevoUsuario) {
-      if (!datosUsuario.email || !datosUsuario.email.includes('@')) nuevosErrores.email = 'Email inválido';
-      if (!datosUsuario.nombre.trim()) nuevosErrores.nombre = 'El nombre es obligatorio';
-      if (!datosUsuario.apellido.trim()) nuevosErrores.apellido = 'El apellido es obligatorio';
-      if (!datosUsuario.telefono.trim()) nuevosErrores.telefono = 'El teléfono es obligatorio';
-      if (!datosUsuario.timezone) nuevosErrores.timezone = 'La zona horaria es obligatoria';
+      if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
+        nuevosErrores.email = 'Email inválido';
+        validationErrors.push('El correo electrónico no es válido');
+      }
 
+      if (!datosUsuario.nombre.trim()) {
+        nuevosErrores.nombre = 'El nombre es obligatorio';
+        validationErrors.push('El nombre es obligatorio');
+      }
 
-      if (datosUsuario.password.length < 6) nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
-      if (datosUsuario.password !== datosUsuario.confirmarPassword) nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
+      if (!datosUsuario.apellido.trim()) {
+        nuevosErrores.apellido = 'El apellido es obligatorio';
+        validationErrors.push('El apellido es obligatorio');
+      }
+
+      if (!datosUsuario.telefono.trim()) {
+        nuevosErrores.telefono = 'El teléfono es obligatorio';
+        validationErrors.push('El teléfono es obligatorio');
+      }
+
+      if (!datosUsuario.timezone) {
+        nuevosErrores.timezone = 'La zona horaria es obligatoria';
+        validationErrors.push('Debes seleccionar una zona horaria');
+      }
+
+      if (datosUsuario.password.length < 6) {
+        nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
+        validationErrors.push('La contraseña debe tener al menos 6 caracteres');
+      }
+
+      if (datosUsuario.password !== datosUsuario.confirmarPassword) {
+        nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
+        validationErrors.push('Las contraseñas no coinciden');
+      }
     }
 
-
     setErrores(nuevosErrores);
-    return Object.keys(nuevosErrores).length === 0;
-  };
 
+    // NUEVO: Mostrar modal si hay errores
+    if (validationErrors.length > 0) {
+      setModalData({
+        title: 'Errores en el Formulario',
+        message: 'Por favor corrige los siguientes errores antes de continuar:',
+        errors: validationErrors
+      });
+      setShowErrorModal(true);
+      return false;
+    }
+
+    return true;
+  };
 
   const buildDatosCompra = () => {
     const datosCompra = {
@@ -162,7 +196,6 @@ const CheckoutPaquete = () => {
       clase_personalizada_id: claseId,
       cantidad_horas: cantidadHoras
     };
-
 
     if (esNuevoUsuario) {
       datosCompra.estudiante = {
@@ -175,21 +208,30 @@ const CheckoutPaquete = () => {
       };
     }
 
-
     return datosCompra;
   };
 
+  // NUEVO: Mostrar confirmación antes de pagar
+  const mostrarConfirmacionPago = (metodoPago) => {
+    const total = calcularPrecioTotal();
+    const precio = comprasService.formatearPrecio(total);
+    const descuentoTexto = aplicaDescuento() ? ' (con 10% de descuento incluido)' : '';
+    
+    setConfirmModalData({
+      title: '¿Confirmar Compra?',
+      message: `Estás a punto de proceder al pago de ${precio}${descuentoTexto} por un paquete de ${cantidadHoras} hora${cantidadHoras > 1 ? 's' : ''} de ${clase.asignatura?.nombre}. Serás redirigido a ${metodoPago} para completar la transacción de forma segura.`,
+      onConfirm: metodoPago === 'Mercado Pago' ? procesarMercadoPago : procesarWompi
+    });
+    setShowConfirmModal(true);
+  };
 
   const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
 
-
     if (!validarFormulario()) {
-      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
-    // ✅ GA4: usuario eligió medio de pago
     analyticsService.event('add_payment_info', {
       payment_type: 'mercadopago',
       checkout_type: 'paquete_horas',
@@ -197,46 +239,54 @@ const CheckoutPaquete = () => {
       cantidad_horas: Number(cantidadHoras)
     });
 
+    mostrarConfirmacionPago('Mercado Pago');
+  };
 
+  const procesarMercadoPago = async () => {
+    setShowConfirmModal(false);
+    setShowLoadingModal(true);
     setProcesando(true);
-    setMensaje({ tipo: '', texto: '' });
-
 
     try {
       const datosCompra = buildDatosCompra();
 
-
       const resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
 
-
       if (resultado.success) {
-        setMensaje({ tipo: 'exito', texto: '✅ Redirigiendo a Mercado Pago...' });
         setTimeout(() => {
           const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
           comprasService.redirigirACheckout(initPoint);
         }, 1000);
       } else {
-        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al procesar el pago' });
+        setShowLoadingModal(false);
+        setModalData({
+          title: 'Error al Procesar',
+          message: resultado.message || 'Error al procesar el pago. Por favor, intenta nuevamente.',
+          errors: []
+        });
+        setShowErrorModal(true);
         setProcesando(false);
       }
     } catch (error) {
       console.error('❌ Error en el proceso de compra:', error);
-      setMensaje({ tipo: 'error', texto: 'Error al procesar el pago. Intenta de nuevo.' });
+      setShowLoadingModal(false);
+      setModalData({
+        title: 'Error de Conexión',
+        message: 'No se pudo conectar con el servidor de pagos. Por favor, intenta nuevamente.',
+        errors: []
+      });
+      setShowErrorModal(true);
       setProcesando(false);
     }
   };
 
-
   const handleComprarWompi = async (e) => {
     e.preventDefault();
 
-
     if (!validarFormulario()) {
-      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
-    // ✅ GA4: usuario eligió medio de pago
     analyticsService.event('add_payment_info', {
       payment_type: 'wompi',
       checkout_type: 'paquete_horas',
@@ -244,40 +294,46 @@ const CheckoutPaquete = () => {
       cantidad_horas: Number(cantidadHoras)
     });
 
+    mostrarConfirmacionPago('Wompi');
+  };
 
+  const procesarWompi = async () => {
+    setShowConfirmModal(false);
+    setShowLoadingModal(true);
     setProcesandoWompi(true);
-    setMensaje({ tipo: '', texto: '' });
-
 
     try {
       const datosCompra = buildDatosCompra();
 
-
       const resultado = await wompiService.crearCheckout(datosCompra);
 
-
       if (!resultado.success) {
-        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
+        setShowLoadingModal(false);
+        setModalData({
+          title: 'Error con Wompi',
+          message: resultado.message || 'Error al iniciar pago con Wompi. Por favor, intenta nuevamente.',
+          errors: []
+        });
+        setShowErrorModal(true);
         setProcesandoWompi(false);
         return;
       }
 
-
-      setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
-
-
-      // Abre modal y redirige según status
       await openWompiWidget(resultado.data);
-
-
+      setShowLoadingModal(false);
       setProcesandoWompi(false);
     } catch (error) {
       console.error('❌ Error Wompi:', error);
-      setMensaje({ tipo: 'error', texto: 'Error al abrir el widget de Wompi' });
+      setShowLoadingModal(false);
+      setModalData({
+        title: 'Error con Wompi',
+        message: 'No se pudo abrir el sistema de pago de Wompi. Por favor, intenta nuevamente.',
+        errors: []
+      });
+      setShowErrorModal(true);
       setProcesandoWompi(false);
     }
   };
-
 
   if (loading) {
     return (
@@ -289,7 +345,6 @@ const CheckoutPaquete = () => {
       </div>
     );
   }
-
 
   if (error || !clase) {
     return (
@@ -305,11 +360,9 @@ const CheckoutPaquete = () => {
     );
   }
 
-
   const subtotal = calcularSubtotal();
   const descuento = calcularDescuento();
   const total = calcularPrecioTotal();
-
 
   return (
     <div className="checkout-container">
@@ -329,7 +382,6 @@ const CheckoutPaquete = () => {
         <div className="checkout-resumen">
           <h2>📦 Resumen de Compra</h2>
 
-
           <div className="curso-info-checkout">
             <h3>Paquete de {clase.asignatura?.nombre}</h3>
 
@@ -338,8 +390,7 @@ const CheckoutPaquete = () => {
                 <h4>Descripción</h4>
                 <p>{clase.descripcion_asignatura || clase.asignatura?.descripcion}</p>
               </div>
-          )}
-
+            )}
 
             <div className="info-box">
               <p>
@@ -349,7 +400,6 @@ const CheckoutPaquete = () => {
                 Compra horas y agenda tus clases cuando quieras
               </p>
             </div>
-
 
             <div className="selector-horas">
               <label>Cantidad de Horas:</label>
@@ -406,7 +456,6 @@ const CheckoutPaquete = () => {
               <strong>{comprasService.formatearPrecio(total)}</strong>
             </div>
 
-            {/* ✅ NUEVO: Bloque de cálculo usando SOLO clases existentes del CSS */}
             <div className="calculo-precios">
               <div className="precio-linea">
                 <span>Subtotal</span>
@@ -420,13 +469,11 @@ const CheckoutPaquete = () => {
                 </div>
               )}
 
-
               <div className="precio-linea">
                 <span>Total</span>
                 <span>{comprasService.formatearPrecio(total)}</span>
               </div>
             </div>
-
 
             <div className="ventajas-paquete">
               <h4>✅ Ventajas del Paquete:</h4>
@@ -440,23 +487,14 @@ const CheckoutPaquete = () => {
           </div>
         </div>
 
-
         <div className="checkout-formulario">
           <form onSubmit={(e) => e.preventDefault()}>
-            {mensaje.texto && (
-              <div className={`mensaje ${mensaje.tipo}`}>
-                {mensaje.texto}
-              </div>
-            )}
-
-
             {esNuevoUsuario ? (
               <>
                 <h2>👤 Tus Datos</h2>
                 <p className="form-ayuda">
                   Crea tu cuenta para gestionar tu paquete de horas
                 </p>
-
 
                 <div className="form-group">
                   <label>Email *</label>
@@ -473,7 +511,6 @@ const CheckoutPaquete = () => {
                     <span className="error">{errores.email}</span>
                   )}
                 </div>
-
 
                 <div className="form-row">
                   <div className="form-group">
@@ -492,7 +529,6 @@ const CheckoutPaquete = () => {
                     )}
                   </div>
 
-
                   <div className="form-group">
                     <label>Apellido *</label>
                     <input
@@ -510,7 +546,6 @@ const CheckoutPaquete = () => {
                   </div>
                 </div>
 
-
                 <div className="form-group">
                   <label>Teléfono *</label>
                   <input
@@ -527,7 +562,6 @@ const CheckoutPaquete = () => {
                   )}
                 </div>
 
-
                 <div className="form-group">
                   <label>Zona Horaria *</label>
                   <select
@@ -540,15 +574,14 @@ const CheckoutPaquete = () => {
                     {getAllTimeZoneOptions().map((tz) => (
                       <option key={tz.value} value={tz.value}>
                         {tz.label}
-                          </option>
-                      ))}
+                      </option>
+                    ))}
                   </select>
                   {errores.timezone && <span className="error">{errores.timezone}</span>}
                   <span className="help-text">
                     Se detectó automáticamente tu zona horaria actual
                   </span>
                 </div>
-
 
                 <div className="form-row">
                   <div className="form-group">
@@ -568,7 +601,6 @@ const CheckoutPaquete = () => {
                     )}
                   </div>
 
-
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
                     <PasswordInput
@@ -585,7 +617,6 @@ const CheckoutPaquete = () => {
                     )}
                   </div>
                 </div>
-
 
                 <div className="ya-tienes-cuenta">
                   <p>
@@ -610,7 +641,6 @@ const CheckoutPaquete = () => {
               </>
             )}
 
-
             <button
               type="button"
               onClick={handleComprarMercadoPago}
@@ -626,7 +656,6 @@ const CheckoutPaquete = () => {
                 <>💳 Pagar con Mercado Pago</>
               )}
             </button>
-
 
             <button
               type="button"
@@ -645,16 +674,49 @@ const CheckoutPaquete = () => {
               )}
             </button>
 
-
             <p className="aviso-pago">
               🔒 Pago seguro. Podrás agendar tus clases inmediatamente después.
             </p>
           </form>
         </div>
       </div>
+
+      {/* ==================== MODALS ==================== */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={modalData.title}
+        message={modalData.message}
+        errors={modalData.errors}
+        buttonText="Entendido"
+      />
+
+      <WarningModal
+        isOpen={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+        title={modalData.title}
+        message={modalData.message}
+        buttonText="Entendido"
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalData.onConfirm}
+        title={confirmModalData.title}
+        message={confirmModalData.message}
+        confirmText="Sí, Proceder al Pago"
+        cancelText="Cancelar"
+        type="info"
+      />
+
+      <LoadingModal
+        isOpen={showLoadingModal}
+        title="Procesando Pago"
+        message="Estamos preparando tu transacción"
+      />
     </div>
   );
 };
-
 
 export default CheckoutPaquete;

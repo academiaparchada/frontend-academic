@@ -3,61 +3,100 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
+import { ErrorModal } from '../components/ErrorModal'; // NUEVO
+import { SuccessModal } from '../components/SuccessModal'; // NUEVO
 import '../styles/forgot_password.css';
 
 export const ForgotPassword = () => {
   const navigate = useNavigate();
-  const [email, set_email] = useState('');
-  const [loading, set_loading] = useState(false);
-  const [message, set_message] = useState('');
-  const [error, set_error] = useState('');
-  const [is_google_account, set_is_google_account] = useState(false);
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handle_submit = async (e) => {
+  // NUEVO: Estados para modals
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [errorModalData, setErrorModalData] = useState({
+    title: '',
+    message: ''
+  });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    set_error('');
-    set_message('');
-    set_is_google_account(false);
-    set_loading(true);
+    
+    // Validación del email
+    if (!email.trim()) {
+      setErrorModalData({
+        title: 'Campo Requerido',
+        message: 'Por favor ingresa tu correo electrónico para continuar.'
+      });
+      setShowErrorModal(true);
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErrorModalData({
+        title: 'Email Inválido',
+        message: 'Por favor ingresa un correo electrónico válido.'
+      });
+      setShowErrorModal(true);
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const response = await fetch('https://api.parcheacademico.com/api/auth/forgot-password', {
+      const response = await fetch('https://academiaparchada.onrender.com/api/auth/forgot-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email }),
       });
 
-      const data = await response.json().catch(() => ({}));
+      const data = await response.json();
 
-      // Caso cuenta Google (400)
-      if (!response.ok) {
-        const backend_message = data?.message || 'No fue posible procesar la solicitud.';
-        set_error(backend_message);
+      if (response.ok && data.success) {
+        // NUEVO: Mostrar modal de éxito
+        setShowSuccessModal(true);
+      } else {
+        // NUEVO: Mostrar modal de error
+        let errorTitle = 'Error al Enviar';
+        let errorMessage = data.message || 'No se pudo enviar el correo de recuperación';
 
-        if (
-          typeof backend_message === 'string' &&
-          backend_message.toLowerCase().includes('google')
-        ) {
-          set_is_google_account(true);
+        if (errorMessage.toLowerCase().includes('no encontrado') || 
+            errorMessage.toLowerCase().includes('no existe')) {
+          errorTitle = 'Email No Encontrado';
+          errorMessage = 'No existe una cuenta registrada con este correo electrónico. Verifica que esté escrito correctamente.';
+        } else if (errorMessage.toLowerCase().includes('conexión') || 
+                   errorMessage.toLowerCase().includes('red')) {
+          errorTitle = 'Error de Conexión';
+          errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+        } else if (errorMessage.toLowerCase().includes('servidor')) {
+          errorTitle = 'Error del Servidor';
+          errorMessage = 'Ocurrió un error en el servidor. Por favor, intenta más tarde.';
         }
 
-        return;
+        setErrorModalData({
+          title: errorTitle,
+          message: errorMessage
+        });
+        setShowErrorModal(true);
       }
-
-      // 200 OK (si existe o no existe, el backend responde genérico)
-      set_message(
-        data?.message ||
-          'Si el correo existe, se enviará un link para restablecer la contraseña. Revisa tu correo.'
-      );
-    } catch (err) {
-      set_error('Error al enviar el correo. Por favor intenta de nuevo.');
+    } catch (error) {
+      console.error('Error:', error);
+      setErrorModalData({
+        title: 'Error de Conexión',
+        message: 'No se pudo conectar con el servidor. Verifica tu conexión a internet e intenta nuevamente.'
+      });
+      setShowErrorModal(true);
     } finally {
-      set_loading(false);
+      setLoading(false);
     }
   };
 
-  const handle_go_to_google_login = () => {
-    // Ya tienes login con Google en /login; para no duplicar lógica, enviamos al usuario allá.
+  const handleSuccessClose = () => {
+    setShowSuccessModal(false);
+    // Redirigir al login después de cerrar el modal de éxito
     navigate('/login');
   };
 
@@ -65,54 +104,71 @@ export const ForgotPassword = () => {
     <div className="page">
       <Header />
 
-      <main className="login-page">
-        <div className="login-container">
-          <div className="login-card">
-            <h1 className="login-title">GUARDA BIEN TUS CREDENCIALES.</h1>
-
-            <p className="login-subtitle">
-              Recuerda guardar bien tus contraseñas y no compartirlas con nadie.
+      <main className="main">
+        <div className="forgot-password-container">
+          <div className="forgot-password-card">
+            <h1 className="forgot-password-title">¿Olvidaste tu Contraseña?</h1>
+            <p className="forgot-password-subtitle">
+              No te preocupes, ingresa tu correo electrónico y te enviaremos un enlace para recuperarla.
             </p>
 
-            {message && <div className="success-message">{message}</div>}
-            {error && <div className="error-message">{error}</div>}
-
-            <form onSubmit={handle_submit} className="login-form">
+            <form onSubmit={handleSubmit} className="forgot-password-form">
               <div className="form-group">
-                <label className="form-label">Correo Electronico:</label>
+                <label className="form-label">Correo Electrónico</label>
                 <input
                   type="email"
                   className="form-input"
                   value={email}
-                  onChange={(e) => set_email(e.target.value)}
-                  placeholder="usuario@dominio.com"
-                  required
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="tu@email.com"
                   disabled={loading}
+                  required
                 />
               </div>
 
-              <button type="submit" className="btn-login" disabled={loading}>
-                {loading ? 'Enviando...' : 'Enviar link'}
+              <button 
+                type="submit" 
+                className="btn-submit" 
+                disabled={loading}
+              >
+                {loading ? 'Enviando...' : 'Enviar Enlace de Recuperación'}
               </button>
             </form>
 
-            {is_google_account && (
-              <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                <button
-                  type="button"
-                  className="btn-login"
-                  onClick={handle_go_to_google_login}
-                  disabled={loading}
-                >
-                  Iniciar sesión con Google
-                </button>
-              </div>
-            )}
+            <div className="back-to-login">
+              ¿Recordaste tu contraseña?{' '}
+              <button 
+                onClick={() => navigate('/login')} 
+                className="link-login"
+                disabled={loading}
+              >
+                Volver al Login
+              </button>
+            </div>
           </div>
         </div>
       </main>
 
       <Footer />
+
+      {/* NUEVO: Modal de Error */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorModalData.title}
+        message={errorModalData.message}
+        buttonText="Entendido"
+      />
+
+      {/* NUEVO: Modal de Éxito */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessClose}
+        title="¡Correo Enviado!"
+        message="Te hemos enviado un correo electrónico con las instrucciones para restablecer tu contraseña. Revisa tu bandeja de entrada y sigue los pasos indicados."
+        buttonText="Ir al Login"
+        onConfirm={handleSuccessClose}
+      />
     </div>
   );
 };
