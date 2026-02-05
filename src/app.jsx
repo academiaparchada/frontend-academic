@@ -101,63 +101,33 @@ function App() {
       <Header />
 
       <main className="main">
-        {/* Hero Section */}
-        <section className="hero_section">
-          <div className="hero_content">
-            <div className="hero_text">
-              <div className="hero_badge">
-                Plataforma educativa innovadora
-              </div>
-              <h1 className="hero_title">
-                La plataforma de aprendizaje que transforma tu futuro
-              </h1>
-              <p className="hero_description">
-                Reinventando la educación con herramientas inteligentes para optimizar el aprendizaje,
-                gestión de cursos, clases personalizadas y seguimiento del progreso.
-              </p>
-              <div className="hero_buttons">
-                <Link to="/register" className="btn_primary">
-                  Empieza gratis
-                </Link>
-                <Link to="/login" className="btn_secondary">
-                  Iniciar sesión
-                </Link>
-              </div>
-            </div>
-
-            <div className="hero_image">
-              <div className="floating_card card_1">
-                <img
-                  src="../images/seguimiento1.png"
-                  alt="Estudiante"
-                  className="card_img"
-                />
-                <div className="card_badge">Sistema de seguimiento</div>
-              </div>
-              <div className="floating_card card_2">
-                <img
-                  src="../images/clasenvivo1.png"
-                  alt="Estudiante"
-                  className="card_img"
-                />
-                <div className="card_badge">Clases en vivo</div>
-              </div>
-              <div className="floating_card card_3">
-                <img
-                  src="../images/pregrabados1.png"
-                  alt="Estudiante"
-                  className="card_img"
-                />
-                <div className="card_badge">Cursos pregrabados</div>
-              </div>
-              <div className="center_logo">
-                <div className="logo_circle">
-                  <span className="logo_text">PA</span>
-                </div>
-              </div>
-            </div>
+        {/* Hero Section - CON EL MISMO ESTILO QUE LAS DEMÁS SECCIONES */}
+        <section className="courses_section" id="hero-video-section">
+          <div className="section_header">
+            <span className="section_badge">✨ Educación innovadora</span>
+            <h2 className="section_title">
+              Transforma tu Futuro Académico
+            </h2>
+            <p className="section_description">
+              Cursos en vivo, clases personalizadas y contenido pregrabado en una sola plataforma
+            </p>
           </div>
+
+          {/* Video Grande Centrado */}
+          <div className="courses_showcase">
+            <video
+              className="showcase_video"
+              controls
+              poster="/images/video-thumbnail.jpg"
+              preload="metadata"
+            >
+              <source src="/images/hero-video.mp4" type="video/mp4" />
+              Tu navegador no soporta videos HTML5.
+            </video>
+          </div>
+
         </section>
+
 
         {/* ✅ HOME: Clases Personalizadas (preview + ver más) */}
         <section id="home-clases" className="courses_section">
