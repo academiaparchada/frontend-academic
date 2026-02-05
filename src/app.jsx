@@ -113,20 +113,21 @@ function App() {
             </p>
           </div>
 
-          {/* Video Grande Centrado */}
           <div className="courses_showcase">
             <video
               className="showcase_video"
               controls
               poster="/images/video-thumbnail.jpg"
               preload="metadata"
+              playsInline
+              style={{ maxWidth: '100%', width: '100%', height: 'auto' }}
             >
               <source src="/images/hero-video.mp4" type="video/mp4" />
               Tu navegador no soporta videos HTML5.
             </video>
           </div>
-
         </section>
+
 
 
         {/* ✅ HOME: Clases Personalizadas (preview + ver más) */}
