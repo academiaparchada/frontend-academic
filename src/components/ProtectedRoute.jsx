@@ -29,14 +29,31 @@ export const ProtectedRoute = ({
         if (requiredRole) {
           try {
             const user = JSON.parse(userStr);
-            const userRole = user.rol || user.role;
+            const userRole = (user.rol || user.role || '').toLowerCase().trim();
+            const normalizedRequiredRole = requiredRole.toLowerCase().trim();
             
-            // Normalizar roles para comparación
-            const normalizedUserRole = userRole?.toLowerCase();
-            const normalizedRequiredRole = requiredRole.toLowerCase();
+            console.log('🔒 ProtectedRoute - Verificando acceso');
+            console.log('  Rol del usuario:', userRole);
+            console.log('  Rol requerido:', normalizedRequiredRole);
             
-            if (normalizedUserRole !== normalizedRequiredRole) {
-              // Mostrar modal de permisos insuficientes
+            // Normalizar variantes de rol
+            const roleMap = {
+              'admin': 'admin',
+              'administrador': 'admin',
+              'profesor': 'profesor',
+              'teacher': 'profesor',
+              'estudiante': 'estudiante',
+              'student': 'estudiante'
+            };
+
+            const mappedUserRole = roleMap[userRole] || userRole;
+            const mappedRequiredRole = roleMap[normalizedRequiredRole] || normalizedRequiredRole;
+            
+            console.log('  Rol mapeado usuario:', mappedUserRole);
+            console.log('  Rol mapeado requerido:', mappedRequiredRole);
+            
+            if (mappedUserRole !== mappedRequiredRole) {
+              console.log('❌ Acceso denegado');
               showInsufficientPermissions(
                 `Esta sección es solo para usuarios con rol de ${requiredRole}.`,
                 requiredRole
@@ -45,6 +62,8 @@ export const ProtectedRoute = ({
               setChecking(false);
               return;
             }
+
+            console.log('✅ Acceso permitido');
           } catch (error) {
             console.error('Error parseando usuario:', error);
             setHasAccess(false);

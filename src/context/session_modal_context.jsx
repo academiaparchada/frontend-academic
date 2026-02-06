@@ -56,15 +56,29 @@ export const SessionModalProvider = ({ children }) => {
   const handlePermissionClose = () => {
     setShowPermissionModal(false);
     // Redirigir según el rol actual
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const role = user.rol || user.role;
+    const userStr = localStorage.getItem('user') || '{}';
     
-    if (role === 'admin' || role === 'administrador') {
-      navigate('/admin/dashboard');
-    } else if (role === 'profesor' || role === 'teacher') {
-      navigate('/profesor/dashboard');
-    } else {
-      navigate('/estudiante/dashboard');
+    try {
+      const user = JSON.parse(userStr);
+      const role = (user.rol || user.role || '').toLowerCase().trim();
+      
+      console.log('🚀 Redirigiendo usuario con rol:', role);
+      
+      // Normalizar rol y redirigir al dashboard correcto
+      if (role === 'admin' || role === 'administrador') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (role === 'profesor' || role === 'teacher') {
+        navigate('/profesor/dashboard', { replace: true });
+      } else if (role === 'estudiante' || role === 'student') {
+        navigate('/estudiante/dashboard', { replace: true });
+      } else {
+        // Si no hay rol válido, ir al login
+        console.error('❌ Rol no válido, redirigiendo al login');
+        navigate('/login', { replace: true });
+      }
+    } catch (error) {
+      console.error('❌ Error parseando usuario, redirigiendo al login');
+      navigate('/login', { replace: true });
     }
   };
 

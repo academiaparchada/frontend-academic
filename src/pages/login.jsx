@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
-import { ErrorModal } from '../components/ErrorModal'; // NUEVO
+import { ErrorModal } from '../components/ErrorModal';
 import { useAuth } from '../context/auth_context';
 import googleAuthService from '../services/google_auth_service';
 import analyticsService from '../services/analytics_service';
@@ -18,7 +18,6 @@ export const Login = () => {
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
   
-  // NUEVO: Estado para el modal de error
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorModalData, setErrorModalData] = useState({
     title: '',
@@ -36,29 +35,31 @@ export const Login = () => {
     if (result.success) {
       analyticsService.event('login', { method: 'email_password' });
 
-      console.log('Login exitoso - Datos completos:', result);
-      console.log('Usuario:', result.data?.user);
-      console.log('Rol del usuario:', result.data?.user?.rol);
+      // Obtener el rol con normalización
+      const user_role = (result.data?.user?.rol || '').toLowerCase().trim();
+      
+      console.log('✅ Login exitoso');
+      console.log('📋 Rol del usuario:', user_role);
 
-      let user_role = result.data?.user?.rol || result.data?.rol || result.user?.rol;
-      console.log('Rol detectado:', user_role);
-
+      // Redirección basada en el rol normalizado
       if (user_role === 'admin' || user_role === 'administrador') {
-        console.log('Redirigiendo a dashboard de admin');
         navigate('/admin/dashboard');
-      } else if (user_role === 'profesor' || user_role === 'teacher') {
-        console.log('Redirigiendo a dashboard de profesor');
+      } else if (user_role === 'profesor') {
         navigate('/profesor/dashboard');
-      } else {
-        console.log('Redirigiendo a dashboard de estudiante');
+      } else if (user_role === 'estudiante') {
         navigate('/estudiante/dashboard');
+      } else {
+        console.error('❌ Rol no reconocido:', user_role);
+        setErrorModalData({
+          title: 'Rol No Reconocido',
+          message: `El rol "${user_role}" no es válido. Contacta al administrador.`
+        });
+        setShowErrorModal(true);
       }
     } else {
-      // NUEVO: Mostrar error en modal en lugar de inline
       let errorTitle = 'Error al Iniciar Sesión';
       let errorMessage = result.message || 'Ocurrió un error inesperado';
 
-      // Personalizar mensaje según el tipo de error
       if (errorMessage.toLowerCase().includes('credenciales')) {
         errorTitle = 'Credenciales Incorrectas';
         errorMessage = 'El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus datos.';
@@ -89,7 +90,6 @@ export const Login = () => {
       const result = await googleAuthService.signInWithGoogle();
 
       if (!result.success) {
-        // NUEVO: Mostrar error de Google en modal
         setErrorModalData({
           title: 'Error con Google',
           message: result.message || 'No se pudo iniciar sesión con Google. Intenta nuevamente.'
@@ -186,7 +186,6 @@ export const Login = () => {
 
       <Footer />
 
-      {/* NUEVO: Modal de Error */}
       <ErrorModal
         isOpen={showErrorModal}
         onClose={() => setShowErrorModal(false)}
