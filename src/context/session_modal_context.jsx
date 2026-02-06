@@ -1,6 +1,7 @@
 // src/context/session_modal_context.jsx
 import React, { createContext, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './auth_context'; // ⬅️ IMPORTAR useAuth
 import { ErrorModal } from '../components/ErrorModal';
 import { WarningModal } from '../components/WarningModal';
 
@@ -16,6 +17,7 @@ export const useSessionModal = () => {
 
 export const SessionModalProvider = ({ children }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth(); // ⬅️ OBTENER logout del contexto
   
   const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
   const [showPermissionModal, setShowPermissionModal] = useState(false);
@@ -43,13 +45,14 @@ export const SessionModalProvider = ({ children }) => {
   };
 
   // Manejar cierre de sesión expirada
-  const handleSessionExpiredClose = () => {
+  const handleSessionExpiredClose = async () => {
     setShowSessionExpiredModal(false);
-    // Limpiar almacenamiento local
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    
+    // ⬅️ USAR logout del contexto en lugar de limpiar manualmente
+    await logout();
+    
     // Redirigir al login
-    navigate('/login');
+    navigate('/login', { replace: true });
   };
 
   // Manejar cierre de permisos insuficientes
@@ -83,13 +86,18 @@ export const SessionModalProvider = ({ children }) => {
   };
 
   // Manejar confirmación de logout
-  const handleLogoutConfirm = () => {
+  const handleLogoutConfirm = async () => {
     setShowLogoutModal(false);
-    // Limpiar almacenamiento local
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    // Redirigir al home o login
-    navigate('/');
+    
+    console.log('🚪 Cerrando sesión...');
+    
+    // ⬅️ USAR logout del contexto que actualiza el estado
+    await logout();
+    
+    console.log('✅ Sesión cerrada, redirigiendo al home');
+    
+    // Redirigir al home
+    navigate('/', { replace: true });
   };
 
   const value = {
