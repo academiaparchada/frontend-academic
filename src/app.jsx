@@ -117,7 +117,7 @@ function App() {
             <video
               className="showcase_video"
               controls
-              poster="/images/video-thumbnail.jpg"
+              poster="/images/preview.png"
               preload="metadata"
               playsInline
               style={{ maxWidth: '100%', width: '100%', height: 'auto' }}

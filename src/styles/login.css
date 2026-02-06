@@ -1,5 +1,4 @@
-/* src/styles/Login.css */
-
+/* src/styles/login.css */
 
 /* Nuevo: para el main className="login-page" */
 .login-page {
@@ -7,7 +6,6 @@
   display: flex;
   width: 100%;
 }
-
 
 /* Aísla el login de estilos globales (h1, button, etc.) */
 .login-container {
@@ -21,7 +19,6 @@
   background-color: #f5f0e8;
 }
 
-
 /* Card centrada y consistente */
 .login-card {
   background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
@@ -31,7 +28,6 @@
   width: 100%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
-
 
 /* Evita que el h1 global (index.css) rompa el tamaño */
 .login-title {
@@ -43,7 +39,6 @@
   line-height: 1.2;
 }
 
-
 .login-subtitle {
   font-size: 1rem;
   color: #ffffff;
@@ -52,13 +47,11 @@
   line-height: 1.5;
 }
 
-
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
-
 
 .form-group {
   display: flex;
@@ -66,13 +59,11 @@
   gap: 0.5rem;
 }
 
-
 .form-label {
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
 }
-
 
 .form-input {
   padding: 0.875rem 1rem;
@@ -84,13 +75,11 @@
   color: #2d5555;
 }
 
-
 .form-input:focus {
   outline: none;
   background-color: #ffffff;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
-
 
 /* Blindaje contra el button global de index.css */
 .btn-login {
@@ -106,18 +95,15 @@
   margin-top: 0.5rem;
 }
 
-
 .btn-login:hover {
   background-color: #f0f0f0;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-
 .btn-login:active {
   transform: translateY(0);
 }
-
 
 .error-message {
   background: rgba(255, 255, 255, 0.18);
@@ -128,14 +114,12 @@
   font-size: 0.95rem;
 }
 
-
 .forgot-password {
   text-align: center;
   font-size: 0.875rem;
   color: #ffffff;
   margin-top: 0.5rem;
 }
-
 
 .link-recovery {
   color: #2d5555;
@@ -144,12 +128,10 @@
   transition: color 0.3s ease;
 }
 
-
 .link-recovery:hover {
   color: #1a3333;
   text-decoration: underline;
 }
-
 
 .divider {
   display: flex;
@@ -158,13 +140,11 @@
   margin: 2rem 0 1.5rem;
 }
 
-
 .divider-line {
   flex: 1;
   height: 1px;
   background-color: rgba(255, 255, 255, 0.3);
 }
-
 
 .divider-text {
   color: #ffffff;
@@ -173,19 +153,18 @@
   white-space: nowrap;
 }
 
-
 .social-login {
   display: flex;
   justify-content: center;
   gap: 1rem;
 }
 
-
+/* ✅ BOTÓN DE GOOGLE CORREGIDO */
 .btn-social {
-  width: 2500px;
-  height:55px;
+  width: 100%; /* ⬅️ Ocupa el mismo ancho que los inputs */
+  height: 55px;
   border: none;
-  border-radius: 0.75rem;
+  border-radius: 0.5rem; /* ⬅️ Mismo border-radius que los inputs */
   background-color: #ffffff;
   cursor: pointer;
   display: flex;
@@ -193,65 +172,67 @@
   justify-content: center;
   transition: all 0.3s ease;
   padding: 0;
+  gap: 0.75rem; /* Espacio entre ícono y texto si agregas texto */
 }
-
 
 .btn-social:hover {
-  transform: translateY(-3px);
+  transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  background-color: #f8f8f8;
 }
-
 
 .btn-social:active {
   transform: translateY(0);
 }
 
-
-.social-icon {
-  width: 60px;
-  height: 35px;
-  display: block;
+.btn-social:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
+.btn-social:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ✅ ÍCONO DE GOOGLE CENTRADO Y PROPORCIONADO */
+.social-icon {
+  width: 60px; /* ⬅️ Tamaño adecuado del ícono */
+  height: 60px;
+  display: block;
+  object-fit: contain;
+}
 
 /* Responsive */
 @media (max-width: 640px) {
-  .btn-social {
-    max-width: 100%;
-    height: 50px;
+  .login-card {
+    padding: 2.5rem 2rem;
   }
-
 
   .login-title {
     font-size: 1.5rem;
   }
 
-
   .login-subtitle {
     font-size: 0.875rem;
   }
 
-
   .btn-social {
-    width: 100%;
-    max-width: 420px;
     height: 52px;
-    border: none;
-    border-radius: 0.75rem;
-    background-color: #ffffff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-    padding: 0 18px;
   }
 
-
   .social-icon {
-  width: 22px;
-  height: 22px;
-  display: block;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .login-title {
+    font-size: 1.375rem;
   }
 }
