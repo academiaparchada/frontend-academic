@@ -4,17 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
+import { ErrorModal } from '../components/ErrorModal'; // NUEVO
 import { useAuth } from '../context/auth_context';
 import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
 import googleAuthService from '../services/google_auth_service';
 import analyticsService from '../services/analytics_service';
 import '../styles/register.css';
 
-
 export const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
-
 
   const [nombre, set_nombre] = useState(() => sessionStorage.getItem('register_nombre') || '');
   const [apellido, set_apellido] = useState(() => sessionStorage.getItem('register_apellido') || '');
@@ -27,72 +26,97 @@ export const Register = () => {
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
 
+  // NUEVO: Estados para el modal de error
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalData, setErrorModalData] = useState({
+    title: '',
+    message: '',
+    errors: []
+  });
 
   useEffect(() => {
     sessionStorage.setItem('register_nombre', nombre);
   }, [nombre]);
 
-
   useEffect(() => {
     sessionStorage.setItem('register_apellido', apellido);
   }, [apellido]);
-
 
   useEffect(() => {
     sessionStorage.setItem('register_email', email);
   }, [email]);
 
-
   useEffect(() => {
     sessionStorage.setItem('register_telefono', telefono);
   }, [telefono]);
-
 
   useEffect(() => {
     sessionStorage.setItem('register_timezone', timezone);
   }, [timezone]);
 
-
   useEffect(() => {
     sessionStorage.setItem('register_password', password);
   }, [password]);
-
 
   useEffect(() => {
     sessionStorage.setItem('register_confirm_password', confirm_password);
   }, [confirm_password]);
 
-
   useEffect(() => {
     sessionStorage.setItem('register_accept_terms', accept_terms);
   }, [accept_terms]);
-
 
   const handle_submit = async (e) => {
     e.preventDefault();
     set_error('');
 
+    // NUEVO: Validación con array de errores
+    const validationErrors = [];
+
+    if (!nombre.trim()) {
+      validationErrors.push('El nombre es obligatorio');
+    }
+
+    if (!apellido.trim()) {
+      validationErrors.push('El apellido es obligatorio');
+    }
+
+    if (!email.trim()) {
+      validationErrors.push('El correo electrónico es obligatorio');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      validationErrors.push('El formato del correo electrónico no es válido');
+    }
+
+    if (!password) {
+      validationErrors.push('La contraseña es obligatoria');
+    } else if (password.length < 6) {
+      validationErrors.push('La contraseña debe tener al menos 6 caracteres');
+    }
 
     if (password !== confirm_password) {
-      set_error('Las contraseñas no coinciden');
-      return;
+      validationErrors.push('Las contraseñas no coinciden');
     }
-
-
-    if (password.length < 6) {
-      set_error('La contraseña debe tener al menos 6 caracteres');
-      return;
-    }
-
 
     if (!accept_terms) {
-      set_error('Debes aceptar los términos y condiciones');
+      validationErrors.push('Debes aceptar los términos y condiciones');
+    }
+
+    if (!timezone) {
+      validationErrors.push('Debes seleccionar una zona horaria');
+    }
+
+    // NUEVO: Si hay errores de validación, mostrar modal
+    if (validationErrors.length > 0) {
+      setErrorModalData({
+        title: 'Errores en el Formulario',
+        message: 'Por favor corrige los siguientes errores antes de continuar:',
+        errors: validationErrors
+      });
+      setShowErrorModal(true);
       return;
     }
 
-
     set_loading(true);
-
 
     const user_data = {
       nombre,
@@ -100,16 +124,13 @@ export const Register = () => {
       email,
       telefono,
       password,
-      timezone // NUEVO: Incluir timezone
+      timezone
     };
-
 
     const result = await register(user_data);
     set_loading(false);
 
-
     if (result.success) {
-      // ✅ GA4: registro nativo exitoso
       analyticsService.event('sign_up', { method: 'email_password' });
 
       // Limpiar sessionStorage
@@ -122,61 +143,80 @@ export const Register = () => {
       sessionStorage.removeItem('register_confirm_password');
       sessionStorage.removeItem('register_accept_terms');
 
-
       navigate('/estudiante/dashboard');
     } else {
+      // NUEVO: Manejar errores del servidor con modal
+      let errorTitle = 'Error al Registrarse';
+      let errorMessage = '';
+      let errorList = [];
+
+      // Si el servidor devuelve múltiples errores
       if (result.errors && result.errors.length > 0) {
-        const error_messages = result.errors.map(err => err.message).join(', ');
-        set_error(error_messages);
+        errorMessage = 'Se encontraron los siguientes problemas:';
+        errorList = result.errors.map(err => err.message || err);
       } else {
-        set_error(result.message);
+        // Error único del servidor
+        errorMessage = result.message || 'Ocurrió un error al crear tu cuenta';
+
+        // Personalizar mensajes comunes
+        if (errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('existe')) {
+          errorTitle = 'Cuenta Ya Existente';
+          errorMessage = 'Ya existe una cuenta registrada con este correo electrónico. ¿Deseas iniciar sesión?';
+        } else if (errorMessage.toLowerCase().includes('conexión') || errorMessage.toLowerCase().includes('red')) {
+          errorTitle = 'Error de Conexión';
+          errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+        }
       }
+
+      setErrorModalData({
+        title: errorTitle,
+        message: errorMessage,
+        errors: errorList
+      });
+      setShowErrorModal(true);
     }
   };
 
-
-  // NUEVO: Manejar registro con Google
   const handle_google_register = async () => {
     try {
       set_error('');
       set_loading(true);
       console.log('🔐 Iniciando registro con Google...');
 
-      // ✅ GA4: inicio de registro con Google (antes del redirect)
       analyticsService.event('sign_up', { method: 'google' });
 
       const result = await googleAuthService.signInWithGoogle();
       if (!result.success) {
-        set_error(result.message || 'Error al registrarse con Google');
+        // NUEVO: Mostrar error de Google en modal
+        setErrorModalData({
+          title: 'Error con Google',
+          message: result.message || 'No se pudo completar el registro con Google. Intenta nuevamente.',
+          errors: []
+        });
+        setShowErrorModal(true);
         set_loading(false);
       }
-      // Si es exitoso, el usuario será redirigido a Google y luego al callback
     } catch (err) {
       console.error('❌ Error al iniciar registro:', err);
-      set_error('Error al registrarse con Google');
+      setErrorModalData({
+        title: 'Error con Google',
+        message: 'Ocurrió un error al conectar con Google. Por favor, intenta más tarde.',
+        errors: []
+      });
+      setShowErrorModal(true);
       set_loading(false);
     }
   };
 
-
   return (
     <div className="page">
       <Header />
-
 
       <main className="main">
         <div className="register_container">
           <div className="register_card">
             <h1 className="register_title">AQUÍ INICIA ALGO GRANDE.</h1>
             <p className="register_subtitle">Estás dando el primer paso para transformar tu forma de aprender.</p>
-
-
-            {error && (
-              <div className="error_message">
-                {error}
-              </div>
-            )}
-
 
             <form onSubmit={handle_submit} className="register_form">
               <div className="form_group">
@@ -193,7 +233,6 @@ export const Register = () => {
                 />
               </div>
 
-
               <div className="form_group">
                 <label htmlFor="apellido" className="form_label">Apellido</label>
                 <input
@@ -207,7 +246,6 @@ export const Register = () => {
                   disabled={loading}
                 />
               </div>
-
 
               <div className="form_group">
                 <label htmlFor="email" className="form_label">Correo Electrónico</label>
@@ -223,7 +261,6 @@ export const Register = () => {
                 />
               </div>
 
-
               <div className="form_group">
                 <label htmlFor="telefono" className="form_label">Teléfono</label>
                 <input
@@ -237,8 +274,6 @@ export const Register = () => {
                 />
               </div>
 
-
-              {/* NUEVO CAMPO: Zona Horaria */}
               <div className="form_group">
                 <label htmlFor="timezone" className="form_label">Zona Horaria</label>
                 <select
@@ -258,7 +293,6 @@ export const Register = () => {
                 <small className="form_hint">Se detectó automáticamente tu zona horaria actual</small>
               </div>
 
-
               <div className="form_group">
                 <label htmlFor="password" className="form_label">Contraseña</label>
                 <PasswordInput
@@ -272,7 +306,6 @@ export const Register = () => {
                 />
               </div>
 
-
               <div className="form_group">
                 <label htmlFor="confirm_password" className="form_label">Confirmar Contraseña</label>
                 <PasswordInput
@@ -284,7 +317,6 @@ export const Register = () => {
                   required={true}
                 />
               </div>
-
 
               <div className="terms_group">
                 <input
@@ -304,19 +336,16 @@ export const Register = () => {
                 </label>
               </div>
 
-
               <button type="submit" className="btn_register" disabled={loading}>
                 {loading ? 'Registrando...' : 'Registrarse'}
               </button>
             </form>
-
 
             <div className="divider">
               <span className="divider_line"></span>
               <span className="divider_text">O Inicia Con</span>
               <span className="divider_line"></span>
             </div>
-
 
             <div className="social_register">
               <button
@@ -328,14 +357,21 @@ export const Register = () => {
                 <img src="/images/google.png" alt="Google" className="social_icon" />
               </button>
             </div>
-
-
           </div>
         </div>
       </main>
 
-
       <Footer />
+
+      {/* NUEVO: Modal de Error */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorModalData.title}
+        message={errorModalData.message}
+        errors={errorModalData.errors}
+        buttonText="Entendido"
+      />
     </div>
   );
 };

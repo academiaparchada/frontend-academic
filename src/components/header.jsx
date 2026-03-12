@@ -1,7 +1,9 @@
+// src/components/header.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import '../styles/header.css';
 import { useAuth } from '../context/auth_context';
+import { useSessionModal } from '../context/session_modal_context'; // NUEVO
+import '../styles/header.css';
 
 export function Header() {
   const navigate = useNavigate();
@@ -9,6 +11,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const { user, logout, is_authenticated, loading } = useAuth();
+  const { showLogoutConfirmation } = useSessionModal(); // NUEVO
 
   const handleLogin = () => {
     navigate('/login');
@@ -24,10 +27,15 @@ export function Header() {
     if (is_authenticated) {
       const rol = user?.rol;
 
-      if (rol === 'administrador') navigate('/admin/dashboard');
-      else if (rol === 'profesor') navigate('/profesor/dashboard');
-      else if (rol === 'estudiante') navigate('/estudiante/dashboard');
-      else navigate('/');
+      if (rol === 'administrador' || rol === 'admin') {
+        navigate('/admin/dashboard');
+      } else if (rol === 'profesor' || rol === 'teacher') {
+        navigate('/profesor/dashboard');
+      } else if (rol === 'estudiante' || rol === 'student') {
+        navigate('/estudiante/dashboard');
+      } else {
+        navigate('/');
+      }
 
       closeMenu();
       return;
@@ -45,18 +53,23 @@ export function Header() {
   const handleMiPerfil = () => {
     const rol = user?.rol;
 
-    if (rol === 'administrador') navigate('/admin/dashboard');
-    else if (rol === 'profesor') navigate('/profesor/mi-perfil');
-    else if (rol === 'estudiante') navigate('/estudiante/mi-perfil');
-    else navigate('/');
+    if (rol === 'administrador' || rol === 'admin') {
+      navigate('/admin/dashboard');
+    } else if (rol === 'profesor' || rol === 'teacher') {
+      navigate('/profesor/mi-perfil');
+    } else if (rol === 'estudiante' || rol === 'student') {
+      navigate('/estudiante/mi-perfil');
+    } else {
+      navigate('/');
+    }
 
     closeMenu();
   };
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-    closeMenu();
+  // MODIFICADO: Ahora muestra modal de confirmación
+  const handleLogout = () => {
+    closeMenu(); // Cerrar menú móvil primero
+    showLogoutConfirmation(); // Mostrar modal de confirmación
   };
 
   const goToHomeSection = (sectionId) => {
@@ -84,6 +97,7 @@ export function Header() {
     setMenuOpen(false);
   };
 
+  // Prevenir scroll cuando el menú móvil está abierto
   useEffect(() => {
     if (menuOpen) {
       document.body.classList.add('menu-open');
@@ -96,6 +110,7 @@ export function Header() {
     };
   }, [menuOpen]);
 
+  // Cerrar menú con tecla ESC
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape' && menuOpen) {
@@ -107,6 +122,7 @@ export function Header() {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [menuOpen]);
 
+  // Cerrar menú al cambiar de ruta
   useEffect(() => {
     setMenuOpen(false);
   }, [location.pathname]);
@@ -147,7 +163,7 @@ export function Header() {
         aria-hidden="true"
       />
 
-      {/* Desktop NAV (se mantiene igual) */}
+      {/* Desktop NAV */}
       <nav className="header__nav header__nav--desktop">
         <button className="header__link" onClick={handleCursos}>
           CURSOS
@@ -160,7 +176,7 @@ export function Header() {
         </button>
       </nav>
 
-      {/* Desktop ACTIONS (se mantiene igual) */}
+      {/* Desktop ACTIONS */}
       <div className="header__actions header__actions--desktop">
         {!loading && !is_authenticated && (
           <>
@@ -197,7 +213,7 @@ export function Header() {
         )}
       </div>
 
-      {/* ✅ Mobile menu (UN SOLO drawer con todo) */}
+      {/* Mobile menu */}
       <div className={`header__mobileMenu ${menuOpen ? 'active' : ''}`}>
         <nav className="header__mobileNav">
           <button className="header__link" onClick={handleCursos}>

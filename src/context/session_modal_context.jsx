@@ -1,0 +1,151 @@
+// src/context/session_modal_context.jsx
+import React, { createContext, useContext, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './auth_context'; // ⬅️ IMPORTAR useAuth
+import { ErrorModal } from '../components/ErrorModal';
+import { WarningModal } from '../components/WarningModal';
+
+const SessionModalContext = createContext();
+
+export const useSessionModal = () => {
+  const context = useContext(SessionModalContext);
+  if (!context) {
+    throw new Error('useSessionModal debe usarse dentro de SessionModalProvider');
+  }
+  return context;
+};
+
+export const SessionModalProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const { logout } = useAuth(); // ⬅️ OBTENER logout del contexto
+  
+  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false);
+  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  
+  const [permissionData, setPermissionData] = useState({
+    message: '',
+    requiredRole: ''
+  });
+
+  // Mostrar modal de sesión expirada
+  const showSessionExpired = () => {
+    setShowSessionExpiredModal(true);
+  };
+
+  // Mostrar modal de permisos insuficientes
+  const showInsufficientPermissions = (message = '', requiredRole = '') => {
+    setPermissionData({ message, requiredRole });
+    setShowPermissionModal(true);
+  };
+
+  // Mostrar modal de confirmación de logout
+  const showLogoutConfirmation = () => {
+    setShowLogoutModal(true);
+  };
+
+  // Manejar cierre de sesión expirada
+  const handleSessionExpiredClose = async () => {
+    setShowSessionExpiredModal(false);
+    
+    // ⬅️ USAR logout del contexto en lugar de limpiar manualmente
+    await logout();
+    
+    // Redirigir al login
+    navigate('/login', { replace: true });
+  };
+
+  // Manejar cierre de permisos insuficientes
+  const handlePermissionClose = () => {
+    setShowPermissionModal(false);
+    // Redirigir según el rol actual
+    const userStr = localStorage.getItem('user') || '{}';
+    
+    try {
+      const user = JSON.parse(userStr);
+      const role = (user.rol || user.role || '').toLowerCase().trim();
+      
+      console.log('🚀 Redirigiendo usuario con rol:', role);
+      
+      // Normalizar rol y redirigir al dashboard correcto
+      if (role === 'admin' || role === 'administrador') {
+        navigate('/admin/dashboard', { replace: true });
+      } else if (role === 'profesor' || role === 'teacher') {
+        navigate('/profesor/dashboard', { replace: true });
+      } else if (role === 'estudiante' || role === 'student') {
+        navigate('/estudiante/dashboard', { replace: true });
+      } else {
+        // Si no hay rol válido, ir al login
+        console.error('❌ Rol no válido, redirigiendo al login');
+        navigate('/login', { replace: true });
+      }
+    } catch (error) {
+      console.error('❌ Error parseando usuario, redirigiendo al login');
+      navigate('/login', { replace: true });
+    }
+  };
+
+  // Manejar confirmación de logout
+  const handleLogoutConfirm = async () => {
+    setShowLogoutModal(false);
+    
+    console.log('🚪 Cerrando sesión...');
+    
+    // ⬅️ USAR logout del contexto que actualiza el estado
+    await logout();
+    
+    console.log('✅ Sesión cerrada, redirigiendo al home');
+    
+    // Redirigir al home
+    navigate('/', { replace: true });
+  };
+
+  const value = {
+    showSessionExpired,
+    showInsufficientPermissions,
+    showLogoutConfirmation
+  };
+
+  return (
+    <SessionModalContext.Provider value={value}>
+      {children}
+
+      {/* Modal de Sesión Expirada */}
+      <ErrorModal
+        isOpen={showSessionExpiredModal}
+        onClose={handleSessionExpiredClose}
+        title="Sesión Expirada"
+        message="Tu sesión ha expirado por inactividad. Por favor, inicia sesión nuevamente para continuar."
+        buttonText="Ir al Login"
+        closeOnOverlayClick={false}
+        closeOnEsc={false}
+      />
+
+      {/* Modal de Permisos Insuficientes */}
+      <WarningModal
+        isOpen={showPermissionModal}
+        onClose={handlePermissionClose}
+        title="Acceso Restringido"
+        message={
+          permissionData.message || 
+          `No tienes permisos para acceder a esta sección. ${
+            permissionData.requiredRole 
+              ? `Se requiere rol: ${permissionData.requiredRole}` 
+              : ''
+          }`
+        }
+        buttonText="Volver al Dashboard"
+      />
+
+      {/* Modal de Confirmación de Logout */}
+      <WarningModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title="¿Cerrar Sesión?"
+        message="¿Estás seguro que deseas cerrar tu sesión? Tendrás que iniciar sesión nuevamente para acceder."
+        buttonText="Sí, Cerrar Sesión"
+        onConfirm={handleLogoutConfirm}
+      />
+    </SessionModalContext.Provider>
+  );
+};

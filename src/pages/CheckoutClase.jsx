@@ -1,14 +1,17 @@
+// src/pages/CheckoutClase.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PasswordInput } from '../components/PasswordInput';
+import { ErrorModal } from '../components/ErrorModal'; // NUEVO
+import { WarningModal } from '../components/WarningModal'; // NUEVO
+import { ConfirmModal } from '../components/ConfirmModal'; // NUEVO
+import { LoadingModal } from '../components/LoadingModal'; // NUEVO
 import comprasService from '../services/compras_service';
 import wompiService from '../services/wompi_service';
 import { openWompiWidget } from '../utils/wompi_widget';
 import { getBrowserTimeZone, getAllTimeZoneOptions } from '../utils/timezone';
 import analyticsService from '../services/analytics_service';
 import '../styles/Checkout.css';
-
-
 
 const CheckoutClase = () => {
   const { claseId } = useParams();
@@ -19,17 +22,12 @@ const CheckoutClase = () => {
   const [procesando, setProcesando] = useState(false);
   const [procesandoWompi, setProcesandoWompi] = useState(false);
   const [error, setError] = useState('');
-  const [mensaje, setMensaje] = useState({ tipo: '', texto: '' });
   
   const token = localStorage.getItem('token');
   const [esNuevoUsuario, setEsNuevoUsuario] = useState(!token);
 
-
-
   const [archivoAdjunto, setArchivoAdjunto] = useState(null);
   const [errorArchivo, setErrorArchivo] = useState('');
-
-
 
   // Estados para disponibilidad
   const [fechaSeleccionada, setFechaSeleccionada] = useState('');
@@ -37,13 +35,9 @@ const CheckoutClase = () => {
   const [loadingDisponibilidad, setLoadingDisponibilidad] = useState(false);
   const [franjaSeleccionada, setFranjaSeleccionada] = useState(null);
 
-
-
   const [datosClase, setDatosClase] = useState({
     descripcion_estudiante: ''
   });
-
-
 
   const [datosUsuario, setDatosUsuario] = useState({
     email: '',
@@ -55,17 +49,28 @@ const CheckoutClase = () => {
     confirmarPassword: ''
   });
 
-
-
   const [errores, setErrores] = useState({});
 
-
+  // NUEVO: Estados para modals
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [modalData, setModalData] = useState({
+    title: '',
+    message: '',
+    errors: []
+  });
+  const [confirmModalData, setConfirmModalData] = useState({
+    title: '',
+    message: '',
+    onConfirm: null
+  });
 
   useEffect(() => {
     cargarClase();
   }, [claseId]);
 
-  // ✅ GA4: begin_checkout cuando ya se cargó la clase (1 vez por claseId)
   useEffect(() => {
     if (!loading && clase && !error) {
       analyticsService.event('begin_checkout', {
@@ -75,16 +80,12 @@ const CheckoutClase = () => {
     }
   }, [loading, clase, error, claseId]);
 
-
-
   // Auto-consultar disponibilidad cuando cambia la fecha
   useEffect(() => {
     if (fechaSeleccionada && clase) {
       consultarDisponibilidad();
     }
   }, [fechaSeleccionada]);
-
-
 
   const cargarClase = async () => {
     try {
@@ -119,15 +120,10 @@ const CheckoutClase = () => {
     }
   };
 
-
-
   const consultarDisponibilidad = async () => {
     setLoadingDisponibilidad(true);
     setDisponibilidad(null);
     setFranjaSeleccionada(null);
-    setMensaje({ tipo: '', texto: '' });
-
-
 
     try {
       const response = await fetch(
@@ -138,41 +134,42 @@ const CheckoutClase = () => {
         `timezone=${datosUsuario.timezone || 'America/Bogota'}`
       );
 
-
-
       const data = await response.json();
-
-
 
       if (response.ok && data.success) {
         setDisponibilidad(data.data);
 
-
-
         if (data.data.total === 0) {
-          setMensaje({ 
-            tipo: 'error', 
-            texto: '😕 No hay horarios disponibles para esta fecha. Intenta con otra fecha.' 
+          // NUEVO: Usar modal en lugar de mensaje
+          setModalData({
+            title: 'Sin Horarios Disponibles',
+            message: 'No hay horarios disponibles para esta fecha. Por favor, intenta con otra fecha.',
+            errors: []
           });
+          setShowWarningModal(true);
         }
       } else {
-        setMensaje({ 
-          tipo: 'error', 
-          texto: data.message || 'Error al consultar disponibilidad' 
+        // NUEVO: Usar modal
+        setModalData({
+          title: 'Error de Consulta',
+          message: data.message || 'Error al consultar disponibilidad. Por favor, intenta de nuevo.',
+          errors: []
         });
+        setShowErrorModal(true);
       }
     } catch (err) {
       console.error('❌ Error al consultar disponibilidad:', err);
-      setMensaje({ 
-        tipo: 'error', 
-        texto: 'Error al consultar disponibilidad. Intenta de nuevo.' 
+      // NUEVO: Usar modal
+      setModalData({
+        title: 'Error de Conexión',
+        message: 'No se pudo consultar la disponibilidad. Verifica tu conexión e intenta de nuevo.',
+        errors: []
       });
+      setShowErrorModal(true);
     } finally {
       setLoadingDisponibilidad(false);
     }
   };
-
-
 
   const handleChangeClase = (e) => {
     const { name, value } = e.target;
@@ -181,8 +178,6 @@ const CheckoutClase = () => {
       [name]: value
     }));
 
-
-
     if (errores[name]) {
       setErrores(prev => ({
         ...prev,
@@ -190,8 +185,6 @@ const CheckoutClase = () => {
       }));
     }
   };
-
-
 
   const handleChangeUsuario = (e) => {
     const { name, value } = e.target;
@@ -200,8 +193,6 @@ const CheckoutClase = () => {
       [name]: value
     }));
 
-
-
     if (errores[name]) {
       setErrores(prev => ({
         ...prev,
@@ -210,20 +201,14 @@ const CheckoutClase = () => {
     }
   };
 
-
-
   const handleArchivoChange = (e) => {
     const archivo = e.target.files[0];
     setErrorArchivo('');
-
-
 
     if (!archivo) {
       setArchivoAdjunto(null);
       return;
     }
-
-
 
     const validacion = comprasService.validarArchivo(archivo);
     if (!validacion.valido) {
@@ -233,12 +218,8 @@ const CheckoutClase = () => {
       return;
     }
 
-
-
     setArchivoAdjunto(archivo);
   };
-
-
 
   const handleEliminarArchivo = () => {
     setArchivoAdjunto(null);
@@ -249,95 +230,91 @@ const CheckoutClase = () => {
     }
   };
 
-
-
+  // MODIFICADO: Validar con modal
   const validarFormulario = () => {
     const nuevosErrores = {};
-
-
+    const validationErrors = [];
 
     // Validar fecha seleccionada
     if (!fechaSeleccionada) {
       nuevosErrores.fecha = 'Debes seleccionar una fecha';
+      validationErrors.push('Debes seleccionar una fecha');
     }
-
-
 
     // Validar franja seleccionada
     if (!franjaSeleccionada) {
       nuevosErrores.franja = 'Debes seleccionar un horario disponible';
+      validationErrors.push('Debes seleccionar un horario disponible');
     }
-
-
 
     // Validar descripción
     if (!datosClase.descripcion_estudiante || datosClase.descripcion_estudiante.trim().length < 10) {
       nuevosErrores.descripcion_estudiante = 'Describe qué necesitas (mínimo 10 caracteres)';
+      validationErrors.push('Describe qué necesitas aprender (mínimo 10 caracteres)');
     }
-
-
 
     // Validar datos de usuario nuevo
     if (esNuevoUsuario) {
       if (!datosUsuario.email || !datosUsuario.email.includes('@')) {
         nuevosErrores.email = 'Email inválido';
+        validationErrors.push('El correo electrónico no es válido');
       }
-
-
 
       if (!datosUsuario.nombre.trim()) {
         nuevosErrores.nombre = 'El nombre es obligatorio';
+        validationErrors.push('El nombre es obligatorio');
       }
-
-
 
       if (!datosUsuario.apellido.trim()) {
         nuevosErrores.apellido = 'El apellido es obligatorio';
+        validationErrors.push('El apellido es obligatorio');
       }
-
-
 
       if (!datosUsuario.telefono.trim()) {
         nuevosErrores.telefono = 'El teléfono es obligatorio';
+        validationErrors.push('El teléfono es obligatorio');
       }
-
-
 
       if (!datosUsuario.timezone) {
         nuevosErrores.timezone = 'La zona horaria es obligatoria';
+        validationErrors.push('Debes seleccionar una zona horaria');
       }
-
-
 
       if (datosUsuario.password.length < 6) {
         nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres';
+        validationErrors.push('La contraseña debe tener al menos 6 caracteres');
       }
-
-
 
       if (datosUsuario.password !== datosUsuario.confirmarPassword) {
         nuevosErrores.confirmarPassword = 'Las contraseñas no coinciden';
+        validationErrors.push('Las contraseñas no coinciden');
       }
     }
 
-
-
     setErrores(nuevosErrores);
-    return Object.keys(nuevosErrores).length === 0;
+
+    // NUEVO: Mostrar modal si hay errores
+    if (validationErrors.length > 0) {
+      setModalData({
+        title: 'Errores en el Formulario',
+        message: 'Por favor corrige los siguientes errores antes de continuar:',
+        errors: validationErrors
+      });
+      setShowErrorModal(true);
+      return false;
+    }
+
+    return true;
   };
-
-
 
   const buildDatosCompra = () => {
     const datosCompra = {
       tipo_compra: 'clase_personalizada',
       clase_personalizada_id: claseId,
-      fecha_hora: franjaSeleccionada.fecha_hora_inicio_iso, // ← USAR ISO DEL ENDPOINT
+      fecha_hora: franjaSeleccionada.fecha_hora_inicio_iso,
       descripcion_estudiante: datosClase.descripcion_estudiante,
       estudiante_timezone: datosUsuario.timezone || 'America/Bogota'
     };
-
-
 
     if (esNuevoUsuario) {
       datosCompra.estudiante = {
@@ -350,45 +327,50 @@ const CheckoutClase = () => {
       };
     }
 
-
-
     return datosCompra;
   };
 
-
+  // NUEVO: Mostrar confirmación antes de pagar
+  const mostrarConfirmacionPago = (metodoPago) => {
+    const precio = comprasService.formatearPrecio(clase.precio);
+    const fechaFormateada = new Date(franjaSeleccionada.fecha_hora_inicio_iso).toLocaleString('es-CO', {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    });
+    
+    setConfirmModalData({
+      title: '¿Confirmar Compra?',
+      message: `Estás a punto de proceder al pago de ${precio} por una clase personalizada el ${fechaFormateada} con ${franjaSeleccionada.profesor.nombre} ${franjaSeleccionada.profesor.apellido}. Serás redirigido a ${metodoPago} para completar la transacción de forma segura.`,
+      onConfirm: metodoPago === 'Mercado Pago' ? procesarMercadoPago : procesarWompi
+    });
+    setShowConfirmModal(true);
+  };
 
   const handleComprarMercadoPago = async (e) => {
     e.preventDefault();
 
-
-
     if (!validarFormulario()) {
-      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
-    // ✅ GA4: usuario eligió medio de pago (checkout step)
     analyticsService.event('add_payment_info', {
       payment_type: 'mercadopago',
       checkout_type: 'clase_personalizada',
       clase_personalizada_id: String(claseId)
     });
 
+    mostrarConfirmacionPago('Mercado Pago');
+  };
 
-
+  const procesarMercadoPago = async () => {
+    setShowConfirmModal(false);
+    setShowLoadingModal(true);
     setProcesando(true);
-    setMensaje({ tipo: '', texto: '' });
-
-
 
     try {
       const datosCompra = buildDatosCompra();
 
-
-
       let resultado;
-
-
 
       if (archivoAdjunto) {
         resultado = await comprasService.iniciarPagoMercadoPagoConArchivo(datosCompra, archivoAdjunto);
@@ -396,68 +378,59 @@ const CheckoutClase = () => {
         resultado = await comprasService.iniciarPagoMercadoPago(datosCompra);
       }
 
-
-
       if (resultado.success) {
-        setMensaje({ tipo: 'exito', texto: '✅ Redirigiendo a Mercado Pago...' });
-
-
-
         setTimeout(() => {
           const initPoint = resultado.data.init_point || resultado.data.sandbox_init_point;
           comprasService.redirigirACheckout(initPoint);
         }, 1000);
-
-
-
       } else {
-        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al procesar el pago' });
+        setShowLoadingModal(false);
+        setModalData({
+          title: 'Error al Procesar',
+          message: resultado.message || 'Error al procesar el pago. Por favor, intenta nuevamente.',
+          errors: []
+        });
+        setShowErrorModal(true);
         setProcesando(false);
       }
-
-
-
     } catch (error) {
       console.error('❌ Error en el proceso de compra:', error);
-      setMensaje({ tipo: 'error', texto: 'Error al procesar el pago. Intenta de nuevo.' });
+      setShowLoadingModal(false);
+      setModalData({
+        title: 'Error de Conexión',
+        message: 'No se pudo conectar con el servidor de pagos. Por favor, intenta nuevamente.',
+        errors: []
+      });
+      setShowErrorModal(true);
       setProcesando(false);
     }
   };
 
-
-
   const handleComprarWompi = async (e) => {
     e.preventDefault();
 
-
-
     if (!validarFormulario()) {
-      setMensaje({ tipo: 'error', texto: 'Por favor corrige los errores del formulario' });
       return;
     }
 
-    // ✅ GA4: usuario eligió medio de pago (checkout step)
     analyticsService.event('add_payment_info', {
       payment_type: 'wompi',
       checkout_type: 'clase_personalizada',
       clase_personalizada_id: String(claseId)
     });
 
+    mostrarConfirmacionPago('Wompi');
+  };
 
-
+  const procesarWompi = async () => {
+    setShowConfirmModal(false);
+    setShowLoadingModal(true);
     setProcesandoWompi(true);
-    setMensaje({ tipo: '', texto: '' });
-
-
 
     try {
       const datosCompra = buildDatosCompra();
 
-
-
       let resultado;
-
-
 
       if (archivoAdjunto) {
         resultado = await wompiService.crearCheckoutConArchivo(datosCompra, archivoAdjunto);
@@ -465,33 +438,33 @@ const CheckoutClase = () => {
         resultado = await wompiService.crearCheckout(datosCompra);
       }
 
-
-
       if (!resultado.success) {
-        setMensaje({ tipo: 'error', texto: resultado.message || 'Error al iniciar pago con Wompi' });
+        setShowLoadingModal(false);
+        setModalData({
+          title: 'Error con Wompi',
+          message: resultado.message || 'Error al iniciar pago con Wompi. Por favor, intenta nuevamente.',
+          errors: []
+        });
+        setShowErrorModal(true);
         setProcesandoWompi(false);
         return;
       }
 
-
-
-      setMensaje({ tipo: 'exito', texto: '✅ Abriendo Wompi...' });
-
-
-
       await openWompiWidget(resultado.data);
-
-
-
+      setShowLoadingModal(false);
       setProcesandoWompi(false);
     } catch (error) {
       console.error('❌ Error Wompi:', error);
-      setMensaje({ tipo: 'error', texto: 'Error al abrir el widget de Wompi' });
+      setShowLoadingModal(false);
+      setModalData({
+        title: 'Error con Wompi',
+        message: 'No se pudo abrir el sistema de pago de Wompi. Por favor, intenta nuevamente.',
+        errors: []
+      });
+      setShowErrorModal(true);
       setProcesandoWompi(false);
     }
   };
-
-
 
   if (loading) {
     return (
@@ -503,8 +476,6 @@ const CheckoutClase = () => {
       </div>
     );
   }
-
-
 
   if (error || !clase) {
     return (
@@ -520,8 +491,6 @@ const CheckoutClase = () => {
     );
   }
 
-
-
   return (
     <div className="checkout-container">
       <div className="mis-clases-header">
@@ -536,7 +505,6 @@ const CheckoutClase = () => {
         </div>
       </div>
 
-
       <div className="checkout-content">
         <div className="checkout-resumen">
           <h2>📝 Resumen de Compra</h2>
@@ -549,7 +517,7 @@ const CheckoutClase = () => {
                 <h4>Descripción</h4>
                 <p>{clase.descripcion_asignatura || clase.asignatura?.descripcion}</p>
               </div>
-          )}
+            )}
             
             <div className="detalles-grid">
               <div className="detalle-item">
@@ -557,15 +525,11 @@ const CheckoutClase = () => {
                 <span className="detalle-valor">{clase.duracion_horas} hora(s)</span>
               </div>
 
-
-
               <div className="detalle-item">
                 <span className="detalle-label">👥 Tipo:</span>
                 <span className="detalle-valor">Individual</span>
               </div>
             </div>
-
-
 
             {franjaSeleccionada && (
               <div className="info-box" style={{ background: '#d4edda', borderLeftColor: '#28a745' }}>
@@ -581,8 +545,6 @@ const CheckoutClase = () => {
               </div>
             )}
 
-
-
             <div className="info-box">
               <p>
                 ✨ <strong>Profesor asignado según tu horario</strong>
@@ -592,8 +554,6 @@ const CheckoutClase = () => {
               </p>
             </div>
 
-
-
             <div className="precio-total">
               <span>Total a Pagar:</span>
               <strong>{comprasService.formatearPrecio(clase.precio)}</strong>
@@ -601,21 +561,9 @@ const CheckoutClase = () => {
           </div>
         </div>
 
-
-
         <div className="checkout-formulario">
           <form onSubmit={(e) => e.preventDefault()}>
-            {mensaje.texto && (
-              <div className={`mensaje ${mensaje.tipo}`}>
-                {mensaje.texto}
-              </div>
-            )}
-
-
-
             <h2>📅 Selecciona Fecha y Horario</h2>
-
-
 
             {/* PASO 1: Seleccionar fecha */}
             <div className="form-group">
@@ -636,8 +584,6 @@ const CheckoutClase = () => {
               </span>
             </div>
 
-
-
             {/* Loading de disponibilidad */}
             {loadingDisponibilidad && (
               <div className="disponibilidad-loading">
@@ -645,8 +591,6 @@ const CheckoutClase = () => {
                 <span>Consultando disponibilidad...</span>
               </div>
             )}
-
-
 
             {/* PASO 2: Mostrar franjas disponibles */}
             {disponibilidad && disponibilidad.total > 0 && (
@@ -690,11 +634,7 @@ const CheckoutClase = () => {
               </div>
             )}
 
-
-
             <h2>📝 Detalles de la Clase</h2>
-
-
 
             <div className="form-group">
               <label>¿Qué necesitas aprender? *</label>
@@ -714,8 +654,6 @@ const CheckoutClase = () => {
                 Describe los temas que quieres ver en la clase (mínimo 10 caracteres)
               </span>
             </div>
-
-
 
             <div className="form-group">
               <label>📎 Adjuntar Documento (Opcional)</label>
@@ -768,16 +706,12 @@ const CheckoutClase = () => {
               </span>
             </div>
 
-
-
             {esNuevoUsuario && (
               <>
                 <h2>👤 Tus Datos</h2>
                 <p className="form-ayuda">
                   Crea tu cuenta para acceder a tu clase
                 </p>
-
-
 
                 <div className="form-group">
                   <label>Email *</label>
@@ -794,8 +728,6 @@ const CheckoutClase = () => {
                     <span className="error">{errores.email}</span>
                   )}
                 </div>
-
-
 
                 <div className="form-row">
                   <div className="form-group">
@@ -814,8 +746,6 @@ const CheckoutClase = () => {
                     )}
                   </div>
 
-
-
                   <div className="form-group">
                     <label>Apellido *</label>
                     <input
@@ -833,8 +763,6 @@ const CheckoutClase = () => {
                   </div>
                 </div>
 
-
-
                 <div className="form-group">
                   <label>Teléfono *</label>
                   <input
@@ -850,8 +778,6 @@ const CheckoutClase = () => {
                     <span className="error">{errores.telefono}</span>
                   )}
                 </div>
-
-
 
                 <div className="form-group">
                   <label>Zona Horaria *</label>
@@ -876,8 +802,6 @@ const CheckoutClase = () => {
                   </span>
                 </div>
 
-
-
                 <div className="form-row">
                   <div className="form-group">
                     <label>Contraseña *</label>
@@ -896,8 +820,6 @@ const CheckoutClase = () => {
                     )}
                   </div>
 
-
-
                   <div className="form-group">
                     <label>Confirmar Contraseña *</label>
                     <PasswordInput
@@ -915,8 +837,6 @@ const CheckoutClase = () => {
                   </div>
                 </div>
 
-
-
                 <div className="ya-tienes-cuenta">
                   <p>
                     ¿Ya tienes cuenta? 
@@ -933,8 +853,6 @@ const CheckoutClase = () => {
               </>
             )}
 
-
-
             <button 
               type="button"
               onClick={handleComprarMercadoPago}
@@ -950,8 +868,6 @@ const CheckoutClase = () => {
                 <>💳 Pagar con Mercado Pago</>
               )}
             </button>
-
-
 
             <button 
               type="button"
@@ -970,18 +886,49 @@ const CheckoutClase = () => {
               )}
             </button>
 
-
-
             <p className="aviso-pago">
               🔒 Pago seguro. Recibirás confirmación y datos del profesor por email.
             </p>
           </form>
         </div>
       </div>
+
+      {/* ==================== MODALS ==================== */}
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={modalData.title}
+        message={modalData.message}
+        errors={modalData.errors}
+        buttonText="Entendido"
+      />
+
+      <WarningModal
+        isOpen={showWarningModal}
+        onClose={() => setShowWarningModal(false)}
+        title={modalData.title}
+        message={modalData.message}
+        buttonText="Entendido"
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={confirmModalData.onConfirm}
+        title={confirmModalData.title}
+        message={confirmModalData.message}
+        confirmText="Sí, Proceder al Pago"
+        cancelText="Cancelar"
+        type="info"
+      />
+
+      <LoadingModal
+        isOpen={showLoadingModal}
+        title="Procesando Pago"
+        message="Estamos preparando tu transacción"
+      />
     </div>
   );
 };
-
-
 
 export default CheckoutClase;

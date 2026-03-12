@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/header';
 import { Footer } from '../components/footer';
 import { PasswordInput } from '../components/PasswordInput';
+import { ErrorModal } from '../components/ErrorModal';
 import { useAuth } from '../context/auth_context';
 import googleAuthService from '../services/google_auth_service';
 import analyticsService from '../services/analytics_service';
 import '../styles/login.css';
-
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -17,7 +17,12 @@ export const Login = () => {
   const [password, set_password] = useState('');
   const [error, set_error] = useState('');
   const [loading, set_loading] = useState(false);
-
+  
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorModalData, setErrorModalData] = useState({
+    title: '',
+    message: ''
+  });
 
   const handle_submit = async (e) => {
     e.preventDefault();
@@ -28,86 +33,98 @@ export const Login = () => {
     set_loading(false);
 
     if (result.success) {
-      // ✅ GA4: login nativo exitoso
       analyticsService.event('login', { method: 'email_password' });
 
-      console.log('Login exitoso - Datos completos:', result);
-      console.log('Usuario:', result.data?.user);
-      console.log('Rol del usuario:', result.data?.user?.rol);
+      // Obtener el rol con normalización
+      const user_role = (result.data?.user?.rol || '').toLowerCase().trim();
+      
+      console.log('✅ Login exitoso');
+      console.log('📋 Rol del usuario:', user_role);
 
-
-      let user_role = result.data?.user?.rol || result.data?.rol || result.user?.rol;
-      console.log('Rol detectado:', user_role);
-
-
+      // Redirección basada en el rol normalizado
       if (user_role === 'admin' || user_role === 'administrador') {
-        console.log('Redirigiendo a dashboard de admin');
         navigate('/admin/dashboard');
-      } else if (user_role === 'profesor' || user_role === 'teacher') {
-        console.log('Redirigiendo a dashboard de profesor');
+      } else if (user_role === 'profesor') {
         navigate('/profesor/dashboard');
-      } else {
-        console.log('Redirigiendo a dashboard de estudiante');
+      } else if (user_role === 'estudiante') {
         navigate('/estudiante/dashboard');
+      } else {
+        console.error('❌ Rol no reconocido:', user_role);
+        setErrorModalData({
+          title: 'Rol No Reconocido',
+          message: `El rol "${user_role}" no es válido. Contacta al administrador.`
+        });
+        setShowErrorModal(true);
       }
     } else {
-      set_error(result.message);
+      let errorTitle = 'Error al Iniciar Sesión';
+      let errorMessage = result.message || 'Ocurrió un error inesperado';
+
+      if (errorMessage.toLowerCase().includes('credenciales')) {
+        errorTitle = 'Credenciales Incorrectas';
+        errorMessage = 'El correo electrónico o la contraseña son incorrectos. Por favor, verifica tus datos.';
+      } else if (errorMessage.toLowerCase().includes('usuario no encontrado')) {
+        errorTitle = 'Usuario No Encontrado';
+        errorMessage = 'No existe una cuenta asociada a este correo electrónico.';
+      } else if (errorMessage.toLowerCase().includes('conexión') || errorMessage.toLowerCase().includes('red')) {
+        errorTitle = 'Error de Conexión';
+        errorMessage = 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+      }
+
+      setErrorModalData({
+        title: errorTitle,
+        message: errorMessage
+      });
+      setShowErrorModal(true);
     }
   };
 
-
-  // NUEVO: Manejar login con Google
   const handle_google_login = async () => {
     try {
       set_error('');
       set_loading(true);
       console.log('🔐 Iniciando login con Google...');
 
-      // ✅ GA4: intento de login con Google (inicio del flujo)
       analyticsService.event('login', { method: 'google' });
 
       const result = await googleAuthService.signInWithGoogle();
 
       if (!result.success) {
-        set_error(result.message || 'Error al iniciar sesión con Google');
+        setErrorModalData({
+          title: 'Error con Google',
+          message: result.message || 'No se pudo iniciar sesión con Google. Intenta nuevamente.'
+        });
+        setShowErrorModal(true);
         set_loading(false);
       }
-      // Si es exitoso, el usuario será redirigido a Google y luego al callback
     } catch (err) {
       console.error('❌ Error al iniciar login con Google:', err);
-      set_error('Error al iniciar sesión con Google');
+      setErrorModalData({
+        title: 'Error con Google',
+        message: 'Ocurrió un error al conectar con Google. Por favor, intenta más tarde.'
+      });
+      setShowErrorModal(true);
       set_loading(false);
     }
   };
-
 
   const handle_forgot_password = (e) => {
     e.preventDefault();
     navigate('/forgot-password');
   };
 
-
   return (
     <div className="page">
       <Header />
 
-
-      {/* ÚNICO CAMBIO: main -> login-page */}
       <main className="login-page">
         <div className="login-container">
           <div className="login-card">
             <h1 className="login-title">AQUÍ INICIA ALGO GRANDE.</h1>
 
-
             <p className="login-subtitle">
               Estás dando el primer paso para transformar tu forma de aprender.
-              {error && (
-                <div className="error-message">
-                  {error}
-                </div>
-              )}
             </p>
-
 
             <form onSubmit={handle_submit} className="login-form">
               <div className="form-group">
@@ -123,7 +140,6 @@ export const Login = () => {
                 />
               </div>
 
-
               <div className="form-group">
                 <label className="form-label">Contraseña:</label>
                 <PasswordInput
@@ -136,12 +152,10 @@ export const Login = () => {
                 />
               </div>
 
-
               <button type="submit" className="btn-login" disabled={loading}>
                 {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
               </button>
             </form>
-
 
             <div className="forgot-password">
               ¿Olvidaste tu contraseña?{' '}
@@ -150,13 +164,11 @@ export const Login = () => {
               </a>
             </div>
 
-
             <div className="divider">
               <span className="divider-line"></span>
               <span className="divider-text">O Inicia Con</span>
               <span className="divider-line"></span>
             </div>
-
 
             <div className="social-login">
               <button
@@ -172,8 +184,15 @@ export const Login = () => {
         </div>
       </main>
 
-
       <Footer />
+
+      <ErrorModal
+        isOpen={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorModalData.title}
+        message={errorModalData.message}
+        buttonText="Entendido"
+      />
     </div>
   );
 };
