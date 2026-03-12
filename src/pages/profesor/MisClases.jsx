@@ -1,4 +1,4 @@
-// (ruta pendiente por confirmar en el repo, p. ej. src/pages/profesor/MisClases.jsx)
+// src/pages/profesor/MisClases.jsx
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import profesorService from '../../services/profesor_service';
@@ -21,7 +21,7 @@ const MisClases = () => {
   const [linkMeet, setLinkMeet] = useState({});
   const [asignandoMeet, setAsignandoMeet] = useState(null);
 
-  // NUEVO: Estado para validaciones en tiempo real
+  // Estado para validaciones en tiempo real
   const [erroresValidacion, setErroresValidacion] = useState({});
 
   useEffect(() => {
@@ -106,14 +106,13 @@ const MisClases = () => {
     }
   };
 
-  // MEJORADO: Validación en tiempo real mientras escribe
+  // Validación en tiempo real mientras escribe
   const handleLinkChange = (sesionId, value) => {
     setLinkMeet((prev) => ({
       ...prev,
       [sesionId]: value
     }));
 
-    // Validar en tiempo real si hay contenido
     if (value.trim()) {
       const validacion = profesorService.validarLinkMeetDetallado(value);
       setErroresValidacion((prev) => ({
@@ -121,7 +120,6 @@ const MisClases = () => {
         [sesionId]: validacion.valido ? null : validacion.mensaje
       }));
     } else {
-      // Limpiar error si está vacío
       setErroresValidacion((prev) => ({
         ...prev,
         [sesionId]: null
@@ -143,7 +141,6 @@ const MisClases = () => {
 
     console.log('🔄 Asignando Meet a sesión:', sesionId, 'Link:', link);
 
-    // Validar usando el servicio
     const validacion = profesorService.validarLinkMeetDetallado(link);
     if (!validacion.valido) {
       console.error('❌ Link inválido:', validacion.mensaje);
@@ -165,7 +162,6 @@ const MisClases = () => {
           result.message ||
             'Link de Meet asignado exitosamente. El estudiante recibirá un correo.'
         );
-        // Remover de pendientes y limpiar estados
         setClasesPendientes((prev) => prev.filter((s) => s.id !== sesionId));
         setLinkMeet((prev) => {
           const newLinks = { ...prev };
@@ -221,6 +217,8 @@ const MisClases = () => {
         <div className="clases-grid">
           {clasesAsignadas.map((sesion) => {
             const badge = profesorService.obtenerBadgeEstado(sesion.estado);
+            // Endpoint /api/profesor/clases → sesion.clase_personalizada.duracion_horas
+            const duracionHoras = profesorService.obtenerDuracionHoras(sesion);
 
             return (
               <div key={sesion.id} className="clase-card">
@@ -233,6 +231,16 @@ const MisClases = () => {
                   <div className="info-row">
                     <strong>📅 Fecha y Hora:</strong>
                     <span>{profesorService.formatearFechaHora(sesion.fecha_hora)}</span>
+                  </div>
+
+                  {/* NUEVO: Duración de la clase */}
+                  <div className="info-row">
+                    <strong>⏱️ Duración:</strong>
+                    <span>
+                      {duracionHoras != null
+                        ? `${duracionHoras} hora${duracionHoras !== 1 ? 's' : ''}`
+                        : 'No especificada'}
+                    </span>
                   </div>
 
                   <div className="info-row">
@@ -356,6 +364,9 @@ const MisClases = () => {
           const error = erroresValidacion[sesion.id];
           const linkActual = linkMeet[sesion.id] || '';
           const esValido = linkActual.trim() && !error;
+          // Endpoint /api/sesiones/pendientes → sesion.duracion_horas
+          // o sesion.compra.clase_personalizada.duracion_horas
+          const duracionHoras = profesorService.obtenerDuracionHoras(sesion);
 
           return (
             <div
@@ -371,6 +382,16 @@ const MisClases = () => {
                 <div className="info-row">
                   <strong>📅 Fecha y Hora:</strong>
                   <span>{profesorService.formatearFechaHora(sesion.fecha_hora)}</span>
+                </div>
+
+                {/* NUEVO: Duración de la clase */}
+                <div className="info-row">
+                  <strong>⏱️ Duración:</strong>
+                  <span>
+                    {duracionHoras != null
+                      ? `${duracionHoras} hora${duracionHoras !== 1 ? 's' : ''}`
+                      : 'No especificada'}
+                  </span>
                 </div>
 
                 <div className="info-row">
@@ -433,7 +454,6 @@ const MisClases = () => {
                   />
                 </div>
 
-                {/* Mensaje de error */}
                 {error && (
                   <div className="error-message">
                     <span className="error-icon">⚠️</span>
@@ -441,10 +461,9 @@ const MisClases = () => {
                   </div>
                 )}
 
-                {/* Mensaje de ayuda cuando no hay error */}
                 {!error && !linkActual.trim() && (
                   <div className="help-message">
-                    💡 Ejemplo: [https://meet.google.com/abc-defg-hij](https://meet.google.com/abc-defg-hij)
+                    💡 Ejemplo: https://meet.google.com/abc-defg-hij
                   </div>
                 )}
 
