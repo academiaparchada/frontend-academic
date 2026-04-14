@@ -1,17 +1,7 @@
-/* src/styles/login.css */
+/* src/styles/Login.css */
 
-/* Nuevo: para el main className="login-page" */
-.login-page {
-  flex: 1;
-  display: flex;
-  width: 100%;
-}
-
-/* Aísla el login de estilos globales (h1, button, etc.) */
 .login-container {
-  min-height: 100vh;
-  width: 100%;
-  flex: 1;
+  min-height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,7 +9,6 @@
   background-color: #f5f0e8;
 }
 
-/* Card centrada y consistente */
 .login-card {
   background: linear-gradient(180deg, #5b9999 0%, #3d7373 100%);
   border-radius: 2rem;
@@ -29,7 +18,6 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Evita que el h1 global (index.css) rompa el tamaño */
 .login-title {
   font-size: 2rem;
   font-weight: 700;
@@ -72,7 +60,6 @@
   font-size: 1rem;
   background-color: rgba(255, 255, 255, 0.9);
   transition: all 0.3s ease;
-  color: #2d5555;
 }
 
 .form-input:focus {
@@ -81,7 +68,6 @@
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
 }
 
-/* Blindaje contra el button global de index.css */
 .btn-login {
   padding: 1rem;
   border: none;
@@ -103,15 +89,6 @@
 
 .btn-login:active {
   transform: translateY(0);
-}
-
-.error-message {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 0.75rem 1rem;
-  border-radius: 0.75rem;
-  font-size: 0.95rem;
 }
 
 .forgot-password {
@@ -159,12 +136,11 @@
   gap: 1rem;
 }
 
-/* ✅ BOTÓN DE GOOGLE CORREGIDO */
 .btn-social {
-  width: 100%; /* ⬅️ Ocupa el mismo ancho que los inputs */
-  height: 55px;
+  width: 60px;
+  height: 60px;
   border: none;
-  border-radius: 0.5rem; /* ⬅️ Mismo border-radius que los inputs */
+  border-radius: 0.75rem;
   background-color: #ffffff;
   cursor: pointer;
   display: flex;
@@ -172,41 +148,40 @@
   justify-content: center;
   transition: all 0.3s ease;
   padding: 0;
-  gap: 0.75rem; /* Espacio entre ícono y texto si agregas texto */
 }
 
 .btn-social:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  background-color: #f8f8f8;
 }
 
 .btn-social:active {
   transform: translateY(0);
 }
 
-.btn-social:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.social-emoji {
+  font-size: 24px;
+  font-weight: 700;
 }
 
-.btn-social:disabled:hover {
-  transform: none;
-  box-shadow: none;
+.btn-microsoft .social-emoji {
+  font-size: 28px;
 }
 
-/* ✅ ÍCONO DE GOOGLE CENTRADO Y PROPORCIONADO */
-.social-icon {
-  width: 60px; /* ⬅️ Tamaño adecuado del ícono */
-  height: 60px;
-  display: block;
-  object-fit: contain;
+.btn-google .social-emoji {
+  color: #4285f4;
+  font-size: 32px;
+}
+
+.btn-facebook .social-emoji {
+  color: #1877f2;
+  font-size: 32px;
 }
 
 /* Responsive */
 @media (max-width: 640px) {
   .login-card {
-    padding: 2.5rem 2rem;
+    padding: 2rem 1.5rem;
   }
 
   .login-title {
@@ -218,21 +193,16 @@
   }
 
   .btn-social {
-    height: 52px;
+    width: 50px;
+    height: 50px;
   }
 
-  .social-icon {
-    width: 22px;
-    height: 22px;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-card {
-    padding: 2rem 1.5rem;
+  .social-emoji {
+    font-size: 20px;
   }
 
-  .login-title {
-    font-size: 1.375rem;
+  .btn-google .social-emoji,
+  .btn-facebook .social-emoji {
+    font-size: 26px;
   }
 }

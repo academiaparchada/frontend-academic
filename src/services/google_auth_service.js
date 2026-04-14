@@ -1,7 +1,7 @@
 // src/services/google_auth_service.js
 import { supabase } from '../config/supabase';
 
-const API_URL = 'https://api.parcheacademico.com/api/auth';
+const API_URL = 'https://academiaparchadaback.onrender.com';
 
 class GoogleAuthService {
   /**

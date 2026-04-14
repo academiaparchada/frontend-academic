@@ -2,7 +2,7 @@
 import { getBrowserTimeZone } from '../utils/timezone';
 
 // Backend producción
-const API_URL = 'https://api.parcheacademico.com/api/auth';
+const API_URL = 'https://academiaparchadaback.onrender.com';
 
 class AuthService {
   async register(user_data) {
