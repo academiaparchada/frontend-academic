@@ -7,7 +7,7 @@ import { SessionModalProvider } from './context/session_modal_context'; // NUEVO
 import { ProtectedRoute } from './components/ProtectedRoute'; // NUEVO
 import './index.css'
 import './styles/header.css'
-import App from './app.jsx'
+import App from './App.jsx'
 import { Login } from './pages/login.jsx'
 import { Register } from './pages/register.jsx'
 import { ForgotPassword } from './pages/forgot_password.jsx'

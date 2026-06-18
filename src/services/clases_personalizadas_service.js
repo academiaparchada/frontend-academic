@@ -1,6 +1,7 @@
 // src/services/clases_personalizadas_service.js
-const API_URL = 'https://api.parcheacademico.com/api/clases-personalizadas';
-const API_IMAGENES_URL = 'https://api.parcheacademico.com/api/imagenes/clases-personalizadas';
+import { API_BASE_URL } from './api';
+const API_URL = `${API_BASE_URL}/api/clases-personalizadas`;
+const API_IMAGENES_URL = `${API_BASE_URL}/api/imagenes/clases-personalizadas`;
 
 class ClasesPersonalizadasService {
   _getToken() {

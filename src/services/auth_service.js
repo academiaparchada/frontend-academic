@@ -1,8 +1,9 @@
 // src/services/auth_service.js
 import { getBrowserTimeZone } from '../utils/timezone';
+import { API_BASE_URL } from './api';
 
 // Backend producción
-const API_URL = 'https://academiaparchadaback.onrender.com';
+const API_URL = `${API_BASE_URL}`;
 
 class AuthService {
   async register(user_data) {
@@ -41,7 +42,7 @@ class AuthService {
 
   async login(email, password) {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

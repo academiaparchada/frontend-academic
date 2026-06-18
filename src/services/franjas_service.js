@@ -1,5 +1,6 @@
 // src/services/franjas_service.js
-const API_URL = 'https://academiaparchada.onrender.com/api/franjas-horarias';
+import { API_BASE_URL } from './api';
+const API_URL = `${API_BASE_URL}/api/franjas-horarias`;
 
 class FranjasService {
   // Obtener el token del localStorage

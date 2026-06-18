@@ -1,5 +1,6 @@
 // src/services/admin_metricas_service.js
-const API_URL = 'https://api.parcheacademico.com/api/admin/metricas';
+import { API_BASE_URL } from './api';
+const API_URL = `${API_BASE_URL}/api/admin/metricas`;
 
 class AdminMetricasService {
   _getToken() {

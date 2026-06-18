@@ -1,7 +1,8 @@
 // src/services/google_auth_service.js
 import { supabase } from '../config/supabase';
+import { API_BASE_URL } from './api';
 
-const API_URL = 'https://academiaparchadaback.onrender.com';
+const API_URL = `${API_BASE_URL}`;
 
 class GoogleAuthService {
   /**

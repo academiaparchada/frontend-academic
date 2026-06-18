@@ -1,5 +1,6 @@
 // src/services/admin_compras_service.js
-const API_URL = 'https://api.parcheacademico.com/api/admin/compras';
+import { API_BASE_URL } from './api';
+const API_URL = `${API_BASE_URL}/api/admin/compras`;
 
 class AdminComprasService {
   _getToken() {

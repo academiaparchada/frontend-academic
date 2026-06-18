@@ -1,6 +1,7 @@
 // src/services/paquetes_service.js
+import { API_BASE_URL } from './api';
 
-const API_URL = 'https://academiaparchada.onrender.com/api/paquetes-horas';
+const API_URL = `${API_BASE_URL}/api/paquetes-horas`;
 
 class PaquetesService {
   /**

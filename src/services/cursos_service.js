@@ -1,6 +1,7 @@
 // src/services/cursos_service.js
-const API_URL = 'https://academiaparchada.onrender.com/api/cursos';
-const API_IMAGENES_CURSOS_URL = 'https://academiaparchada.onrender.com/api/imagenes/cursos';
+import { API_BASE_URL } from './api';
+const API_URL = `${API_BASE_URL}/api/cursos`;
+const API_IMAGENES_CURSOS_URL = `${API_BASE_URL}/api/imagenes/cursos`;
 
 class CursosService {
   _getToken() {
